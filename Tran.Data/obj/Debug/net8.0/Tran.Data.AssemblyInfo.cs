@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Tran.Data")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e5ff59ce079db31c002c430088c7550f8bd0fa05")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+828e22272eec8b0a6d445d7349cba01bd0a91d80")]
 [assembly: System.Reflection.AssemblyProductAttribute("Tran.Data")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Tran.Data")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
