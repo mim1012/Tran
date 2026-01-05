@@ -206,7 +206,7 @@
                 <Border Grid.Row="2" Background="#ECF0F1" Padding="15" BorderBrush="#BDC3C7" BorderThickness="0,1,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                 <Button Content="신규 거래명세표" Padding="15,8" Margin="0,0,10,0"
-                       Background="#27AE60" Foreground="White" BorderThickness="0"
+                       Background="#3498DB" Foreground="White" BorderThickness="0"
                        FontWeight="Bold" Cursor="Hand"/>
                 <Button Content="열기" Padding="15,8" Margin="0,0,10,0"
                        Background="#3498DB" Foreground="White" BorderThickness="0"
