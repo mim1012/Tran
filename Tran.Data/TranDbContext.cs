@@ -22,6 +22,7 @@ public class TranDbContext : DbContext
     public DbSet<DocumentStateLog> DocumentStateLogs => Set<DocumentStateLog>();
     public DbSet<RevisionRequest> RevisionRequests => Set<RevisionRequest>();
     public DbSet<Settlement> Settlements => Set<Settlement>();
+    public DbSet<DocumentTemplate> DocumentTemplates => Set<DocumentTemplate>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -66,6 +67,9 @@ public class TranDbContext : DbContext
             entity.Property(e => e.Quantity).HasColumnType("decimal(18,2)");
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
             entity.Property(e => e.LineAmount).HasColumnType("decimal(18,2)");
+
+            // ExtraDataJson - SQLite는 TEXT 타입 자동 사용
+            entity.Property(e => e.ExtraDataJson);
         });
 
         // DocumentStateLogs - 분쟁 시 최종 증빙
@@ -93,6 +97,32 @@ public class TranDbContext : DbContext
             entity.HasKey(e => e.SettlementId);
             entity.Property(e => e.CompanyId).IsRequired();
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)");
+        });
+
+        // DocumentTemplate 설정
+        modelBuilder.Entity<DocumentTemplate>(entity =>
+        {
+            entity.HasKey(e => e.TemplateId);
+
+            entity.HasOne(e => e.Company)
+                .WithMany()
+                .HasForeignKey(e => e.CompanyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.Property(e => e.TemplateName)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            // SchemaJson - SQLite는 TEXT 타입 자동 사용
+            entity.Property(e => e.SchemaJson)
+                .IsRequired();
+
+            // LayoutJson - SQLite는 TEXT 타입 자동 사용
+            entity.Property(e => e.LayoutJson)
+                .IsRequired();
+
+            entity.HasIndex(e => new { e.CompanyId, e.TemplateType, e.IsActive })
+                .HasDatabaseName("idx_document_templates_company_type_active");
         });
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Tran.Core.Models;
 
 namespace Tran.Data;
 
@@ -15,6 +16,9 @@ public static class DatabaseInitializer
     {
         // 데이터베이스가 없으면 생성하고 스키마 적용
         context.Database.EnsureCreated();
+
+        // 샘플 데이터는 App.xaml.cs의 CreateSampleData에서 추가
+        // (외래 키 제약 조건 순서를 지키기 위해)
     }
 
     /// <summary>
