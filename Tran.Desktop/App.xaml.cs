@@ -127,6 +127,34 @@ public partial class App : Application
 
         context.DocumentItems.Add(item1);
 
+        // 샘플 템플릿 추가 (Companies를 먼저 추가한 후에)
+        var defaultTemplate = new DocumentTemplate
+        {
+            TemplateId = "TPL-DEFAULT-001",
+            CompanyId = company1.CompanyId,
+            TemplateName = "기본 거래명세표",
+            TemplateType = TemplateType.Statement,
+            SchemaJson = @"{
+                ""fields"": [
+                    {""key"": ""item_name"", ""label"": ""상품명"", ""type"": ""text"", ""required"": true},
+                    {""key"": ""quantity"", ""label"": ""수량"", ""type"": ""number"", ""required"": true},
+                    {""key"": ""unit_price"", ""label"": ""단가"", ""type"": ""currency"", ""required"": true},
+                    {""key"": ""option_text"", ""label"": ""옵션"", ""type"": ""text"", ""required"": false}
+                ]
+            }",
+            LayoutJson = @"{
+                ""columns"": [
+                    {""field"": ""item_name"", ""width"": ""40%""},
+                    {""field"": ""quantity"", ""width"": ""15%""},
+                    {""field"": ""unit_price"", ""width"": ""20%""},
+                    {""field"": ""option_text"", ""width"": ""25%""}
+                ]
+            }",
+            IsActive = true
+        };
+
+        context.DocumentTemplates.Add(defaultTemplate);
+
         // 변경사항 저장
         context.SaveChanges();
     }

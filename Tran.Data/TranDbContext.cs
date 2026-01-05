@@ -68,8 +68,8 @@ public class TranDbContext : DbContext
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
             entity.Property(e => e.LineAmount).HasColumnType("decimal(18,2)");
 
-            entity.Property(e => e.ExtraDataJson)
-                .HasColumnType("nvarchar(max)");
+            // ExtraDataJson - SQLite는 TEXT 타입 자동 사용
+            entity.Property(e => e.ExtraDataJson);
         });
 
         // DocumentStateLogs - 분쟁 시 최종 증빙
@@ -113,13 +113,13 @@ public class TranDbContext : DbContext
                 .IsRequired()
                 .HasMaxLength(200);
 
+            // SchemaJson - SQLite는 TEXT 타입 자동 사용
             entity.Property(e => e.SchemaJson)
-                .IsRequired()
-                .HasColumnType("nvarchar(max)");
+                .IsRequired();
 
+            // LayoutJson - SQLite는 TEXT 타입 자동 사용
             entity.Property(e => e.LayoutJson)
-                .IsRequired()
-                .HasColumnType("nvarchar(max)");
+                .IsRequired();
 
             entity.HasIndex(e => new { e.CompanyId, e.TemplateType, e.IsActive })
                 .HasDatabaseName("idx_document_templates_company_type_active");

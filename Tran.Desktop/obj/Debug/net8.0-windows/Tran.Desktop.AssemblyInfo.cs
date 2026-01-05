@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Tran.Desktop")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4ef5d340d60b7b481568714f2a4e1f2d585aa181")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e12028031475b226906e2cedd9220c01d4b1b3a7")]
 [assembly: System.Reflection.AssemblyProductAttribute("Tran.Desktop")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Tran.Desktop")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
