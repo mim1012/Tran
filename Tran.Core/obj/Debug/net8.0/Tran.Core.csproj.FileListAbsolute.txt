@@ -1,0 +1,12 @@
+D:\Project\Tran\Tran.Core\bin\Debug\net8.0\Tran.Core.deps.json
+D:\Project\Tran\Tran.Core\bin\Debug\net8.0\Tran.Core.dll
+D:\Project\Tran\Tran.Core\bin\Debug\net8.0\Tran.Core.pdb
+D:\Project\Tran\Tran.Core\obj\Debug\net8.0\Tran.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\Project\Tran\Tran.Core\obj\Debug\net8.0\Tran.Core.AssemblyInfoInputs.cache
+D:\Project\Tran\Tran.Core\obj\Debug\net8.0\Tran.Core.AssemblyInfo.cs
+D:\Project\Tran\Tran.Core\obj\Debug\net8.0\Tran.Core.csproj.CoreCompileInputs.cache
+D:\Project\Tran\Tran.Core\obj\Debug\net8.0\Tran.Core.sourcelink.json
+D:\Project\Tran\Tran.Core\obj\Debug\net8.0\Tran.Core.dll
+D:\Project\Tran\Tran.Core\obj\Debug\net8.0\refint\Tran.Core.dll
+D:\Project\Tran\Tran.Core\obj\Debug\net8.0\Tran.Core.pdb
+D:\Project\Tran\Tran.Core\obj\Debug\net8.0\ref\Tran.Core.dll

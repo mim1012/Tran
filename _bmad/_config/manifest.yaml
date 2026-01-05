@@ -1,0 +1,11 @@
+installation:
+  version: 6.0.0-alpha.22
+  installDate: 2026-01-05T15:03:31.769Z
+  lastUpdated: 2026-01-05T15:03:31.769Z
+modules:
+  - core
+  - bmm
+ides:
+  - claude-code
+  - opencode
+  - gemini
