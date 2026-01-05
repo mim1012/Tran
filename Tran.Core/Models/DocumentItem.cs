@@ -31,6 +31,13 @@ public class DocumentItem
     public decimal LineAmount { get; set; }
 
     /// <summary>
+    /// 양식별 확장 필드 (JSON)
+    /// 예: {"origin": "대한민국", "spec": "128GB"}
+    /// DB 컬럼 변경 없이 회사별 추가 필드 지원
+    /// </summary>
+    public string? ExtraDataJson { get; set; }
+
+    /// <summary>
     /// 라인 금액 계산
     /// </summary>
     public void CalculateLineAmount()
