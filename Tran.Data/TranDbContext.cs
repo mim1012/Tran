@@ -33,6 +33,17 @@ public class TranDbContext : DbContext
         {
             entity.HasKey(e => e.CompanyId);
             entity.Property(e => e.CompanyName).IsRequired();
+            entity.Property(e => e.BusinessNumber).IsRequired();
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            // BusinessNumber 중복 체크를 위한 인덱스
+            entity.HasIndex(e => e.BusinessNumber)
+                .HasDatabaseName("idx_companies_business_number")
+                .IsUnique();
+
+            // 활성 거래처 조회를 위한 인덱스
+            entity.HasIndex(e => e.IsActive)
+                .HasDatabaseName("idx_companies_is_active");
         });
 
         // Users

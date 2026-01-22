@@ -14,7 +14,9 @@ public static class DatabaseInitializer
     /// </summary>
     public static void Initialize(TranDbContext context)
     {
-        // 데이터베이스가 없으면 생성하고 스키마 적용
+        // 개발 단계: 기존 DB 삭제하고 새로 생성 (스키마 변경 대응)
+        // 프로덕션에서는 마이그레이션 사용 필요
+        context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
         // 샘플 데이터는 App.xaml.cs의 CreateSampleData에서 추가

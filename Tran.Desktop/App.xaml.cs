@@ -45,18 +45,26 @@ public partial class App : Application
         {
             CompanyId = "COMP001",
             CompanyName = "서울상사",
-            ContactName = "김철수",
-            ContactPhone = "02-1234-5678",
-            Status = CompanyStatus.Active
+            BusinessNumber = "123-45-67890",
+            Representative = "김철수",
+            Contact = "02-1234-5678",
+            Address = "서울특별시 강남구 테헤란로 123",
+            IsActive = true,
+            Status = CompanyStatus.Active,
+            CreatedAt = DateTime.UtcNow
         };
 
         var company2 = new Company
         {
             CompanyId = "COMP002",
             CompanyName = "부산무역",
-            ContactName = "이영희",
-            ContactPhone = "051-9876-5432",
-            Status = CompanyStatus.Active
+            BusinessNumber = "234-56-78901",
+            Representative = "이영희",
+            Contact = "051-9876-5432",
+            Address = "부산광역시 해운대구 센텀로 456",
+            IsActive = true,
+            Status = CompanyStatus.Active,
+            CreatedAt = DateTime.UtcNow
         };
 
         context.Companies.AddRange(company1, company2);
