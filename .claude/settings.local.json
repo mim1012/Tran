@@ -1,16 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mkdir:*)",
-      "SlashCommand(/bmad:core:workflows:party-mode)",
-      "Bash(dotnet:*)",
-      "Bash(ls:*)",
-      "Bash(sqlite3:*)",
-      "Bash(git add:*)",
-      "Bash(git rev-parse:*)",
-      "Bash(git init:*)"
-    ],
-    "deny": [],
-    "ask": []
+      "Bash(git clone:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: Add PRD and feature specifications with product master \\(buy/sell\\)\n\n- Add main PRD document \\(docs/prd.md\\) with 11 sections\n- Add feature specs for common UX, document management, order management\n- Add inventory/finance and user permission specifications\n- Add product master with Buy/Sell/Both transaction types\n- Product selection modal filters by transaction type per screen\n- Integrate product modal references across all feature documents\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push)",
+      "Bash(git pull:*)",
+      "Bash(git add:*)"
+    ]
   }
 }

@@ -2,8 +2,13 @@
 
 > **버전**: 1.0
 > **작성일**: 2026-01-23
+> **구현 단계**: Phase 2 (향후 확장)
 > **대상**: 개발자, UI/UX 디자이너
 > **관련 문서**: `docs/prd.md` (Section 0), `docs/features/00-common-ux.md`
+>
+> **참고**: 현재 구현 대상은 Phase 1 (거래처 고정 모드)입니다.
+> Phase 1에서 `CompanyContextService.CurrentCompany`를 탭별 상태로 분리하면
+> 본 문서의 탭 기반 MDI로 확장 가능합니다.
 
 ---
 
