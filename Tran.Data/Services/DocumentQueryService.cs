@@ -23,39 +23,28 @@ public class DocumentQueryService : IDocumentQueryService
     /// </summary>
     public async Task<List<SettlementSummary>> GetSettlementSummariesAsync(DateTime fromDate, DateTime toDate)
     {
-        // Confirmed 상태만 집계 대상
-        var summaries = await _context.Documents
+        // Confirmed 상태만 집계 대상 - Join으로 N+1 쿼리 방지
+        var result = await _context.Documents
             .Where(d => d.State == DocumentState.Confirmed)
             .Where(d => d.TransactionDate >= fromDate && d.TransactionDate <= toDate)
-            .GroupBy(d => d.ToCompanyId)
-            .Select(g => new
+            .Join(
+                _context.Companies,
+                d => d.ToCompanyId,
+                c => c.CompanyId,
+                (d, c) => new { Document = d, Company = c })
+            .GroupBy(x => new { x.Company.CompanyId, x.Company.CompanyName })
+            .Select(g => new SettlementSummary
             {
-                CompanyId = g.Key,
+                CompanyId = g.Key.CompanyId,
+                CompanyName = g.Key.CompanyName,
                 TotalCount = g.Count(),
-                TotalAmount = g.Sum(x => x.TotalAmount),
-                AverageAmount = g.Average(x => x.TotalAmount)
+                TotalAmount = g.Sum(x => x.Document.TotalAmount),
+                AverageAmount = g.Average(x => x.Document.TotalAmount)
             })
+            .OrderByDescending(x => x.TotalAmount)
             .ToListAsync();
 
-        // Company 정보 조인
-        var result = new List<SettlementSummary>();
-        foreach (var summary in summaries)
-        {
-            var company = await _context.Companies
-                .Where(c => c.CompanyId == summary.CompanyId)
-                .FirstOrDefaultAsync();
-
-            result.Add(new SettlementSummary
-            {
-                CompanyId = summary.CompanyId,
-                CompanyName = company?.CompanyName ?? "(알 수 없음)",
-                TotalCount = summary.TotalCount,
-                TotalAmount = summary.TotalAmount,
-                AverageAmount = summary.AverageAmount
-            });
-        }
-
-        return result.OrderByDescending(x => x.TotalAmount).ToList();
+        return result;
     }
 
     /// <summary>

@@ -45,5 +45,16 @@ public class StateTransitionResult
 {
     public bool Success { get; set; }
     public string? ErrorMessage { get; set; }
-    public DocumentStateLog? StateLog { get; set; }
+
+    /// <summary>
+    /// 상태 전이 시 생성된 감사 로그 목록.
+    /// RevisionRequested→Draft 시 2건 (Superseded 로그 + 새 Draft 로그)
+    /// </summary>
+    public List<DocumentStateLog> StateLogs { get; set; } = new();
+
+    /// <summary>
+    /// RevisionRequested→Draft 전이 시 생성되는 새 버전 문서.
+    /// 호출자는 이 문서를 DB에 저장하고, 원본 문서는 Superseded로 처리해야 함.
+    /// </summary>
+    public Document? NewVersionDocument { get; set; }
 }

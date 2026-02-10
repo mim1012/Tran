@@ -15,32 +15,47 @@ namespace Tran.Desktop.ViewModels;
 /// </summary>
 public class DocumentDetailViewModel : ViewModelBase
 {
-    private Document _document;
+    private Document? _document;
     private DocumentState _state;
     private readonly IStateTransitionService _stateTransitionService;
-    private readonly string _currentUser = "SYSTEM"; // TODO: 실제 로그인 사용자 정보
+    private string CurrentUser => UserContext.CurrentUserId;
+    private bool _isLoaded;
+
+    public bool IsLoaded
+    {
+        get => _isLoaded;
+        private set
+        {
+            if (SetProperty(ref _isLoaded, value))
+            {
+                RaiseAllPermissionProperties();
+            }
+        }
+    }
 
     public DocumentDetailViewModel(string documentId)
     {
         _stateTransitionService = new StateTransitionService();
-        LoadDocumentAsync(documentId).GetAwaiter().GetResult();
 
         // Commands 초기화
-        SendCommand = new RelayCommand(OnSend, () => CanSend);
-        ConfirmCommand = new RelayCommand(OnConfirm, () => CanConfirm);
-        RequestRevisionCommand = new RelayCommand(OnRequestRevision, () => CanRequestRevision);
+        SendCommand = new AsyncRelayCommand(OnSendAsync, () => IsLoaded && CanSend);
+        ReceiveCommand = new AsyncRelayCommand(OnReceiveAsync, () => IsLoaded && CanReceive);
+        ConfirmCommand = new AsyncRelayCommand(OnConfirmAsync, () => IsLoaded && CanConfirm);
+        RequestRevisionCommand = new AsyncRelayCommand(OnRequestRevisionAsync, () => IsLoaded && CanRequestRevision);
         CloseCommand = new RelayCommand<Window>(OnClose);
+
+        _ = LoadDocumentAsync(documentId);
     }
 
     #region Document Properties
 
-    public string DocumentId => _document.DocumentId;
-    public string FromCompanyId => _document.FromCompanyId;
-    public string ToCompanyId => _document.ToCompanyId;
-    public decimal TotalAmount => _document.TotalAmount;
-    public DateTime TransactionDate => _document.TransactionDate;
-    public int VersionNumber => _document.VersionNumber;
-    public DateTime CreatedAt => _document.CreatedAt;
+    public string DocumentId => _document?.DocumentId ?? string.Empty;
+    public string FromCompanyId => _document?.FromCompanyId ?? string.Empty;
+    public string ToCompanyId => _document?.ToCompanyId ?? string.Empty;
+    public decimal TotalAmount => _document?.TotalAmount ?? 0;
+    public DateTime TransactionDate => _document?.TransactionDate ?? DateTime.MinValue;
+    public int VersionNumber => _document?.VersionNumber ?? 0;
+    public DateTime CreatedAt => _document?.CreatedAt ?? DateTime.MinValue;
 
     /// <summary>
     /// 품목 목록
@@ -70,6 +85,11 @@ public class DocumentDetailViewModel : ViewModelBase
     /// 전송 가능 여부 (Draft만)
     /// </summary>
     public bool CanSend => State == DocumentState.Draft;
+
+    /// <summary>
+    /// 수신 가능 여부 (Sent만)
+    /// </summary>
+    public bool CanReceive => State == DocumentState.Sent;
 
     /// <summary>
     /// 확정 가능 여부 (Received만)
@@ -145,11 +165,12 @@ public class DocumentDetailViewModel : ViewModelBase
     #region Commands
 
     public ICommand SendCommand { get; }
+    public ICommand ReceiveCommand { get; }
     public ICommand ConfirmCommand { get; }
     public ICommand RequestRevisionCommand { get; }
     public ICommand CloseCommand { get; }
 
-    private async void OnSend()
+    private async Task OnSendAsync()
     {
         var result = MessageBox.Show(
             "이 문서를 전송하시겠습니까?",
@@ -163,7 +184,21 @@ public class DocumentDetailViewModel : ViewModelBase
         }
     }
 
-    private async void OnConfirm()
+    private async Task OnReceiveAsync()
+    {
+        var result = MessageBox.Show(
+            "이 문서를 수신 처리하시겠습니까?",
+            "수신 확인",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result == MessageBoxResult.Yes)
+        {
+            await TransitionStateAsync(DocumentState.Received, "수신");
+        }
+    }
+
+    private async Task OnConfirmAsync()
     {
         var result = MessageBox.Show(
             "이 문서를 확정하시겠습니까? 확정 후에는 수정할 수 없습니다.",
@@ -177,7 +212,7 @@ public class DocumentDetailViewModel : ViewModelBase
         }
     }
 
-    private async void OnRequestRevision()
+    private async Task OnRequestRevisionAsync()
     {
         // TODO: 수정 요청 사유 입력 창
         await TransitionStateAsync(DocumentState.RevisionRequested, "수정 요청");
@@ -194,11 +229,7 @@ public class DocumentDetailViewModel : ViewModelBase
 
     private async Task LoadDocumentAsync(string documentId)
     {
-        var options = new DbContextOptionsBuilder<TranDbContext>()
-            .UseSqlite("Data Source=tran.db")
-            .Options;
-
-        using var context = new TranDbContext(options);
+        using var context = DbContextFactory.Create();
 
         _document = await context.Documents
             .FirstOrDefaultAsync(d => d.DocumentId == documentId)
@@ -217,6 +248,16 @@ public class DocumentDetailViewModel : ViewModelBase
         {
             Items.Add(DocumentItemDisplay.FromDocumentItem(item));
         }
+
+        // 로드 완료 후 UI 갱신
+        IsLoaded = true;
+        RaisePropertyChanged(nameof(DocumentId));
+        RaisePropertyChanged(nameof(FromCompanyId));
+        RaisePropertyChanged(nameof(ToCompanyId));
+        RaisePropertyChanged(nameof(TotalAmount));
+        RaisePropertyChanged(nameof(TransactionDate));
+        RaisePropertyChanged(nameof(VersionNumber));
+        RaisePropertyChanged(nameof(CreatedAt));
     }
 
     /// <summary>
@@ -226,11 +267,13 @@ public class DocumentDetailViewModel : ViewModelBase
     {
         try
         {
+            if (_document == null) return;
+
             // 1. StateTransitionService를 통한 상태 전이
             var transitionResult = await _stateTransitionService.TransitionAsync(
                 _document,
                 toState,
-                _currentUser,
+                CurrentUser,
                 $"{actionName} 작업");
 
             if (!transitionResult.Success)
@@ -244,26 +287,50 @@ public class DocumentDetailViewModel : ViewModelBase
             }
 
             // 2. DB에 저장
-            var options = new DbContextOptionsBuilder<TranDbContext>()
-                .UseSqlite("Data Source=tran.db")
-                .Options;
-
-            using var context = new TranDbContext(options);
+            using var context = DbContextFactory.Create();
 
             // Document 업데이트
             context.Documents.Attach(_document);
             context.Entry(_document).State = EntityState.Modified;
 
-            // StateLog 저장
-            if (transitionResult.StateLog != null)
+            // StateLogs 저장
+            if (transitionResult.StateLogs.Count > 0)
             {
-                context.DocumentStateLogs.Add(transitionResult.StateLog);
+                context.DocumentStateLogs.AddRange(transitionResult.StateLogs);
+            }
+
+            // 새 버전 문서가 생성된 경우 (RevisionRequested→Draft)
+            if (transitionResult.NewVersionDocument != null)
+            {
+                // 원본 문서의 품목을 새 버전으로 복사
+                var originalItems = await context.DocumentItems
+                    .Where(i => i.DocumentId == _document.DocumentId)
+                    .ToListAsync();
+
+                foreach (var item in originalItems)
+                {
+                    context.DocumentItems.Add(new DocumentItem
+                    {
+                        ItemId = item.ItemId.Replace(_document.DocumentId, transitionResult.NewVersionDocument.DocumentId),
+                        DocumentId = transitionResult.NewVersionDocument.DocumentId,
+                        ItemName = item.ItemName,
+                        OptionText = item.OptionText,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice,
+                        LineAmount = item.LineAmount,
+                        ExtraDataJson = item.ExtraDataJson
+                    });
+                }
+
+                context.Documents.Add(transitionResult.NewVersionDocument);
             }
 
             await context.SaveChangesAsync();
 
             // 3. UI 업데이트
-            State = toState;
+            State = transitionResult.NewVersionDocument != null
+                ? DocumentState.Superseded
+                : toState;
 
             // 4. 성공 메시지
             MessageBox.Show(
@@ -271,6 +338,14 @@ public class DocumentDetailViewModel : ViewModelBase
                 $"{actionName} 완료",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            MessageBox.Show(
+                "다른 곳에서 이미 문서 상태가 변경되었습니다. 문서를 다시 열어주세요.",
+                "동시 수정 충돌",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
         catch (Exception ex)
         {
@@ -285,6 +360,7 @@ public class DocumentDetailViewModel : ViewModelBase
     private void RaiseAllPermissionProperties()
     {
         RaisePropertyChanged(nameof(CanSend));
+        RaisePropertyChanged(nameof(CanReceive));
         RaisePropertyChanged(nameof(CanConfirm));
         RaisePropertyChanged(nameof(CanRequestRevision));
         RaisePropertyChanged(nameof(CanEdit));

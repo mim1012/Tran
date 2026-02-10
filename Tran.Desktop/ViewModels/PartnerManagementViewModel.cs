@@ -13,27 +13,25 @@ namespace Tran.Desktop.ViewModels;
 /// </summary>
 public class PartnerManagementViewModel : ViewModelBase
 {
-    private readonly TranDbContext _context;
     private ObservableCollection<Company> _companies;
     private Company? _selectedCompany;
     private string _searchText = string.Empty;
     private bool _showInactiveCompanies = false;
 
-    public PartnerManagementViewModel(TranDbContext context)
+    public PartnerManagementViewModel()
     {
-        _context = context;
         _companies = new ObservableCollection<Company>();
 
         // Commands
-        LoadCompaniesCommand = new RelayCommand(async () => await LoadCompaniesAsync());
+        LoadCompaniesCommand = new AsyncRelayCommand(LoadCompaniesAsync);
         AddCompanyCommand = new RelayCommand(AddCompany);
         EditCompanyCommand = new RelayCommand(EditCompany, () => SelectedCompany != null);
         DeactivateCompanyCommand = new RelayCommand(DeactivateCompany, CanDeactivate);
         ReactivateCompanyCommand = new RelayCommand(ReactivateCompany, CanReactivate);
-        SearchCommand = new RelayCommand(async () => await SearchCompaniesAsync());
+        SearchCommand = new AsyncRelayCommand(SearchCompaniesAsync);
 
         // 초기 로딩
-        Task.Run(async () => await LoadCompaniesAsync());
+        _ = LoadCompaniesAsync();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -76,7 +74,7 @@ public class PartnerManagementViewModel : ViewModelBase
         {
             if (SetProperty(ref _showInactiveCompanies, value))
             {
-                Task.Run(async () => await LoadCompaniesAsync());
+                _ = LoadCompaniesAsync();
             }
         }
     }
@@ -126,6 +124,11 @@ public class PartnerManagementViewModel : ViewModelBase
     // Business Logic
     // ═══════════════════════════════════════════════════════════
 
+    private TranDbContext CreateDbContext()
+    {
+        return DbContextFactory.Create();
+    }
+
     /// <summary>
     /// 거래처 목록 로딩
     /// </summary>
@@ -133,7 +136,8 @@ public class PartnerManagementViewModel : ViewModelBase
     {
         try
         {
-            var query = _context.Companies.AsQueryable();
+            using var context = CreateDbContext();
+            var query = context.Companies.AsQueryable();
 
             // 필터: 활성/비활성
             if (!ShowInactiveCompanies)
@@ -167,7 +171,8 @@ public class PartnerManagementViewModel : ViewModelBase
     {
         try
         {
-            var query = _context.Companies.AsQueryable();
+            using var context = CreateDbContext();
+            var query = context.Companies.AsQueryable();
 
             // 필터: 활성/비활성
             if (!ShowInactiveCompanies)
@@ -237,7 +242,7 @@ public class PartnerManagementViewModel : ViewModelBase
     /// <summary>
     /// 거래처 비활성화 (Soft Delete)
     /// </summary>
-    private void DeactivateCompany()
+    private async void DeactivateCompany()
     {
         if (SelectedCompany == null || !SelectedCompany.IsActive) return;
 
@@ -251,20 +256,30 @@ public class PartnerManagementViewModel : ViewModelBase
 
         if (result == MessageBoxResult.Yes)
         {
-            SelectedCompany.IsActive = false;
-            SelectedCompany.Status = CompanyStatus.Inactive;
-            _context.SaveChanges();
+            try
+            {
+                using var context = CreateDbContext();
+                var company = await context.Companies.FindAsync(SelectedCompany.CompanyId);
+                if (company != null)
+                {
+                    company.IsActive = false;
+                    await context.SaveChangesAsync();
+                }
 
-            Task.Run(async () => await LoadCompaniesAsync());
-
-            MessageBox.Show("거래처가 비활성화되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                await LoadCompaniesAsync();
+                MessageBox.Show("거래처가 비활성화되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"비활성화 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 
     /// <summary>
     /// 거래처 재활성화
     /// </summary>
-    private void ReactivateCompany()
+    private async void ReactivateCompany()
     {
         if (SelectedCompany == null || SelectedCompany.IsActive) return;
 
@@ -276,13 +291,23 @@ public class PartnerManagementViewModel : ViewModelBase
 
         if (result == MessageBoxResult.Yes)
         {
-            SelectedCompany.IsActive = true;
-            SelectedCompany.Status = CompanyStatus.Active;
-            _context.SaveChanges();
+            try
+            {
+                using var context = CreateDbContext();
+                var company = await context.Companies.FindAsync(SelectedCompany.CompanyId);
+                if (company != null)
+                {
+                    company.IsActive = true;
+                    await context.SaveChangesAsync();
+                }
 
-            Task.Run(async () => await LoadCompaniesAsync());
-
-            MessageBox.Show("거래처가 활성화되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                await LoadCompaniesAsync();
+                MessageBox.Show("거래처가 활성화되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"활성화 실패: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

@@ -57,4 +57,9 @@ public class Document
     /// 내부 메모 (상대방 비공개)
     /// </summary>
     public string? InternalMemo { get; set; }
+
+    /// <summary>
+    /// 품목 목록 (Navigation Property)
+    /// </summary>
+    public List<DocumentItem> Items { get; set; } = new();
 }
