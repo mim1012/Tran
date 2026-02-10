@@ -328,27 +328,20 @@ public class InventoryViewModel : ViewModelBase
     /// 실제 UI에서는 다이얼로그를 통해 조정 수량/사유를 입력받지만,
     /// 현재는 SelectedProduct 기반으로 처리
     /// </summary>
-    private async Task ExecuteAdjustInventoryAsync()
+    private Task ExecuteAdjustInventoryAsync()
     {
         if (SelectedProduct == null)
         {
             StatusMessage = "품목을 선택해 주세요.";
-            return;
+            return Task.CompletedTask;
         }
 
-        try
-        {
-            // TODO: 실제 UI에서는 MessageBox/다이얼로그로 수량/사유 입력
-            // 여기서는 ViewModel 레벨의 조정 메서드만 제공
-            // View 레이어에서 다이얼로그 처리 후 AdjustInventoryAsync 호출
+        // TODO: 실제 UI에서는 MessageBox/다이얼로그로 수량/사유 입력
+        // 여기서는 ViewModel 레벨의 조정 메서드만 제공
+        // View 레이어에서 다이얼로그 처리 후 AdjustInventoryAsync 호출
 
-            StatusMessage = "재고 조정 다이얼로그를 열어주세요.";
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"재고 조정 실패: {ex.Message}";
-            System.Diagnostics.Debug.WriteLine($"재고 조정 실패: {ex.Message}");
-        }
+        StatusMessage = "재고 조정 다이얼로그를 열어주세요.";
+        return Task.CompletedTask;
     }
 
     /// <summary>
