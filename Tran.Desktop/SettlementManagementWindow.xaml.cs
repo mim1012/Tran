@@ -16,6 +16,9 @@ public partial class SettlementManagementWindow : Window
         InitializeComponent();
         DataContext = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
 
+        // 창 닫힐 때 ViewModel 리소스 해제
+        Closed += (s, e) => (DataContext as SettlementManagementViewModel)?.Dispose();
+
         // 초기 데이터 로드
         Loaded += async (s, e) =>
         {

@@ -1,6 +1,4 @@
 using System.Windows;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Tran.Data;
 using Tran.Desktop.ViewModels;
 
@@ -20,17 +18,15 @@ public partial class TemplateManagementWindow : Window
     {
         InitializeComponent();
 
-        // DbContext 생성 (DI 컨테이너 없이 직접 생성)
-        var optionsBuilder = new DbContextOptionsBuilder<TranDbContext>();
-        optionsBuilder.UseSqlite("Data Source=tran.db");
-        var dbContext = new TranDbContext(optionsBuilder.Options);
-
         // ViewModel 초기화
-        _viewModel = new TemplateManagementViewModel(dbContext);
+        _viewModel = new TemplateManagementViewModel();
         DataContext = _viewModel;
 
         // 비동기 로드
         Loaded += async (s, e) => await _viewModel.InitializeAsync();
+
+        // 창 닫힐 때 ViewModel 리소스 해제
+        Closed += (s, e) => _viewModel.Dispose();
     }
 
     /// <summary>

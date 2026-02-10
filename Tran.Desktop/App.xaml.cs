@@ -1,7 +1,6 @@
 ﻿using System.Configuration;
 using System.Data;
 using System.Windows;
-using Microsoft.EntityFrameworkCore;
 using Tran.Data;
 using Tran.Core.Models;
 
@@ -22,11 +21,7 @@ public partial class App : Application
 
     private void InitializeDatabase()
     {
-        var options = new DbContextOptionsBuilder<TranDbContext>()
-            .UseSqlite("Data Source=tran.db")
-            .Options;
-
-        using var context = new TranDbContext(options);
+        using var context = DbContextFactory.Create();
 
         // 데이터베이스 생성
         DatabaseInitializer.Initialize(context);
@@ -50,7 +45,6 @@ public partial class App : Application
             Contact = "02-1234-5678",
             Address = "서울특별시 강남구 테헤란로 123",
             IsActive = true,
-            Status = CompanyStatus.Active,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -63,7 +57,6 @@ public partial class App : Application
             Contact = "051-9876-5432",
             Address = "부산광역시 해운대구 센텀로 456",
             IsActive = true,
-            Status = CompanyStatus.Active,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -165,6 +158,9 @@ public partial class App : Application
 
         // 변경사항 저장
         context.SaveChanges();
+
+        // ERP 샘플 데이터 추가 (품목, 재고, 판매, 발주)
+        DatabaseInitializer.CreateErpSampleData(context);
     }
 }
 

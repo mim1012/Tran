@@ -48,6 +48,16 @@ public class StateTransitionService : IStateTransitionService
         string changedBy,
         string? reason = null)
     {
+        // 0. UserContext 초기화 여부 검증
+        if (!UserContext.IsInitialized)
+        {
+            return new StateTransitionResult
+            {
+                Success = false,
+                ErrorMessage = "사용자 정보가 설정되지 않았습니다. 거래처를 먼저 선택해주세요."
+            };
+        }
+
         // 1. 전이 가능 여부 검증
         if (!CanTransition(document.State, toState))
         {
@@ -61,11 +71,77 @@ public class StateTransitionService : IStateTransitionService
         // 2. 이전 상태 저장
         var fromState = document.State;
 
-        // 3. 상태 전이 실행
+        // 3. RevisionRequested→Draft 특수 처리: 새 버전 생성
+        Document? newVersionDocument = null;
+        if (fromState == DocumentState.RevisionRequested && toState == DocumentState.Draft)
+        {
+            // 원본 문서를 Superseded로 변경
+            document.State = DocumentState.Superseded;
+            document.StateVersion++;
+
+            // 새 버전 문서 생성 - 기존 -V 접미사를 strip하여 중첩 방지
+            var baseDocumentId = document.DocumentId;
+            var vSuffixIndex = baseDocumentId.LastIndexOf("-V", StringComparison.Ordinal);
+            if (vSuffixIndex >= 0)
+            {
+                baseDocumentId = baseDocumentId[..vSuffixIndex];
+            }
+
+            newVersionDocument = new Document
+            {
+                DocumentId = $"{baseDocumentId}-V{document.VersionNumber + 1}",
+                ParentDocumentId = document.DocumentId,
+                VersionNumber = document.VersionNumber + 1,
+                FromCompanyId = document.FromCompanyId,
+                ToCompanyId = document.ToCompanyId,
+                State = DocumentState.Draft,
+                StateVersion = 0,
+                TotalAmount = document.TotalAmount,
+                ContentHash = document.ContentHash,
+                CreatedBy = changedBy,
+                CreatedAt = DateTime.UtcNow,
+                TransactionDate = document.TransactionDate,
+                Memo = document.Memo,
+                InternalMemo = document.InternalMemo
+            };
+
+            // 원본 Superseded 로그
+            var supersededLog = new DocumentStateLog
+            {
+                LogId = Guid.NewGuid().ToString(),
+                DocumentId = document.DocumentId,
+                FromState = fromState,
+                ToState = DocumentState.Superseded,
+                ChangedBy = changedBy,
+                ChangedAt = DateTime.UtcNow,
+                Reason = reason ?? "새 버전 생성으로 인한 구버전 처리"
+            };
+
+            // 새 버전 Draft 생성 로그
+            var newDraftLog = new DocumentStateLog
+            {
+                LogId = Guid.NewGuid().ToString(),
+                DocumentId = newVersionDocument.DocumentId,
+                FromState = DocumentState.RevisionRequested,
+                ToState = DocumentState.Draft,
+                ChangedBy = changedBy,
+                ChangedAt = DateTime.UtcNow,
+                Reason = reason ?? "수정 요청에 의한 새 버전 생성"
+            };
+
+            return await Task.FromResult(new StateTransitionResult
+            {
+                Success = true,
+                StateLogs = new List<DocumentStateLog> { supersededLog, newDraftLog },
+                NewVersionDocument = newVersionDocument
+            });
+        }
+
+        // 4. 일반 상태 전이 실행
         document.State = toState;
         document.StateVersion++; // Optimistic Locking
 
-        // 4. 타임스탬프 업데이트
+        // 5. 타임스탬프 업데이트
         if (toState == DocumentState.Sent)
         {
             document.SentAt = DateTime.UtcNow;
@@ -75,7 +151,7 @@ public class StateTransitionService : IStateTransitionService
             document.ConfirmedAt = DateTime.UtcNow;
         }
 
-        // 5. 상태 로그 생성 (분쟁 시 증빙)
+        // 6. 상태 로그 생성 (분쟁 시 증빙)
         var stateLog = new DocumentStateLog
         {
             LogId = Guid.NewGuid().ToString(),
@@ -90,7 +166,7 @@ public class StateTransitionService : IStateTransitionService
         return await Task.FromResult(new StateTransitionResult
         {
             Success = true,
-            StateLog = stateLog
+            StateLogs = new List<DocumentStateLog> { stateLog }
         });
     }
 

@@ -14,7 +14,6 @@ namespace Tran.Desktop.ViewModels;
 /// </summary>
 public class TemplateManagementViewModel : ViewModelBase
 {
-    private readonly TranDbContext _dbContext;
 
     // 템플릿 목록
     private ObservableCollection<TemplateDisplayItem> _templates = new();
@@ -97,9 +96,24 @@ public class TemplateManagementViewModel : ViewModelBase
         set => SetProperty(ref _isLoading, value);
     }
 
-    public TemplateManagementViewModel(TranDbContext dbContext)
+    public TemplateManagementViewModel()
     {
-        _dbContext = dbContext;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            Templates.Clear();
+            Companies.Clear();
+            SelectedTemplate = null;
+        }
+        base.Dispose(disposing);
+    }
+
+    private TranDbContext CreateDbContext()
+    {
+        return DbContextFactory.Create();
     }
 
     /// <summary>
@@ -118,8 +132,9 @@ public class TemplateManagementViewModel : ViewModelBase
     {
         try
         {
-            var companies = await _dbContext.Companies
-                .Where(c => c.Status == CompanyStatus.Active)
+            using var context = CreateDbContext();
+            var companies = await context.Companies
+                .Where(c => c.IsActive)
                 .OrderBy(c => c.CompanyName)
                 .ToListAsync();
 
@@ -149,7 +164,8 @@ public class TemplateManagementViewModel : ViewModelBase
         IsLoading = true;
         try
         {
-            var query = _dbContext.DocumentTemplates
+            using var context = CreateDbContext();
+            var query = context.DocumentTemplates
                 .Include(t => t.Company)
                 .AsQueryable();
 

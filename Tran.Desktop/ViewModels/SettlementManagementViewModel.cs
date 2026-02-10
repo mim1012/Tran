@@ -2,6 +2,8 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Tran.Core.Models;
 using Tran.Core.Services;
+using Tran.Data;
+using Tran.Data.Services;
 
 namespace Tran.Desktop.ViewModels;
 
@@ -13,6 +15,7 @@ namespace Tran.Desktop.ViewModels;
 public class SettlementManagementViewModel : ViewModelBase
 {
     private readonly IDocumentQueryService _queryService;
+    private readonly TranDbContext? _ownedContext;
 
     // 기간 선택
     private DateTime _fromDate;
@@ -29,9 +32,25 @@ public class SettlementManagementViewModel : ViewModelBase
     // 로딩 상태
     private bool _isLoading;
 
-    public SettlementManagementViewModel(IDocumentQueryService queryService)
+    /// <summary>
+    /// 기본 생성자: ViewModel이 자체적으로 DbContext/QueryService 생성
+    /// UI 레이어에서 DbContext를 생성하지 않도록 함
+    /// </summary>
+    public SettlementManagementViewModel()
+        : this(CreateDefaultQueryService(out var context), context)
     {
-        _queryService = queryService ?? throw new ArgumentNullException(nameof(queryService));
+    }
+
+    private static IDocumentQueryService CreateDefaultQueryService(out TranDbContext context)
+    {
+        context = DbContextFactory.Create();
+        return new DocumentQueryService(context);
+    }
+
+    private SettlementManagementViewModel(IDocumentQueryService queryService, TranDbContext? ownedContext)
+    {
+        _queryService = queryService;
+        _ownedContext = ownedContext;
 
         // 기본 기간: 이번 달
         _fromDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
@@ -184,4 +203,13 @@ public class SettlementManagementViewModel : ViewModelBase
     }
 
     #endregion
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _ownedContext?.Dispose();
+        }
+        base.Dispose(disposing);
+    }
 }

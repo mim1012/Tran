@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using Tran.Core.Models;
@@ -23,33 +25,74 @@ public class CreateDocumentViewModel : ViewModelBase
 
     public CreateDocumentViewModel()
     {
-        LoadCompaniesAsync().GetAwaiter().GetResult();
+        _ = LoadCompaniesAsync();
 
         // Commands 초기화
         AddItemCommand = new RelayCommand(OnAddItem);
         RemoveItemCommand = new RelayCommand<DocumentItemViewModel>(OnRemoveItem);
         EditSpecCommand = new RelayCommand<DocumentItemViewModel>(OnEditSpec);
-        SaveDraftCommand = new RelayCommand(OnSaveDraft, CanSave);
-        SaveAndSendCommand = new RelayCommand(OnSaveAndSend, CanSave);
+        SaveDraftCommand = new AsyncRelayCommand(OnSaveDraftAsync, CanSave);
+        SaveAndSendCommand = new AsyncRelayCommand(OnSaveAndSendAsync, CanSave);
         CancelCommand = new RelayCommand<Window>(OnCancel);
 
         // 품목 변경 감지를 위한 이벤트 구독
-        Items.CollectionChanged += (s, e) =>
+        Items.CollectionChanged += OnItemsCollectionChanged;
+    }
+
+    /// <summary>
+    /// Items 컬렉션 변경 시 이벤트 핸들러
+    /// 새 품목의 PropertyChanged 구독 및 제거된 품목의 구독 해제
+    /// </summary>
+    private void OnItemsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        RaisePropertyChanged(nameof(TotalAmount));
+
+        // Command CanExecute 재평가 (품목 추가/삭제 시 저장 버튼 활성화)
+        CommandManager.InvalidateRequerySuggested();
+
+        // 새 품목의 PropertyChanged 이벤트 구독
+        if (e.NewItems != null)
         {
-            RaisePropertyChanged(nameof(TotalAmount));
-
-            // Command CanExecute 재평가 (품목 추가/삭제 시 저장 버튼 활성화)
-            CommandManager.InvalidateRequerySuggested();
-
-            // 기존 품목의 PropertyChanged 이벤트 구독
-            if (e.NewItems != null)
+            foreach (DocumentItemViewModel item in e.NewItems)
             {
-                foreach (DocumentItemViewModel item in e.NewItems)
-                {
-                    item.PropertyChanged += (_, __) => RaisePropertyChanged(nameof(TotalAmount));
-                }
+                item.PropertyChanged += OnDocumentItemPropertyChanged;
             }
-        };
+        }
+
+        // 제거된 품목의 PropertyChanged 이벤트 구독 해제
+        if (e.OldItems != null)
+        {
+            foreach (DocumentItemViewModel item in e.OldItems)
+            {
+                item.PropertyChanged -= OnDocumentItemPropertyChanged;
+            }
+        }
+
+        // Reset 시 (Clear 호출 시) 기존 구독 해제는 Dispose에서 처리
+        if (e.Action == NotifyCollectionChangedAction.Reset)
+        {
+            // Reset은 OldItems가 null이므로,
+            // Clear 전에 UnsubscribeAllDocumentItems()를 명시적으로 호출해야 함
+        }
+    }
+
+    /// <summary>
+    /// DocumentItemViewModel.PropertyChanged 이벤트 핸들러
+    /// </summary>
+    private void OnDocumentItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        RaisePropertyChanged(nameof(TotalAmount));
+    }
+
+    /// <summary>
+    /// 모든 품목의 PropertyChanged 구독 해제
+    /// </summary>
+    private void UnsubscribeAllDocumentItems()
+    {
+        foreach (var item in Items)
+        {
+            item.PropertyChanged -= OnDocumentItemPropertyChanged;
+        }
     }
 
     #region Properties
@@ -172,14 +215,14 @@ public class CreateDocumentViewModel : ViewModelBase
             && Items.Count > 0;
     }
 
-    private async void OnSaveDraft()
+    private Task OnSaveDraftAsync()
     {
-        await SaveDocumentAsync(DocumentState.Draft, sendAfterSave: false);
+        return SaveDocumentAsync(DocumentState.Draft, sendAfterSave: false);
     }
 
-    private async void OnSaveAndSend()
+    private Task OnSaveAndSendAsync()
     {
-        await SaveDocumentAsync(DocumentState.Draft, sendAfterSave: true);
+        return SaveDocumentAsync(DocumentState.Draft, sendAfterSave: true);
     }
 
     private void OnCancel(Window? window)
@@ -202,11 +245,7 @@ public class CreateDocumentViewModel : ViewModelBase
 
     private async Task LoadCompaniesAsync()
     {
-        var options = new DbContextOptionsBuilder<TranDbContext>()
-            .UseSqlite("Data Source=tran.db")
-            .Options;
-
-        using var context = new TranDbContext(options);
+        using var context = DbContextFactory.Create();
 
         var companies = await context.Companies.ToListAsync();
 
@@ -241,62 +280,102 @@ public class CreateDocumentViewModel : ViewModelBase
                 return;
             }
 
-            var options = new DbContextOptionsBuilder<TranDbContext>()
-                .UseSqlite("Data Source=tran.db")
-                .Options;
+            using var context = DbContextFactory.Create();
 
-            using var context = new TranDbContext(options);
-
-            // 문서 번호 생성
-            var documentId = await GenerateDocumentIdAsync(context);
-
-            // DocumentItem 목록 생성
-            var documentItems = Items.Select((item, index) =>
+            // 문서 번호 생성 + 저장 (중복 시 최대 3회 재시도)
+            Document document = null!;
+            const int maxRetries = 3;
+            for (int attempt = 0; attempt < maxRetries; attempt++)
             {
-                // 규격 데이터를 Canonical JSON으로 변환
-                var canonicalSpec = SpecCanonicalizer.Canonicalize(item.Specs);
-                var specJson = SpecCanonicalizer.ToJson(canonicalSpec);
-
-                return new DocumentItem
+                var documentId = await GenerateDocumentIdAsync(context);
+                if (attempt > 0)
                 {
-                    ItemId = $"{documentId}-ITEM-{(index + 1):D3}",
+                    documentId += $"-R{attempt}";
+                }
+
+                // DocumentItem 목록 생성
+                var documentItems = Items.Select((item, index) =>
+                {
+                    // 규격 데이터를 Canonical JSON으로 변환
+                    var canonicalSpec = SpecCanonicalizer.Canonicalize(item.Specs);
+                    var specJson = SpecCanonicalizer.ToJson(canonicalSpec);
+
+                    return new DocumentItem
+                    {
+                        ItemId = $"{documentId}-ITEM-{(index + 1):D3}",
+                        DocumentId = documentId,
+                        ItemName = item.ItemName,
+                        OptionText = item.OptionText,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice,
+                        LineAmount = item.LineAmount,
+                        ExtraDataJson = specJson  // 규격 데이터 저장 (Canonical JSON)
+                    };
+                }).ToList();
+
+                // ContentHash 계산
+                var contentHash = CalculateContentHash(documentItems);
+
+                // Document 생성
+                document = new Document
+                {
                     DocumentId = documentId,
-                    ItemName = item.ItemName,
-                    OptionText = item.OptionText,
-                    Quantity = item.Quantity,
-                    UnitPrice = item.UnitPrice,
-                    LineAmount = item.LineAmount,
-                    ExtraDataJson = specJson  // 규격 데이터 저장 (Canonical JSON)
+                    FromCompanyId = SelectedFromCompany.CompanyId,
+                    ToCompanyId = SelectedToCompany.CompanyId,
+                    TransactionDate = TransactionDate,
+                    State = initialState,
+                    StateVersion = 0,
+                    VersionNumber = 1,
+                    ContentHash = contentHash,
+                    TotalAmount = TotalAmount,
+                    CreatedBy = Tran.Core.Services.UserContext.CurrentUserId,
+                    CreatedAt = DateTime.UtcNow
                 };
-            }).ToList();
 
-            // ContentHash 계산
-            var contentHash = CalculateContentHash(documentItems);
+                // DB 저장 (Document와 Items 별도 추가)
+                context.Documents.Add(document);
+                context.DocumentItems.AddRange(documentItems);
 
-            // Document 생성
-            var document = new Document
+                try
+                {
+                    await context.SaveChangesAsync();
+                    break; // 저장 성공
+                }
+                catch (DbUpdateException) when (attempt < maxRetries - 1)
+                {
+                    // PK 중복 충돌 - 엔티티 분리 후 재시도
+                    context.ChangeTracker.Clear();
+                    continue;
+                }
+            }
+
+            // 저장 후 전송: Draft → Sent 상태 전이 수행
+            string message;
+            if (sendAfterSave)
             {
-                DocumentId = documentId,
-                FromCompanyId = SelectedFromCompany.CompanyId,
-                ToCompanyId = SelectedToCompany.CompanyId,
-                TransactionDate = TransactionDate,
-                State = initialState,
-                StateVersion = 0,
-                VersionNumber = 1,
-                ContentHash = contentHash,
-                TotalAmount = TotalAmount,
-                CreatedAt = DateTime.UtcNow
-            };
+                var transitionService = new Tran.Core.Services.StateTransitionService();
+                var transitionResult = await transitionService.TransitionAsync(
+                    document, DocumentState.Sent, Tran.Core.Services.UserContext.CurrentUserId, "저장 후 자동 전송");
 
-            // DB 저장 (Document와 Items 별도 추가)
-            context.Documents.Add(document);
-            context.DocumentItems.AddRange(documentItems);
-            await context.SaveChangesAsync();
-
-            // 성공 메시지
-            var message = sendAfterSave
-                ? "문서가 저장되었습니다. 이제 전송할 수 있습니다."
-                : "문서가 임시 저장되었습니다.";
+                if (transitionResult.Success)
+                {
+                    context.Documents.Update(document);
+                    if (transitionResult.StateLogs.Count > 0)
+                    {
+                        context.DocumentStateLogs.AddRange(transitionResult.StateLogs);
+                    }
+                    await context.SaveChangesAsync();
+                    message = $"문서가 전송되었습니다. (#{document.DocumentId})";
+                }
+                else
+                {
+                    message = $"문서가 저장되었으나 전송에 실패했습니다: {transitionResult.ErrorMessage}";
+                }
+            }
+            else
+            {
+                message = "문서가 임시 저장되었습니다.";
+            }
 
             MessageBox.Show(message, "저장 완료",
                 MessageBoxButton.OK, MessageBoxImage.Information);
@@ -318,22 +397,14 @@ public class CreateDocumentViewModel : ViewModelBase
         var year = DateTime.Now.Year;
         var prefix = $"DOC-{year}-";
 
-        // 해당 연도의 마지막 문서 번호 조회
-        var lastDocument = await context.Documents
+        // DB-level MAX 집계: 메모리에 전체 ID를 로드하지 않음
+        var maxNumber = await context.Documents
             .Where(d => d.DocumentId.StartsWith(prefix))
-            .OrderByDescending(d => d.DocumentId)
-            .FirstOrDefaultAsync();
+            .Select(d => d.DocumentId.Substring(prefix.Length, 4))
+            .Where(s => s.Length == 4)
+            .MaxAsync(s => (int?)Convert.ToInt32(s)) ?? 0;
 
-        int nextNumber = 1;
-        if (lastDocument != null)
-        {
-            var lastNumberStr = lastDocument.DocumentId.Replace(prefix, "");
-            if (int.TryParse(lastNumberStr, out int lastNumber))
-            {
-                nextNumber = lastNumber + 1;
-            }
-        }
-
+        var nextNumber = maxNumber + 1;
         return $"{prefix}{nextNumber:D4}";
     }
 
@@ -361,4 +432,14 @@ public class CreateDocumentViewModel : ViewModelBase
     }
 
     #endregion
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            UnsubscribeAllDocumentItems();
+            Items.CollectionChanged -= OnItemsCollectionChanged;
+        }
+        base.Dispose(disposing);
+    }
 }

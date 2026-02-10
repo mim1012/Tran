@@ -36,11 +36,7 @@ public partial class MainWindow : Window
 
     private async Task LoadDocumentsAsync()
     {
-        var options = new DbContextOptionsBuilder<TranDbContext>()
-            .UseSqlite("Data Source=tran.db")
-            .Options;
-
-        using var context = new TranDbContext(options);
+        using var context = DbContextFactory.Create();
 
         // 문서 로드
         var documents = await context.Documents
@@ -63,12 +59,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void PartnerManagement_Click(object sender, RoutedEventArgs e)
     {
-        var options = new DbContextOptionsBuilder<TranDbContext>()
-            .UseSqlite("Data Source=tran.db")
-            .Options;
-
-        using var context = new TranDbContext(options);
-        var viewModel = new PartnerManagementViewModel(context);
+        var viewModel = new PartnerManagementViewModel();
         var window = new PartnerManagementWindow(viewModel);
         window.Owner = this;
         window.ShowDialog();
@@ -79,13 +70,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void SettlementManagement_Click(object sender, RoutedEventArgs e)
     {
-        var options = new DbContextOptionsBuilder<TranDbContext>()
-            .UseSqlite("Data Source=tran.db")
-            .Options;
-
-        using var context = new TranDbContext(options);
-        var queryService = new Tran.Data.Services.DocumentQueryService(context);
-        var viewModel = new SettlementManagementViewModel(queryService);
+        var viewModel = new SettlementManagementViewModel();
         var window = new SettlementManagementWindow(viewModel);
         window.Owner = this;
         window.ShowDialog();

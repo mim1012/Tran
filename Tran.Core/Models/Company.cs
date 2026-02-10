@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Tran.Core.Models;
 
 /// <summary>
@@ -47,13 +49,20 @@ public class Company
     /// <summary>
     /// 활성 상태 (true: 활성, false: 비활성)
     /// Soft Delete 방식: IsActive=false로 삭제 처리
+    /// 단일 진실 소스 (Single Source of Truth)
     /// </summary>
     public bool IsActive { get; set; } = true;
 
     /// <summary>
-    /// 상태 (기존 유지 - 호환성)
+    /// 상태 - IsActive에서 파생 (DB에 매핑하지 않음)
+    /// setter에서 IsActive를 동기화
     /// </summary>
-    public CompanyStatus Status { get; set; } = CompanyStatus.Active;
+    [NotMapped]
+    public CompanyStatus Status
+    {
+        get => IsActive ? CompanyStatus.Active : CompanyStatus.Inactive;
+        set => IsActive = (value == CompanyStatus.Active);
+    }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
