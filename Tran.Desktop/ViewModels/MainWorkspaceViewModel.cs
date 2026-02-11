@@ -1,24 +1,26 @@
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using Tran.Core.Models;
+using Tran.Core.Services;
 
 namespace Tran.Desktop.ViewModels;
 
 /// <summary>
 /// 메인 워크스페이스 ViewModel
-/// 탭 기반 화면 구성. 선택된 거래처 컨텍스트를 유지한다.
-/// 탭: 0=발주, 1=견적, 2=구매, 3=판매, 4=재고, 5=품목
+/// 다중 거래처 탭 지원. 각 거래처는 CompanyWorkspace로 관리.
+/// 탭: 0=발주, 1=견적, 2=구매, 3=판매, 4=재고, 5=품목, 6=통계
 /// </summary>
 public class MainWorkspaceViewModel : ViewModelBase
 {
-    private Company? _currentCompany;
-    private string _currentCompanyDisplay = string.Empty;
     private int _selectedTabIndex;
 
     public MainWorkspaceViewModel()
     {
         ChangeCompanyCommand = new RelayCommand(ExecuteChangeCompany);
         SwitchTabCommand = new RelayCommand<int>(ExecuteSwitchTab);
+        AddCompanyCommand = new RelayCommand(ExecuteAddCompany);
+        CloseCompanyCommand = new RelayCommand<CompanyWorkspace>(ExecuteCloseCompany);
 
         // 거래명세표/정산/양식/거래처 관리 창 열기 Commands
         OpenDocumentManagementCommand = new RelayCommand(ExecuteOpenDocumentManagement);
@@ -28,26 +30,60 @@ public class MainWorkspaceViewModel : ViewModelBase
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Properties
+    // CompanyWorkspace Collection
     // ═══════════════════════════════════════════════════════════
 
     /// <summary>
-    /// 현재 선택된 거래처
+    /// 열린 거래처 워크스페이스 목록 (상단 탭 바 바인딩)
     /// </summary>
-    public Company? CurrentCompany
-    {
-        get => _currentCompany;
-        private set => SetProperty(ref _currentCompany, value);
-    }
+    public ObservableCollection<CompanyWorkspace> CompanyWorkspaces { get; } = new();
+
+    private CompanyWorkspace? _activeWorkspace;
 
     /// <summary>
-    /// 거래처 표시 문자열 (예: "A병원 (고객사)")
+    /// 현재 활성 워크스페이스
     /// </summary>
-    public string CurrentCompanyDisplay
+    public CompanyWorkspace? ActiveWorkspace
     {
-        get => _currentCompanyDisplay;
-        private set => SetProperty(ref _currentCompanyDisplay, value);
+        get => _activeWorkspace;
+        set
+        {
+            // 이전 워크스페이스 탭 인덱스 저장
+            if (_activeWorkspace != null)
+                _activeWorkspace.SelectedTabIndex = SelectedTabIndex;
+
+            if (!SetProperty(ref _activeWorkspace, value))
+                return;
+
+            // 모든 위임 프로퍼티 갱신 알림
+            RaisePropertyChanged(nameof(OrderVM));
+            RaisePropertyChanged(nameof(QuotationVM));
+            RaisePropertyChanged(nameof(PurchaseVM));
+            RaisePropertyChanged(nameof(SaleVM));
+            RaisePropertyChanged(nameof(InventoryVM));
+            RaisePropertyChanged(nameof(ProductVM));
+            RaisePropertyChanged(nameof(SalesStatisticsVM));
+            RaisePropertyChanged(nameof(CompanyName));
+            RaisePropertyChanged(nameof(WindowTitle));
+            RaisePropertyChanged(nameof(CompanyType));
+
+            // 탭 인덱스 복원
+            if (value != null)
+                SelectedTabIndex = value.SelectedTabIndex;
+
+            // IsActive 상태 업데이트
+            foreach (var ws in CompanyWorkspaces)
+                ws.IsActive = ws == value;
+
+            // UserContext 업데이트
+            if (value != null)
+                UserContext.SetUser(value.Company.CompanyId, value.Company.CompanyName, value.Company.CompanyId);
+        }
     }
+
+    // ═══════════════════════════════════════════════════════════
+    // Delegated Properties (XAML 바인딩 호환 유지)
+    // ═══════════════════════════════════════════════════════════
 
     /// <summary>
     /// 선택된 탭 인덱스
@@ -61,14 +97,14 @@ public class MainWorkspaceViewModel : ViewModelBase
     /// <summary>
     /// 윈도우 타이틀
     /// </summary>
-    public string WindowTitle => CurrentCompany != null
-        ? $"Tran - {CurrentCompany.CompanyName}"
+    public string WindowTitle => ActiveWorkspace != null
+        ? $"Tran - {ActiveWorkspace.Company.CompanyName}"
         : "Tran - 작업 화면";
 
     /// <summary>
     /// 현재 거래처명 (상단 바 표시용)
     /// </summary>
-    public string CompanyName => CurrentCompany?.CompanyName ?? "거래처명";
+    public string CompanyName => ActiveWorkspace?.Company.CompanyName ?? "거래처명";
 
     /// <summary>
     /// 거래처 유형 (상단 바 배지용)
@@ -86,71 +122,28 @@ public class MainWorkspaceViewModel : ViewModelBase
     public string StatusMessage => "준비";
 
     // ═══════════════════════════════════════════════════════════
-    // Child ViewModels (각 탭의 ViewModel)
+    // Child ViewModels (ActiveWorkspace 위임)
     // ═══════════════════════════════════════════════════════════
 
-    /// <summary>
-    /// 발주 화면 ViewModel
-    /// </summary>
-    public OrderViewModel? OrderVM { get; private set; }
-
-    /// <summary>
-    /// 견적 화면 ViewModel
-    /// </summary>
-    public QuotationViewModel? QuotationVM { get; private set; }
-
-    /// <summary>
-    /// 구매 관리 ViewModel
-    /// </summary>
-    public PurchaseViewModel? PurchaseVM { get; private set; }
-
-    /// <summary>
-    /// 판매 화면 ViewModel
-    /// </summary>
-    public SaleViewModel? SaleVM { get; private set; }
-
-    /// <summary>
-    /// 재고 관리 ViewModel
-    /// </summary>
-    public InventoryViewModel? InventoryVM { get; private set; }
-
-    /// <summary>
-    /// 품목 관리 ViewModel
-    /// </summary>
-    public ProductManagementViewModel? ProductVM { get; private set; }
+    public OrderViewModel? OrderVM => ActiveWorkspace?.OrderVM;
+    public QuotationViewModel? QuotationVM => ActiveWorkspace?.QuotationVM;
+    public PurchaseViewModel? PurchaseVM => ActiveWorkspace?.PurchaseVM;
+    public SaleViewModel? SaleVM => ActiveWorkspace?.SaleVM;
+    public InventoryViewModel? InventoryVM => ActiveWorkspace?.InventoryVM;
+    public ProductManagementViewModel? ProductVM => ActiveWorkspace?.ProductVM;
+    public SalesStatisticsViewModel? SalesStatisticsVM => ActiveWorkspace?.SalesStatisticsVM;
 
     // ═══════════════════════════════════════════════════════════
     // Commands
     // ═══════════════════════════════════════════════════════════
 
-    /// <summary>
-    /// 거래처 변경 (거래처 선택 화면으로 돌아가기)
-    /// </summary>
     public ICommand ChangeCompanyCommand { get; }
-
-    /// <summary>
-    /// 탭 전환
-    /// </summary>
     public ICommand SwitchTabCommand { get; }
-
-    /// <summary>
-    /// 거래명세표 관리 화면 열기
-    /// </summary>
+    public ICommand AddCompanyCommand { get; }
+    public ICommand CloseCompanyCommand { get; }
     public ICommand OpenDocumentManagementCommand { get; }
-
-    /// <summary>
-    /// 거래처 관리 화면 열기
-    /// </summary>
     public ICommand OpenPartnerManagementCommand { get; }
-
-    /// <summary>
-    /// 정산 관리 화면 열기
-    /// </summary>
     public ICommand OpenSettlementManagementCommand { get; }
-
-    /// <summary>
-    /// 양식 관리 화면 열기
-    /// </summary>
     public ICommand OpenTemplateManagementCommand { get; }
 
     // ═══════════════════════════════════════════════════════════
@@ -162,56 +155,74 @@ public class MainWorkspaceViewModel : ViewModelBase
     /// </summary>
     public Action? OnChangeCompanyRequested { get; set; }
 
+    /// <summary>
+    /// 거래처 추가 요청 시 콜백 (CompanySelectionWindow 다이얼로그 열기)
+    /// </summary>
+    public Action? OnAddCompanyRequested { get; set; }
+
     // ═══════════════════════════════════════════════════════════
     // Public Methods
     // ═══════════════════════════════════════════════════════════
 
     /// <summary>
-    /// 거래처 설정 및 모든 하위 ViewModel 초기화
+    /// 거래처 추가 (이미 열려있으면 해당 탭으로 전환)
     /// </summary>
-    public async Task SetCompany(Company company)
+    public async Task AddCompany(Company company)
     {
-        CurrentCompany = company;
-        RaisePropertyChanged(nameof(WindowTitle));
-        RaisePropertyChanged(nameof(CompanyName));
-        RaisePropertyChanged(nameof(CompanyType));
-        CurrentCompanyDisplay = $"{company.CompanyName} ({company.BusinessNumber})";
+        // 이미 열려있는 거래처면 해당 탭으로 전환
+        var existing = CompanyWorkspaces.FirstOrDefault(w => w.Company.CompanyId == company.CompanyId);
+        if (existing != null)
+        {
+            ActiveWorkspace = existing;
+            return;
+        }
 
-        // 하위 ViewModel 생성
-        OrderVM = new OrderViewModel();
-        RaisePropertyChanged(nameof(OrderVM));
+        var workspace = new CompanyWorkspace(company);
 
-        QuotationVM = new QuotationViewModel();
-        RaisePropertyChanged(nameof(QuotationVM));
+        // 자식 VM 생성
+        workspace.OrderVM = new OrderViewModel();
+        workspace.QuotationVM = new QuotationViewModel();
+        workspace.PurchaseVM = new PurchaseViewModel();
+        workspace.SaleVM = new SaleViewModel();
+        workspace.InventoryVM = new InventoryViewModel();
+        workspace.ProductVM = new ProductManagementViewModel();
+        workspace.SalesStatisticsVM = new SalesStatisticsViewModel();
 
-        PurchaseVM = new PurchaseViewModel();
-        RaisePropertyChanged(nameof(PurchaseVM));
+        // Part A: 탭 간 데이터 동기화 콜백 연결
+        workspace.OrderVM.OnDataChanged = async () =>
+        {
+            await workspace.PurchaseVM.LoadDataAsync(company.CompanyId);
+            await workspace.InventoryVM.LoadDataAsync();
+        };
+        workspace.SaleVM.OnDataChanged = async () =>
+        {
+            await workspace.InventoryVM.LoadDataAsync();
+        };
+        workspace.PurchaseVM.OnDataChanged = async () =>
+        {
+            await workspace.InventoryVM.LoadDataAsync();
+        };
 
-        SaleVM = new SaleViewModel();
-        RaisePropertyChanged(nameof(SaleVM));
-
-        InventoryVM = new InventoryViewModel();
-        RaisePropertyChanged(nameof(InventoryVM));
-
-        ProductVM = new ProductManagementViewModel();
-        RaisePropertyChanged(nameof(ProductVM));
-
-        // 각 ViewModel 데이터 로드
+        // 데이터 로드
         try
         {
             await Task.WhenAll(
-                OrderVM.LoadDataAsync(company.CompanyId),
-                QuotationVM.LoadDataAsync(company.CompanyId),
-                PurchaseVM.LoadDataAsync(company.CompanyId),
-                SaleVM.LoadDataAsync(company.CompanyId),
-                InventoryVM.LoadDataAsync(),
-                ProductVM.LoadDataAsync()
+                workspace.OrderVM.LoadDataAsync(company.CompanyId),
+                workspace.QuotationVM.LoadDataAsync(company.CompanyId),
+                workspace.PurchaseVM.LoadDataAsync(company.CompanyId),
+                workspace.SaleVM.LoadDataAsync(company.CompanyId),
+                workspace.InventoryVM.LoadDataAsync(),
+                workspace.ProductVM.LoadDataAsync(),
+                workspace.SalesStatisticsVM.LoadDataAsync()
             );
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"하위 ViewModel 데이터 로드 실패: {ex.Message}");
         }
+
+        CompanyWorkspaces.Add(workspace);
+        ActiveWorkspace = workspace;
 
         // 기본 탭 선택 (발주)
         SelectedTabIndex = 0;
@@ -223,26 +234,34 @@ public class MainWorkspaceViewModel : ViewModelBase
 
     private void ExecuteChangeCompany()
     {
-        CurrentCompany = null;
-        RaisePropertyChanged(nameof(WindowTitle));
-        RaisePropertyChanged(nameof(CompanyName));
-        RaisePropertyChanged(nameof(CompanyType));
-        CurrentCompanyDisplay = string.Empty;
-        OrderVM = null;
-        QuotationVM = null;
-        PurchaseVM = null;
-        SaleVM = null;
-        InventoryVM = null;
-        ProductVM = null;
-
-        RaisePropertyChanged(nameof(OrderVM));
-        RaisePropertyChanged(nameof(QuotationVM));
-        RaisePropertyChanged(nameof(PurchaseVM));
-        RaisePropertyChanged(nameof(SaleVM));
-        RaisePropertyChanged(nameof(InventoryVM));
-        RaisePropertyChanged(nameof(ProductVM));
-
         OnChangeCompanyRequested?.Invoke();
+    }
+
+    private void ExecuteAddCompany()
+    {
+        OnAddCompanyRequested?.Invoke();
+    }
+
+    private void ExecuteCloseCompany(CompanyWorkspace? workspace)
+    {
+        if (workspace == null) return;
+
+        var index = CompanyWorkspaces.IndexOf(workspace);
+        CompanyWorkspaces.Remove(workspace);
+
+        if (ActiveWorkspace == workspace)
+        {
+            // 닫힌 탭이 활성 탭이면 인접 탭으로 전환
+            if (CompanyWorkspaces.Count > 0)
+            {
+                var newIndex = Math.Min(index, CompanyWorkspaces.Count - 1);
+                ActiveWorkspace = CompanyWorkspaces[newIndex];
+            }
+            else
+            {
+                ActiveWorkspace = null;
+            }
+        }
     }
 
     private void ExecuteSwitchTab(int index)
@@ -274,5 +293,35 @@ public class MainWorkspaceViewModel : ViewModelBase
     {
         var window = new TemplateManagementWindow();
         window.Show();
+    }
+}
+
+/// <summary>
+/// 거래처별 워크스페이스 (VM 인스턴스 + 탭 상태 보관)
+/// </summary>
+public class CompanyWorkspace : ViewModelBase
+{
+    public Company Company { get; }
+    public string CompanyName => Company.CompanyName;
+
+    public OrderViewModel? OrderVM { get; set; }
+    public QuotationViewModel? QuotationVM { get; set; }
+    public PurchaseViewModel? PurchaseVM { get; set; }
+    public SaleViewModel? SaleVM { get; set; }
+    public InventoryViewModel? InventoryVM { get; set; }
+    public ProductManagementViewModel? ProductVM { get; set; }
+    public SalesStatisticsViewModel? SalesStatisticsVM { get; set; }
+    public int SelectedTabIndex { get; set; }
+
+    private bool _isActive;
+    public bool IsActive
+    {
+        get => _isActive;
+        set => SetProperty(ref _isActive, value);
+    }
+
+    public CompanyWorkspace(Company company)
+    {
+        Company = company;
     }
 }

@@ -8,7 +8,8 @@
         Title="Tran - 거래처 선택"
         Width="900" Height="700"
         WindowStartupLocation="CenterScreen"
-        Background="White">
+        Background="White"
+        FontFamily="{StaticResource Tran.FontFamily}">
 
     <Window.InputBindings>
         <KeyBinding Key="F" Modifiers="Ctrl" Command="{Binding FocusSearchCommand}"/>
@@ -24,24 +25,24 @@
         </Grid.RowDefinitions>
 
         <!-- 헤더 영역 -->
-        <Border Grid.Row="0" Background="#2C3E50" Padding="20,25">
+        <Border Grid.Row="0" Background="{StaticResource Tran.Surface.Header}" Padding="20,25">
             <StackPanel HorizontalAlignment="Center">
                 <TextBlock Text="작업할 거래처를 선택하세요"
                            FontSize="20" FontWeight="Bold"
                            Foreground="White"
                            HorizontalAlignment="Center"/>
                 <TextBlock Text="거래처를 선택하면 해당 거래처와의 작업 화면으로 이동합니다"
-                           FontSize="13" Foreground="#BDC3C7"
+                           FontSize="13" Foreground="{StaticResource Tran.Neutral.400}"
                            HorizontalAlignment="Center" Margin="0,8,0,0"/>
             </StackPanel>
         </Border>
 
         <!-- 최근 거래처 칩 영역 -->
-        <Border Grid.Row="1" Background="#F8F9FA" Padding="15,12"
-                BorderBrush="#E0E0E0" BorderThickness="0,0,0,1"
+        <Border Grid.Row="1" Background="{StaticResource Tran.Neutral.50}" Padding="15,12"
+                BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,0,0,1"
                 Visibility="{Binding HasRecentCompanies, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel>
-                <TextBlock Text="최근 거래처" FontSize="12" Foreground="#95A5A6"
+                <TextBlock Text="최근 거래처" Style="{StaticResource Tran.Caption}"
                            Margin="0,0,0,8"/>
                 <ItemsControl ItemsSource="{Binding RecentCompanies}">
                     <ItemsControl.ItemsPanel>
@@ -53,19 +54,12 @@
                         <DataTemplate>
                             <Button Command="{Binding DataContext.SelectCompanyCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                     CommandParameter="{Binding}"
-                                    Margin="0,0,8,0" Padding="12,6"
-                                    Cursor="Hand"
-                                    BorderThickness="1" BorderBrush="#1E90FF">
+                                    Margin="0,0,8,0" Cursor="Hand">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
-                                        <Border Background="#E8F1FF"
-                                                BorderBrush="#1E90FF"
-                                                BorderThickness="1"
-                                                CornerRadius="15"
-                                                Padding="12,6"
-                                                Cursor="Hand">
+                                        <Border Style="{StaticResource Tran.Chip}" Cursor="Hand">
                                             <TextBlock Text="{Binding CompanyName}"
-                                                       Foreground="#1E90FF"
+                                                       Foreground="{StaticResource Tran.Primary.600}"
                                                        FontSize="13"/>
                                         </Border>
                                     </ControlTemplate>
@@ -79,7 +73,7 @@
 
         <!-- 검색 및 필터 영역 -->
         <Border Grid.Row="2" Padding="20,15" Background="White"
-                BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -87,8 +81,7 @@
                     <ColumnDefinition Width="160"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" BorderBrush="#DEE2E6" BorderThickness="1"
-                        CornerRadius="4" Margin="0,0,15,0">
+                <Border Grid.Column="0" Style="{StaticResource Tran.SearchBox}" Margin="0,0,15,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -96,12 +89,12 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="&#x1F50D;"
                                    VerticalAlignment="Center"
-                                   Margin="10,0,5,0" FontSize="14" Foreground="#95A5A6"/>
+                                   Margin="10,0,5,0" FontSize="14" Foreground="{StaticResource Tran.Neutral.400}"/>
                         <TextBox Grid.Column="1" Name="SearchTextBox"
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                  BorderThickness="0" Padding="5,8"
                                  FontSize="14" VerticalContentAlignment="Center"
-                                 Background="Transparent">
+                                 Background="Transparent" Height="Auto">
                             <TextBox.Style>
                                 <Style TargetType="TextBox">
                                     <Style.Triggers>
@@ -115,12 +108,12 @@
                     </Grid>
                 </Border>
 
-                <TextBlock Grid.Column="1" Text="타입:" FontSize="13" Foreground="#666"
+                <TextBlock Grid.Column="1" Text="타입:" FontSize="13" Foreground="{StaticResource Tran.Neutral.600}"
                            VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <ComboBox Grid.Column="2"
                           ItemsSource="{Binding CompanyTypes}"
                           SelectedItem="{Binding SelectedType}"
-                          Height="32" Padding="10,5"
+                          Padding="10,5"
                           FontSize="13" VerticalContentAlignment="Center"/>
             </Grid>
         </Border>
@@ -132,7 +125,7 @@
             <Grid>
                 <!-- 거래처가 없을 때 -->
                 <TextBlock Text="검색 조건에 맞는 거래처가 없습니다"
-                           FontSize="14" Foreground="#95A5A6"
+                           FontSize="14" Foreground="{StaticResource Tran.Neutral.400}"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
@@ -145,14 +138,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Width="250" Margin="5"
-                                    BorderBrush="#DEE2E6" BorderThickness="1"
-                                    CornerRadius="8" Background="White"
-                                    Padding="15">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="8" ShadowDepth="2"
-                                                      Color="#000000" Opacity="0.08"/>
-                                </Border.Effect>
+                            <Border Width="250" Margin="5" Style="{StaticResource Tran.Card}">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -165,8 +151,7 @@
                                     <!-- 거래처명 -->
                                     <TextBlock Grid.Row="0"
                                                Text="{Binding CompanyName}"
-                                               FontSize="16" FontWeight="Bold"
-                                               Foreground="#2C3E50"
+                                               Style="{StaticResource Tran.Heading3}"
                                                Margin="0,0,0,5"
                                                TextTrimming="CharacterEllipsis"/>
 
@@ -181,7 +166,7 @@
 
                                     <!-- 사업자번호 -->
                                     <TextBlock Grid.Row="2"
-                                               FontSize="12" Foreground="#95A5A6"
+                                               Style="{StaticResource Tran.Caption}"
                                                Margin="0,0,0,3">
                                         <Run Text="사업자번호: "/>
                                         <Run Text="{Binding BusinessNumber, Mode=OneWay}"/>
@@ -190,43 +175,18 @@
                                     <!-- 주소 -->
                                     <TextBlock Grid.Row="3"
                                                Text="{Binding Address}"
-                                               FontSize="12" Foreground="#95A5A6"
+                                               Style="{StaticResource Tran.Caption}"
                                                TextTrimming="CharacterEllipsis"
                                                Margin="0,0,0,12"/>
 
                                     <!-- 선택 버튼 -->
                                     <Button Grid.Row="4"
                                             Content="선택"
+                                            Style="{StaticResource Tran.PrimaryButton}"
                                             Command="{Binding DataContext.SelectCompanyCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                             CommandParameter="{Binding}"
                                             HorizontalAlignment="Stretch"
-                                            Height="32" FontSize="13"
-                                            FontWeight="Bold"
-                                            Foreground="White"
-                                            Background="#1E90FF"
-                                            BorderThickness="0"
-                                            Cursor="Hand">
-                                        <Button.Template>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        CornerRadius="4"
-                                                        Padding="{TemplateBinding Padding}">
-                                                    <ContentPresenter HorizontalAlignment="Center"
-                                                                      VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Button.Template>
-                                        <Button.Style>
-                                            <Style TargetType="Button">
-                                                <Setter Property="Background" Value="#1E90FF"/>
-                                                <Style.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="#1A7AD9"/>
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                    </Button>
+                                            Height="32"/>
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -236,8 +196,8 @@
         </ScrollViewer>
 
         <!-- 하단 버튼 영역 -->
-        <Border Grid.Row="4" Background="#F5F5F5" Padding="20,15"
-                BorderBrush="#E0E0E0" BorderThickness="0,1,0,0">
+        <Border Grid.Row="4" Background="{StaticResource Tran.Surface.Footer}" Padding="20,15"
+                BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,1,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -246,28 +206,13 @@
 
                 <Button Grid.Column="0"
                         Content="+ 새 거래처 등록"
+                        Style="{StaticResource Tran.SuccessButton}"
                         Command="{Binding AddNewCompanyCommand}"
                         HorizontalAlignment="Left"
-                        Padding="20,8" Height="36"
-                        FontSize="14" FontWeight="Bold"
-                        Foreground="White"
-                        Background="#27AE60"
-                        BorderThickness="0"
-                        Cursor="Hand">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="{TemplateBinding Background}"
-                                    CornerRadius="4"
-                                    Padding="{TemplateBinding Padding}">
-                                <ContentPresenter HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
-                            </Border>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                        Padding="20,8"/>
 
                 <TextBlock Grid.Column="1"
-                           FontSize="12" Foreground="#95A5A6"
+                           Style="{StaticResource Tran.Caption}"
                            VerticalAlignment="Center">
                     <Run Text="총 "/>
                     <Run Text="{Binding TotalCompanyCount, Mode=OneWay}"/>

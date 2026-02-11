@@ -8,16 +8,67 @@
         Title="{Binding WindowTitle, FallbackValue='Tran - 작업 화면'}"
         Width="1400" Height="900"
         WindowStartupLocation="CenterScreen"
-        Background="White">
+        Background="White"
+        FontFamily="{StaticResource Tran.FontFamily}">
 
     <DockPanel LastChildFill="True">
 
+        <!-- 거래처 탭 바 -->
+        <Border DockPanel.Dock="Top" Background="{StaticResource Tran.Neutral.800}" Padding="5,0">
+            <DockPanel>
+                <Button DockPanel.Dock="Right"
+                        Content="+ 거래처"
+                        Command="{Binding AddCompanyCommand}"
+                        Style="{StaticResource Tran.GhostButton}"
+                        Foreground="{StaticResource Tran.Neutral.300}"
+                        FontSize="12" Padding="12,6" Margin="5,3"/>
+
+                <ItemsControl ItemsSource="{Binding CompanyWorkspaces}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="2,3" Padding="10,5" CornerRadius="4,4,0,0" Cursor="Hand"
+                                    MouseLeftButtonDown="CompanyTab_Click">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource Tran.Primary.600}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding CompanyName}" Foreground="White"
+                                               FontSize="12.5" FontWeight="Medium"
+                                               VerticalAlignment="Center"/>
+                                    <Button Content="&#xD7;" FontSize="12"
+                                            Command="{Binding DataContext.CloseCompanyCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource Tran.GhostButton}"
+                                            Foreground="{StaticResource Tran.Neutral.400}"
+                                            Padding="6,0" Margin="8,0,0,0"
+                                            VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </DockPanel>
+        </Border>
+
         <!-- 상단 바: 거래처 정보 + 거래처 변경 -->
-        <Border DockPanel.Dock="Top" Background="#2C3E50" Padding="15,10">
+        <Border DockPanel.Dock="Top" Background="{StaticResource Tran.Surface.Header}" Padding="15,10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
@@ -29,7 +80,7 @@
                                FontSize="18" FontWeight="Bold"
                                Foreground="White"
                                VerticalAlignment="Center"/>
-                    <Border Background="#3498DB" CornerRadius="4"
+                    <Border Background="{StaticResource Tran.Primary.500}" CornerRadius="4"
                             Padding="8,3" Margin="12,0,0,0"
                             VerticalAlignment="Center">
                         <TextBlock Text="{Binding CompanyType, FallbackValue='고객사'}"
@@ -40,44 +91,41 @@
                 <!-- 오늘 처리 건수 -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal"
                             VerticalAlignment="Center" Margin="0,0,20,0">
-                    <TextBlock Text="오늘: " Foreground="#BDC3C7" FontSize="13"
+                    <TextBlock Text="오늘: " Foreground="{StaticResource Tran.Neutral.400}" FontSize="13"
                                VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding TodayDocumentCount, FallbackValue='0'}"
                                Foreground="White" FontSize="13" FontWeight="Bold"
                                VerticalAlignment="Center"/>
-                    <TextBlock Text="건" Foreground="#BDC3C7" FontSize="13"
+                    <TextBlock Text="건" Foreground="{StaticResource Tran.Neutral.400}" FontSize="13"
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
+                <!-- 데이터 가져오기 버튼 -->
+                <Button Grid.Column="3"
+                        Content="데이터 가져오기"
+                        Style="{StaticResource Tran.GhostButton}"
+                        Click="OpenDataImport_Click"
+                        Height="32" Padding="15,0"
+                        Foreground="White"
+                        Margin="0,0,10,0"/>
+
                 <!-- 구분선 -->
-                <Border Grid.Column="3" Width="1" Background="#4A6072"
+                <Border Grid.Column="4" Width="1" Background="{StaticResource Tran.Neutral.600}"
                         Margin="0,3,15,3"/>
 
-                <!-- 거래처 변경 버튼 -->
-                <Button Grid.Column="4"
-                        Content="거래처 변경"
-                        Click="ChangeCompany_Click"
+                <!-- 거래처 추가 버튼 -->
+                <Button Grid.Column="5"
+                        Content="+ 거래처 추가"
+                        Style="{StaticResource Tran.SecondaryButton}"
+                        Click="AddCompany_Click"
                         Height="32" Padding="15,0"
-                        FontSize="13" Foreground="White"
-                        Background="#95A5A6"
-                        BorderThickness="0" Cursor="Hand">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="{TemplateBinding Background}"
-                                    CornerRadius="4"
-                                    Padding="{TemplateBinding Padding}">
-                                <ContentPresenter HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
-                            </Border>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                        Foreground="White"/>
             </Grid>
         </Border>
 
         <!-- 하단 상태바 -->
-        <Border DockPanel.Dock="Bottom" Background="#ECF0F1" Padding="15,8"
-                BorderBrush="#BDC3C7" BorderThickness="0,1,0,0">
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource Tran.Surface.Footer}" Padding="15,8"
+                BorderBrush="{StaticResource Tran.Neutral.300}" BorderThickness="0,1,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -87,15 +135,15 @@
 
                 <TextBlock Grid.Column="0"
                            Text="{Binding StatusMessage, FallbackValue='준비'}"
-                           FontSize="12" Foreground="#666"
+                           FontSize="12" Foreground="{StaticResource Tran.Neutral.600}"
                            VerticalAlignment="Center"/>
 
                 <TextBlock Grid.Column="1"
-                           Text="연결 상태: 정상" Foreground="#27AE60"
+                           Text="연결 상태: 정상" Foreground="{StaticResource Tran.Success}"
                            FontSize="12" VerticalAlignment="Center"
                            Margin="0,0,20,0"/>
 
-                <TextBlock Grid.Column="2" FontSize="12" Foreground="#95A5A6"
+                <TextBlock Grid.Column="2" FontSize="12" Foreground="{StaticResource Tran.Neutral.400}"
                            VerticalAlignment="Center">
                     <Run Text="Tran v1.0"/>
                 </TextBlock>
@@ -107,40 +155,6 @@
                     SelectedIndex="{Binding SelectedTabIndex}"
                     Padding="0" BorderThickness="0"
                     Background="White">
-            <TabControl.Resources>
-                <Style TargetType="TabItem">
-                    <Setter Property="Padding" Value="15,10"/>
-                    <Setter Property="FontSize" Value="14"/>
-                    <Setter Property="FontWeight" Value="SemiBold"/>
-                    <Setter Property="Foreground" Value="#666"/>
-                    <Setter Property="Cursor" Value="Hand"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="TabItem">
-                                <Border x:Name="TabBorder"
-                                        Padding="{TemplateBinding Padding}"
-                                        Background="Transparent"
-                                        BorderThickness="0,0,0,3"
-                                        BorderBrush="Transparent">
-                                    <ContentPresenter ContentSource="Header"
-                                                      HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"/>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter TargetName="TabBorder" Property="Background" Value="#F0F7FF"/>
-                                        <Setter Property="Foreground" Value="#1E90FF"/>
-                                        <Setter TargetName="TabBorder" Property="BorderBrush" Value="#1E90FF"/>
-                                    </Trigger>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="TabBorder" Property="Background" Value="#F8F9FA"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </TabControl.Resources>
 
             <!-- Tab 0: 발주 -->
             <TabItem>
@@ -206,6 +220,17 @@
                     </StackPanel>
                 </TabItem.Header>
                 <local:ProductManagementView DataContext="{Binding ProductVM}"/>
+            </TabItem>
+
+            <!-- Tab 6: 통계 -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#x1F4C8;" Margin="0,0,5,0"/>
+                        <TextBlock Text="통계"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <local:SalesStatisticsView DataContext="{Binding SalesStatisticsVM}"/>
             </TabItem>
         </TabControl>
     </DockPanel>

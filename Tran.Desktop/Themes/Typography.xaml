@@ -1,0 +1,99 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================ -->
+    <!-- 글로벌 서체                                   -->
+    <!-- Pretendard: 국내 기업 ERP 최적화 서체         -->
+    <!-- Fallback: Noto Sans KR → 맑은 고딕            -->
+    <!-- ============================================ -->
+    <FontFamily x:Key="Tran.FontFamily">pack://application:,,,/Fonts/#Pretendard</FontFamily>
+
+    <!-- ============================================ -->
+    <!-- L1: 헤더 / 합계 / 핵심 금액                   -->
+    <!--     가장 눈에 띄어야 하나 과한 Bold 금지       -->
+    <!--     안정적인 SemiBold 수준                     -->
+    <!-- ============================================ -->
+
+    <!-- 페이지 제목 (20px SemiBold) -->
+    <Style x:Key="Tran.Heading1" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.900}"/>
+    </Style>
+
+    <!-- 합계 금액 (18px SemiBold) -->
+    <Style x:Key="Tran.Amount" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Primary.600}"/>
+    </Style>
+
+    <!-- ============================================ -->
+    <!-- L2: 섹션 제목                                 -->
+    <!--     "전체 품목", "현재 발주 품목" 등           -->
+    <!--     본문보다 명확히 크고 Medium 무게감          -->
+    <!-- ============================================ -->
+
+    <!-- 주요 섹션 제목 (15px SemiBold) -->
+    <Style x:Key="Tran.Heading2" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.800}"/>
+    </Style>
+
+    <!-- 하위 섹션 제목 (14px Medium) -->
+    <Style x:Key="Tran.Heading3" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.800}"/>
+    </Style>
+
+    <!-- 보조 제목 (13px Medium) -->
+    <Style x:Key="Tran.Heading4" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.700}"/>
+    </Style>
+
+    <!-- ============================================ -->
+    <!-- L3: 테이블 본문                               -->
+    <!--     품목명, 코드, 단가, 수량                   -->
+    <!--     하루 8시간 사용 기준 눈 피로 최소화         -->
+    <!-- ============================================ -->
+
+    <!-- 기본 본문 (13px Normal) -->
+    <Style x:Key="Tran.Body" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.700}"/>
+    </Style>
+
+    <!-- ============================================ -->
+    <!-- L4: 보조 텍스트                               -->
+    <!--     단위, 비고, 설명, 코드                     -->
+    <!--     시선 방해 없이 존재감만 유지               -->
+    <!-- ============================================ -->
+
+    <!-- 캡션/보조 (11.5px Normal) -->
+    <Style x:Key="Tran.Caption" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.400}"/>
+    </Style>
+
+    <!-- 폼 라벨 (12.5px Medium) -->
+    <Style x:Key="Tran.Label" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.600}"/>
+    </Style>
+
+</ResourceDictionary>

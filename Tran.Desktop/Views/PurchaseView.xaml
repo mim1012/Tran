@@ -4,82 +4,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             Background="White"
+             Background="{StaticResource Tran.Surface.Background}"
              d:DesignHeight="700" d:DesignWidth="1000">
 
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding ConfirmDeliveryCommand}"/>
         <KeyBinding Key="F9" Command="{Binding RefreshCommand}"/>
     </UserControl.InputBindings>
-
-    <UserControl.Resources>
-        <!-- 공통 DataGrid 컬럼 헤더 스타일 -->
-        <Style x:Key="PurchaseColumnHeaderStyle" TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#F5F5F5"/>
-            <Setter Property="Foreground" Value="#333"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="BorderBrush" Value="#E0E0E0"/>
-            <Setter Property="BorderThickness" Value="0,0,1,1"/>
-        </Style>
-
-        <!-- 공통 DataGrid 셀 스타일 -->
-        <Style x:Key="PurchaseCellStyle" TargetType="DataGridCell">
-            <Setter Property="Padding" Value="10,6"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="BorderBrush" Value="#F0F0F0"/>
-            <Setter Property="BorderThickness" Value="0,0,1,0"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#F3E8FF"/>
-                    <Setter Property="Foreground" Value="#000"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- 금액 오른쪽 정렬 스타일 -->
-        <Style x:Key="RightAlignTextStyle" TargetType="TextBlock">
-            <Setter Property="TextAlignment" Value="Right"/>
-            <Setter Property="Padding" Value="0,0,5,0"/>
-        </Style>
-
-        <!-- 보라색 버튼 스타일 -->
-        <Style x:Key="PurpleButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#9B59B6"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="20,8"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#8E44AD"/>
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Background" Value="#D5C4DF"/>
-                    <Setter Property="Foreground" Value="#A0A0A0"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-    </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -91,10 +22,11 @@
         </Grid.RowDefinitions>
 
         <!-- 보라색 악센트 바 (3px) -->
-        <Border Grid.Row="0" Background="#9B59B6"/>
+        <Border Grid.Row="0" Background="{StaticResource Tran.Accent.Purchase}"/>
 
         <!-- 헤더: 타이틀 + 필터 -->
-        <Border Grid.Row="1" Background="#F8F9FA" Padding="15,12" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+        <Border Grid.Row="1" Background="{StaticResource Tran.Neutral.50}" Padding="15,12"
+                BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -107,17 +39,16 @@
 
                 <TextBlock Grid.Column="0" Text="구매 관리"
                            FontSize="20" FontWeight="Bold"
-                           Foreground="#2C3E50"
+                           Foreground="{StaticResource Tran.Neutral.800}"
                            VerticalAlignment="Center"/>
 
                 <!-- 상태 필터 -->
                 <TextBlock Grid.Column="2" Text="상태:"
                            VerticalAlignment="Center" FontSize="14"
-                           Margin="0,0,8,0" Foreground="#555"/>
+                           Margin="0,0,8,0" Foreground="{StaticResource Tran.Neutral.500}"/>
                 <ComboBox Grid.Column="3"
                           SelectedItem="{Binding StateFilter}"
-                          Height="32" Width="140"
-                          Padding="8,5" FontSize="13"
+                          Width="140"
                           Margin="0,0,15,0"
                           xmlns:sys="clr-namespace:System;assembly=System.Runtime">
                     <sys:String>전체</sys:String>
@@ -132,33 +63,13 @@
         <DataGrid Grid.Row="2"
                   ItemsSource="{Binding Purchases}"
                   SelectedItem="{Binding SelectedPurchase}"
-                  AutoGenerateColumns="False"
                   IsReadOnly="True"
                   SelectionMode="Single"
-                  GridLinesVisibility="Horizontal"
-                  HeadersVisibility="Column"
-                  Background="White"
                   RowHeight="40"
                   BorderThickness="0"
                   Margin="15,10"
-                  ColumnHeaderStyle="{StaticResource PurchaseColumnHeaderStyle}"
-                  CellStyle="{StaticResource PurchaseCellStyle}"
                   VirtualizingStackPanel.IsVirtualizing="True"
                   VirtualizingStackPanel.VirtualizationMode="Recycling">
-            <DataGrid.RowStyle>
-                <Style TargetType="DataGridRow">
-                    <Setter Property="BorderThickness" Value="3,0,0,0"/>
-                    <Setter Property="BorderBrush" Value="Transparent"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="#F9F4FC"/>
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#FAFAFA"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.RowStyle>
 
             <DataGrid.Columns>
                 <!-- 구매번호 -->
@@ -179,19 +90,19 @@
                                     HorizontalAlignment="Center">
                                 <Border.Style>
                                     <Style TargetType="Border">
-                                        <Setter Property="Background" Value="#F0F0F0"/>
+                                        <Setter Property="Background" Value="{StaticResource Tran.State.Draft.Bg}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding State}" Value="PendingDelivery">
-                                                <Setter Property="Background" Value="#FFF4E5"/>
+                                                <Setter Property="Background" Value="{StaticResource Tran.State.RevisionRequested.Bg}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding State}" Value="PartiallyDelivered">
-                                                <Setter Property="Background" Value="#E8F1FF"/>
+                                                <Setter Property="Background" Value="{StaticResource Tran.State.Sent.Bg}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding State}" Value="Delivered">
-                                                <Setter Property="Background" Value="#E6F4EA"/>
+                                                <Setter Property="Background" Value="{StaticResource Tran.State.Confirmed.Bg}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding State}" Value="Cancelled">
-                                                <Setter Property="Background" Value="#FFE5E5"/>
+                                                <Setter Property="Background" Value="{StaticResource Tran.State.Cancelled.Bg}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -202,23 +113,23 @@
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Text" Value="알 수 없음"/>
-                                            <Setter Property="Foreground" Value="#555555"/>
+                                            <Setter Property="Foreground" Value="{StaticResource Tran.State.Draft.Fg}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding State}" Value="PendingDelivery">
                                                     <Setter Property="Text" Value="입고대기"/>
-                                                    <Setter Property="Foreground" Value="#E67700"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource Tran.State.RevisionRequested.Fg}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding State}" Value="PartiallyDelivered">
                                                     <Setter Property="Text" Value="부분입고"/>
-                                                    <Setter Property="Foreground" Value="#1E5EFF"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource Tran.State.Sent.Fg}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding State}" Value="Delivered">
                                                     <Setter Property="Text" Value="입고완료"/>
-                                                    <Setter Property="Foreground" Value="#1E7F34"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource Tran.State.Confirmed.Fg}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding State}" Value="Cancelled">
                                                     <Setter Property="Text" Value="취소"/>
-                                                    <Setter Property="Foreground" Value="#C92A2A"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource Tran.State.Cancelled.Fg}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -230,9 +141,11 @@
                 </DataGridTemplateColumn>
 
                 <!-- 금액 -->
-                <DataGridTextColumn Header="금액" Binding="{Binding TotalAmount, StringFormat=₩{0:N0}}" Width="130">
+                <DataGridTextColumn Header="금액" Binding="{Binding TotalAmount, StringFormat=&#x20A9;{0:N0}}" Width="130">
                     <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource RightAlignTextStyle}">
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextAlignment" Value="Right"/>
+                            <Setter Property="Padding" Value="0,0,5,0"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
@@ -247,12 +160,13 @@
         <GridSplitter Grid.Row="3"
                       Height="5"
                       HorizontalAlignment="Stretch"
-                      Background="#E0E0E0"
+                      Background="{StaticResource Tran.Neutral.200}"
                       ResizeDirection="Rows"
                       ShowsPreview="True"/>
 
         <!-- 디테일: 입고 상세 -->
-        <Border Grid.Row="4" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0">
+        <Border Grid.Row="4" Background="{StaticResource Tran.Surface.Background}"
+                BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,1,0,0">
             <Grid Margin="15,10">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -263,7 +177,7 @@
                 <!-- 디테일 없을 때 안내 -->
                 <TextBlock Grid.Row="0" Grid.RowSpan="3"
                            Text="구매 건을 선택하면 입고 상세 내역을 확인할 수 있습니다."
-                           Foreground="#95A5A6" FontSize="14"
+                           Foreground="{StaticResource Tran.Neutral.400}" FontSize="14"
                            HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
@@ -298,48 +212,22 @@
 
                     <!-- 디테일 헤더 -->
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                        <Border Background="#9B59B6" CornerRadius="3" Padding="8,4" Margin="0,0,10,0">
+                        <Border Background="{StaticResource Tran.Accent.Purchase}" CornerRadius="3" Padding="8,4" Margin="0,0,10,0">
                             <TextBlock Text="입고 상세" Foreground="White" FontSize="13" FontWeight="Bold"/>
                         </Border>
                         <TextBlock Text="{Binding SelectedPurchase.PurchaseId, StringFormat=({0})}"
                                    FontSize="16" FontWeight="Bold"
-                                   Foreground="#2C3E50"
+                                   Foreground="{StaticResource Tran.Neutral.800}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <!-- 입고 상세 DataGrid (편집 가능) -->
                     <DataGrid Grid.Row="1"
                               ItemsSource="{Binding SelectedPurchaseItems}"
-                              AutoGenerateColumns="False"
-                              CanUserAddRows="False"
                               CanUserDeleteRows="False"
-                              RowHeaderWidth="0"
-                              GridLinesVisibility="Horizontal"
-                              HeadersVisibility="Column"
-                              Background="White"
                               RowHeight="38"
-                              BorderBrush="#E0E0E0"
-                              BorderThickness="1"
-                              ColumnHeaderStyle="{StaticResource PurchaseColumnHeaderStyle}"
                               VirtualizingStackPanel.IsVirtualizing="True"
                               VirtualizingStackPanel.VirtualizationMode="Recycling">
-                        <DataGrid.CellStyle>
-                            <Style TargetType="DataGridCell">
-                                <Setter Property="Padding" Value="10,5"/>
-                                <Setter Property="FontSize" Value="13"/>
-                                <Setter Property="BorderBrush" Value="#F0F0F0"/>
-                                <Setter Property="BorderThickness" Value="0,0,1,0"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="#F3E8FF"/>
-                                        <Setter Property="Foreground" Value="#000"/>
-                                    </Trigger>
-                                    <Trigger Property="IsEditing" Value="True">
-                                        <Setter Property="Background" Value="#FFF9E6"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </DataGrid.CellStyle>
 
                         <DataGrid.Columns>
                             <!-- 품목명 (읽기전용) -->
@@ -348,7 +236,10 @@
                             <!-- 발주수량 (읽기전용) -->
                             <DataGridTextColumn Header="발주수량" Binding="{Binding OrderedQuantity}" Width="100" IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource RightAlignTextStyle}"/>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="0,0,5,0"/>
+                                    </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
 
@@ -358,15 +249,16 @@
                                     <Style TargetType="TextBlock">
                                         <Setter Property="TextAlignment" Value="Right"/>
                                         <Setter Property="Padding" Value="0,0,5,0"/>
-                                        <Setter Property="Foreground" Value="#1E90FF"/>
+                                        <Setter Property="Foreground" Value="{StaticResource Tran.Primary.600}"/>
                                         <Setter Property="FontWeight" Value="SemiBold"/>
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                                 <DataGridTextColumn.EditingElementStyle>
                                     <Style TargetType="TextBox">
-                                        <Setter Property="Background" Value="#FFF9E6"/>
-                                        <Setter Property="BorderBrush" Value="#9B59B6"/>
+                                        <Setter Property="Background" Value="{StaticResource Tran.Warning.Light}"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource Tran.Accent.Purchase}"/>
                                         <Setter Property="Padding" Value="4,2"/>
+                                        <Setter Property="Height" Value="Auto"/>
                                     </Style>
                                 </DataGridTextColumn.EditingElementStyle>
                             </DataGridTextColumn>
@@ -377,33 +269,37 @@
                                     <Style TargetType="TextBlock">
                                         <Setter Property="TextAlignment" Value="Right"/>
                                         <Setter Property="Padding" Value="0,0,5,0"/>
-                                        <Setter Property="Foreground" Value="#E74C3C"/>
+                                        <Setter Property="Foreground" Value="{StaticResource Tran.Danger}"/>
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                                 <DataGridTextColumn.EditingElementStyle>
                                     <Style TargetType="TextBox">
-                                        <Setter Property="Background" Value="#FFF0F0"/>
-                                        <Setter Property="BorderBrush" Value="#E74C3C"/>
+                                        <Setter Property="Background" Value="{StaticResource Tran.Danger.Light}"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource Tran.Danger}"/>
                                         <Setter Property="Padding" Value="4,2"/>
+                                        <Setter Property="Height" Value="Auto"/>
                                     </Style>
                                 </DataGridTextColumn.EditingElementStyle>
                             </DataGridTextColumn>
 
                             <!-- 단가 (읽기전용) -->
-                            <DataGridTextColumn Header="단가" Binding="{Binding UnitPrice, StringFormat=₩{0:N0}}" Width="110" IsReadOnly="True">
+                            <DataGridTextColumn Header="단가" Binding="{Binding UnitPrice, StringFormat=&#x20A9;{0:N0}}" Width="110" IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource RightAlignTextStyle}"/>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="0,0,5,0"/>
+                                    </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
 
                             <!-- 금액 (읽기전용, 계산) -->
-                            <DataGridTextColumn Header="금액" Binding="{Binding LineAmount, StringFormat=₩{0:N0}}" Width="130" IsReadOnly="True">
+                            <DataGridTextColumn Header="금액" Binding="{Binding LineAmount, StringFormat=&#x20A9;{0:N0}}" Width="130" IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="TextAlignment" Value="Right"/>
                                         <Setter Property="Padding" Value="0,0,5,0"/>
                                         <Setter Property="FontWeight" Value="Bold"/>
-                                        <Setter Property="Foreground" Value="#9B59B6"/>
+                                        <Setter Property="Foreground" Value="{StaticResource Tran.Accent.Purchase}"/>
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
@@ -419,10 +315,10 @@
 
                         <!-- 합계 금액 -->
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="합계 금액:" FontSize="14" FontWeight="Bold" Foreground="#555"
+                            <TextBlock Text="합계 금액:" FontSize="14" FontWeight="Bold" Foreground="{StaticResource Tran.Neutral.500}"
                                        VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <TextBlock Text="{Binding SelectedPurchase.TotalAmount, StringFormat=₩{0:N0}}"
-                                       FontSize="18" FontWeight="Bold" Foreground="#9B59B6"
+                            <TextBlock Text="{Binding SelectedPurchase.TotalAmount, StringFormat=&#x20A9;{0:N0}}"
+                                       FontSize="18" FontWeight="Bold" Foreground="{StaticResource Tran.Accent.Purchase}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
 
@@ -430,7 +326,7 @@
                         <Button Grid.Column="1"
                                 Content="F5 입고 확정"
                                 Command="{Binding ConfirmDeliveryCommand}"
-                                Style="{StaticResource PurpleButtonStyle}"/>
+                                Style="{StaticResource Tran.PurchaseButton}"/>
                     </Grid>
                 </Grid>
             </Grid>

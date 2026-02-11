@@ -16,6 +16,7 @@ namespace Tran.Desktop.ViewModels;
 public class QuotationViewModel : ViewModelBase
 {
     private string _companyId = string.Empty;
+    private string _companyName = string.Empty;
     private Quotation? _currentQuotation;
     private decimal _totalAmount;
     private string _statusMessage = string.Empty;
@@ -25,6 +26,7 @@ public class QuotationViewModel : ViewModelBase
         CurrentItems = new ObservableCollection<QuotationItemRow>();
         QuotationHistory = new ObservableCollection<Quotation>();
         PricePreview = new ObservableCollection<PriceChangePreview>();
+        PriceHistory = new ObservableCollection<PriceHistoryRow>();
 
         AddProductCommand = new RelayCommand<Product>(ExecuteAddProduct);
         RemoveItemCommand = new RelayCommand<QuotationItemRow>(ExecuteRemoveItem);
@@ -180,6 +182,21 @@ public class QuotationViewModel : ViewModelBase
         public bool IsIncrease => PriceChange > 0;
     }
 
+    /// <summary>
+    /// 단가 이력 행 (하단 탭 표시용 DTO)
+    /// </summary>
+    public class PriceHistoryRow
+    {
+        public DateTime ChangedDate { get; set; }
+        public string ProductName { get; set; } = string.Empty;
+        public string CompanyName { get; set; } = string.Empty;
+        public decimal PreviousPrice { get; set; }
+        public decimal NewPrice { get; set; }
+        public string ChangePercentDisplay { get; set; } = string.Empty;
+        public bool IsIncrease { get; set; }
+        public string QuotationId { get; set; } = string.Empty;
+    }
+
     // ═══════════════════════════════════════════════════════════
     // Properties
     // ═══════════════════════════════════════════════════════════
@@ -191,6 +208,15 @@ public class QuotationViewModel : ViewModelBase
     {
         get => _companyId;
         set => SetProperty(ref _companyId, value);
+    }
+
+    /// <summary>
+    /// 현재 거래처명 (상단 표시용)
+    /// </summary>
+    public string CompanyName
+    {
+        get => _companyName;
+        set => SetProperty(ref _companyName, value);
     }
 
     /// <summary>
@@ -216,6 +242,11 @@ public class QuotationViewModel : ViewModelBase
     /// 단가 변경 미리보기 (확정 시 적용될 변경)
     /// </summary>
     public ObservableCollection<PriceChangePreview> PricePreview { get; }
+
+    /// <summary>
+    /// 단가 이력 (하단 탭)
+    /// </summary>
+    public ObservableCollection<PriceHistoryRow> PriceHistory { get; }
 
     /// <summary>
     /// 합계 금액
@@ -279,6 +310,10 @@ public class QuotationViewModel : ViewModelBase
         {
             using var context = CreateDbContext();
 
+            // 거래처명 로드
+            var company = await context.Companies.FindAsync(companyId);
+            CompanyName = company?.CompanyName ?? companyId;
+
             // 견적 이력 로드
             var quotations = await context.Quotations
                 .Include(q => q.Items)
@@ -292,6 +327,9 @@ public class QuotationViewModel : ViewModelBase
             {
                 QuotationHistory.Add(quotation);
             }
+
+            // 단가 이력 로드
+            await LoadPriceHistoryAsync();
 
             // 현재 견적 초기화
             UnsubscribeAllItems();
@@ -383,6 +421,79 @@ public class QuotationViewModel : ViewModelBase
     // Private Methods
     // ═══════════════════════════════════════════════════════════
 
+    private async Task RefreshQuotationHistoryAsync()
+    {
+        try
+        {
+            using var context = CreateDbContext();
+            var quotations = await context.Quotations
+                .Include(q => q.Items)
+                .Where(q => q.CompanyId == CompanyId)
+                .OrderByDescending(q => q.QuotationDate)
+                .Take(50)
+                .ToListAsync();
+
+            QuotationHistory.Clear();
+            foreach (var quotation in quotations)
+            {
+                QuotationHistory.Add(quotation);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"견적 목록 갱신 실패: {ex.Message}");
+        }
+    }
+
+    private async Task LoadPriceHistoryAsync()
+    {
+        try
+        {
+            using var context = CreateDbContext();
+            var pricePolicyService = new PricePolicyService(context);
+
+            var histories = await pricePolicyService.GetAllPriceHistoriesForCompanyAsync(CompanyId);
+
+            PriceHistory.Clear();
+            foreach (var ph in histories)
+            {
+                var changePercent = ph.OldPrice != 0
+                    ? Math.Abs((ph.NewPrice - ph.OldPrice) / ph.OldPrice * 100)
+                    : 0;
+
+                var isIncrease = ph.NewPrice > ph.OldPrice;
+                var displayText = ph.OldPrice == 0
+                    ? "신규"
+                    : $"{(isIncrease ? "+" : "-")}{changePercent:F1}%";
+
+                // Reason에서 견적번호 파싱 ("견적 #123 확정" → "123")
+                var quotationId = string.Empty;
+                if (!string.IsNullOrEmpty(ph.Reason))
+                {
+                    var match = System.Text.RegularExpressions.Regex.Match(ph.Reason, @"#(\d+)");
+                    if (match.Success)
+                        quotationId = match.Groups[1].Value;
+                }
+
+                PriceHistory.Add(new PriceHistoryRow
+                {
+                    ChangedDate = ph.ChangedAt,
+                    ProductName = ph.Product?.ProductName ?? $"품목#{ph.ProductId}",
+                    CompanyName = ph.Company?.CompanyName ?? ph.CompanyId,
+                    PreviousPrice = ph.OldPrice,
+                    NewPrice = ph.NewPrice,
+                    ChangePercentDisplay = displayText,
+                    IsIncrease = isIncrease,
+                    QuotationId = quotationId
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"단가 이력 로드 실패: {ex.Message}");
+        }
+    }
+
     private TranDbContext CreateDbContext()
     {
         return DbContextFactory.Create();
@@ -465,8 +576,8 @@ public class QuotationViewModel : ViewModelBase
             CurrentQuotation = savedQuotation;
             StatusMessage = $"견적 임시 저장 완료 (#{savedQuotation.QuotationId})";
 
-            // 이력에 추가
-            QuotationHistory.Insert(0, savedQuotation);
+            // 목록 갱신
+            await RefreshQuotationHistoryAsync();
         }
         catch (Exception ex)
         {
@@ -493,6 +604,9 @@ public class QuotationViewModel : ViewModelBase
 
             CurrentQuotation = sentQuotation;
             StatusMessage = $"견적 #{sentQuotation.QuotationId} 전송 완료";
+
+            // 목록 갱신
+            await RefreshQuotationHistoryAsync();
         }
         catch (Exception ex)
         {
@@ -521,6 +635,10 @@ public class QuotationViewModel : ViewModelBase
 
             // 단가 미리보기 초기화 (이미 반영됨)
             PricePreview.Clear();
+
+            // 목록 + 단가 이력 갱신
+            await RefreshQuotationHistoryAsync();
+            await LoadPriceHistoryAsync();
 
             // 새 견적 시작
             UnsubscribeAllItems();

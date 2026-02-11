@@ -108,6 +108,20 @@ public class PricePolicyService : IPricePolicyService
     }
 
     /// <summary>
+    /// 특정 거래처의 전체 단가 변경 이력 (Product/Company 네비게이션 포함)
+    /// </summary>
+    public async Task<List<PriceHistory>> GetAllPriceHistoriesForCompanyAsync(string companyId)
+    {
+        return await _context.PriceHistories
+            .Include(ph => ph.Product)
+            .Include(ph => ph.Company)
+            .Where(ph => ph.CompanyId == companyId)
+            .OrderByDescending(ph => ph.ChangedAt)
+            .Take(100)
+            .ToListAsync();
+    }
+
+    /// <summary>
     /// 거래처-품목 연결 등록
     /// 이미 등록된 경우 무시
     /// </summary>
@@ -134,6 +148,20 @@ public class PricePolicyService : IPricePolicyService
         _context.CompanyProducts.Add(companyProduct);
 
         await _context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// 거래처-품목 연결 제거
+    /// </summary>
+    public async Task RemoveCompanyProductAsync(string companyId, int productId)
+    {
+        var companyProduct = await _context.CompanyProducts
+            .FirstOrDefaultAsync(cp => cp.CompanyId == companyId && cp.ProductId == productId);
+        if (companyProduct != null)
+        {
+            _context.CompanyProducts.Remove(companyProduct);
+            await _context.SaveChangesAsync();
+        }
     }
 
     /// <summary>

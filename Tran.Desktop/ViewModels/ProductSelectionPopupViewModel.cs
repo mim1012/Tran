@@ -271,11 +271,13 @@ public class ProductSelectionPopupViewModel : ViewModelBase
             AllProducts.Clear();
             foreach (var product in products)
             {
-                AllProducts.Add(new SelectableProduct
+                var selectable = new SelectableProduct
                 {
                     Product = product,
                     IsSelected = false
-                });
+                };
+                selectable.PropertyChanged += OnSelectableProductPropertyChanged;
+                AllProducts.Add(selectable);
             }
 
             // _companyPriceMap 저장 (선택 시 사용)
@@ -326,7 +328,60 @@ public class ProductSelectionPopupViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// 품목 선택/해제 토글
+    /// SelectableProduct.IsSelected 변경 시 SelectedProducts 동기화
+    /// </summary>
+    private void OnSelectableProductPropertyChanged(object? sender, PropertyChangedEventArgs args)
+    {
+        if (args.PropertyName == nameof(SelectableProduct.IsSelected) && sender is SelectableProduct selectable)
+        {
+            SyncSelectedProduct(selectable);
+        }
+    }
+
+    /// <summary>
+    /// IsSelected 상태에 따라 SelectedProducts에 추가/제거
+    /// </summary>
+    private void SyncSelectedProduct(SelectableProduct selectable)
+    {
+        if (selectable.IsSelected)
+        {
+            // 이미 추가되어 있으면 skip
+            if (SelectedProducts.Any(r => r.ProductId == selectable.ProductId))
+                return;
+
+            var companyPrice = _companyPriceMap.TryGetValue(selectable.ProductId, out var price)
+                ? (decimal?)price
+                : null;
+            var unitPrice = companyPrice ?? selectable.DefaultPrice;
+
+            var row = new SelectedProductRow
+            {
+                ProductId = selectable.ProductId,
+                ProductName = selectable.ProductName,
+                UnitPrice = unitPrice,
+                Quantity = 1,
+                LineAmount = unitPrice,
+                CompanyPrice = companyPrice
+            };
+            row.PropertyChanged += OnSelectedProductPropertyChanged;
+            SelectedProducts.Add(row);
+        }
+        else
+        {
+            var toRemove = SelectedProducts.FirstOrDefault(r => r.ProductId == selectable.ProductId);
+            if (toRemove != null)
+            {
+                toRemove.PropertyChanged -= OnSelectedProductPropertyChanged;
+                SelectedProducts.Remove(toRemove);
+            }
+        }
+
+        RecalculateTotal();
+        CommandManager.InvalidateRequerySuggested();
+    }
+
+    /// <summary>
+    /// 품목 선택/해제 토글 (커맨드용)
     /// </summary>
     private void ExecuteToggleSelection(SelectableProduct? selectable)
     {
@@ -432,6 +487,10 @@ public class ProductSelectionPopupViewModel : ViewModelBase
         if (disposing)
         {
             UnsubscribeAllSelectedProducts();
+            foreach (var sp in AllProducts)
+            {
+                sp.PropertyChanged -= OnSelectableProductPropertyChanged;
+            }
         }
         base.Dispose(disposing);
     }

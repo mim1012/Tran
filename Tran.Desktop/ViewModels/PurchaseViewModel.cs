@@ -104,6 +104,11 @@ public class PurchaseViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// 데이터 변경 시 다른 탭 갱신을 위한 콜백
+    /// </summary>
+    public Func<Task>? OnDataChanged { get; set; }
+
     // ═══════════════════════════════════════════════════════════
     // Properties
     // ═══════════════════════════════════════════════════════════
@@ -316,6 +321,9 @@ public class PurchaseViewModel : ViewModelBase
 
             // 목록 새로고침
             await LoadPurchasesAsync();
+
+            // 다른 탭 갱신 알림
+            if (OnDataChanged != null) await OnDataChanged();
         }
         catch (Exception ex)
         {

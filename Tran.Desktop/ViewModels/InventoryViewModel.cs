@@ -22,9 +22,12 @@ public class InventoryViewModel : ViewModelBase
     {
         InventoryList = new ObservableCollection<InventoryRow>();
         TransactionHistory = new ObservableCollection<InventoryTransaction>();
+        OrderSuggestions = new ObservableCollection<OrderSuggestionRow>();
 
         AdjustInventoryCommand = new RelayCommand(async () => await ExecuteAdjustInventoryAsync());
         RefreshCommand = new RelayCommand(async () => await LoadDataAsync());
+        CreateOrderCommand = new RelayCommand<OrderSuggestionRow>(async (row) => await ExecuteCreateOrderAsync(row));
+        CreateAllOrdersCommand = new RelayCommand(async () => await ExecuteCreateAllOrdersAsync());
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -163,6 +166,31 @@ public class InventoryViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// 발주 제안 행 (수량 편집 가능)
+    /// </summary>
+    public class OrderSuggestionRow : ViewModelBase
+    {
+        private decimal _suggestedQty;
+
+        public int ProductId { get; set; }
+        public string ProductName { get; set; } = string.Empty;
+        public string? ProductCode { get; set; }
+        public decimal CurrentStock { get; set; }
+        public decimal SafetyStock { get; set; }
+        public decimal ShortageQty { get; set; }
+
+        public decimal SuggestedQty
+        {
+            get => _suggestedQty;
+            set => SetProperty(ref _suggestedQty, value);
+        }
+
+        public string? SuggestedCompanyId { get; set; }
+        public string? SuggestedCompanyName { get; set; }
+        public decimal? SuggestedUnitPrice { get; set; }
+    }
+
     // ═══════════════════════════════════════════════════════════
     // Properties
     // ═══════════════════════════════════════════════════════════
@@ -176,6 +204,16 @@ public class InventoryViewModel : ViewModelBase
     /// 재고 이동 이력 (이력 탭)
     /// </summary>
     public ObservableCollection<InventoryTransaction> TransactionHistory { get; }
+
+    /// <summary>
+    /// 발주 제안 목록
+    /// </summary>
+    public ObservableCollection<OrderSuggestionRow> OrderSuggestions { get; }
+
+    /// <summary>
+    /// 발주 제안 건수
+    /// </summary>
+    public int SuggestionCount => OrderSuggestions.Count;
 
     // 재고 요약 프로퍼티 (하단 요약 바인딩)
     public int TotalProductCount => InventoryList.Count;
@@ -233,6 +271,16 @@ public class InventoryViewModel : ViewModelBase
     /// </summary>
     public ICommand RefreshCommand { get; }
 
+    /// <summary>
+    /// 개별 발주 생성
+    /// </summary>
+    public ICommand CreateOrderCommand { get; }
+
+    /// <summary>
+    /// 전체 발주 일괄 생성
+    /// </summary>
+    public ICommand CreateAllOrdersCommand { get; }
+
     // ═══════════════════════════════════════════════════════════
     // Public Methods
     // ═══════════════════════════════════════════════════════════
@@ -281,6 +329,9 @@ public class InventoryViewModel : ViewModelBase
             RaisePropertyChanged(nameof(NormalStockCount));
             RaisePropertyChanged(nameof(LowStockCount));
             RaisePropertyChanged(nameof(OutOfStockCount));
+
+            // 발주 제안 로드
+            await LoadSuggestionsAsync();
         }
         catch (Exception ex)
         {
@@ -374,6 +425,123 @@ public class InventoryViewModel : ViewModelBase
         {
             StatusMessage = $"재고 조정 실패: {ex.Message}";
             System.Diagnostics.Debug.WriteLine($"재고 조정 실패: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 안전재고 기반 발주 제안 로드
+    /// </summary>
+    public async Task LoadSuggestionsAsync()
+    {
+        try
+        {
+            using var context = CreateDbContext();
+            var autoOrderService = new AutoOrderService(context);
+
+            var suggestions = await autoOrderService.GetOrderSuggestionsAsync();
+
+            OrderSuggestions.Clear();
+            foreach (var s in suggestions)
+            {
+                OrderSuggestions.Add(new OrderSuggestionRow
+                {
+                    ProductId = s.ProductId,
+                    ProductName = s.ProductName,
+                    ProductCode = s.ProductCode,
+                    CurrentStock = s.CurrentStock,
+                    SafetyStock = s.SafetyStock,
+                    ShortageQty = s.ShortageQty,
+                    SuggestedQty = s.SuggestedQty,
+                    SuggestedCompanyId = s.SuggestedCompanyId,
+                    SuggestedCompanyName = s.SuggestedCompanyName,
+                    SuggestedUnitPrice = s.SuggestedUnitPrice
+                });
+            }
+
+            RaisePropertyChanged(nameof(SuggestionCount));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"발주 제안 로드 실패: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 개별 발주 생성
+    /// </summary>
+    private async Task ExecuteCreateOrderAsync(OrderSuggestionRow? row)
+    {
+        if (row == null || string.IsNullOrEmpty(row.SuggestedCompanyId))
+        {
+            StatusMessage = "추천 거래처가 없는 품목은 발주를 생성할 수 없습니다.";
+            return;
+        }
+
+        try
+        {
+            using var context = CreateDbContext();
+            var autoOrderService = new AutoOrderService(context);
+
+            var order = await autoOrderService.CreateOrderFromSuggestionAsync(
+                row.ProductId,
+                row.SuggestedCompanyId,
+                row.SuggestedQty,
+                row.SuggestedUnitPrice ?? 0);
+
+            StatusMessage = $"발주 #{order.OrderId} 생성 완료 ({row.ProductName}, {row.SuggestedQty}개)";
+
+            // 제안 목록에서 제거
+            OrderSuggestions.Remove(row);
+            RaisePropertyChanged(nameof(SuggestionCount));
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"발주 생성 실패: {ex.Message}";
+            System.Diagnostics.Debug.WriteLine($"발주 생성 실패: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 전체 발주 일괄 생성
+    /// </summary>
+    private async Task ExecuteCreateAllOrdersAsync()
+    {
+        var validSuggestions = OrderSuggestions
+            .Where(s => !string.IsNullOrEmpty(s.SuggestedCompanyId))
+            .ToList();
+
+        if (!validSuggestions.Any())
+        {
+            StatusMessage = "생성 가능한 발주 제안이 없습니다.";
+            return;
+        }
+
+        int created = 0;
+        try
+        {
+            foreach (var row in validSuggestions)
+            {
+                using var context = CreateDbContext();
+                var autoOrderService = new AutoOrderService(context);
+
+                await autoOrderService.CreateOrderFromSuggestionAsync(
+                    row.ProductId,
+                    row.SuggestedCompanyId!,
+                    row.SuggestedQty,
+                    row.SuggestedUnitPrice ?? 0);
+
+                created++;
+            }
+
+            StatusMessage = $"발주 {created}건 일괄 생성 완료";
+
+            // 새로고침
+            await LoadSuggestionsAsync();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"일괄 발주 생성 중 오류 ({created}건 생성 후): {ex.Message}";
+            System.Diagnostics.Debug.WriteLine($"일괄 발주 생성 실패: {ex.Message}");
         }
     }
 }

@@ -20,6 +20,8 @@ public class OrderViewModel : ViewModelBase
     private string _searchText = string.Empty;
     private decimal _totalAmount;
     private string _statusMessage = string.Empty;
+    private Product? _selectedProduct;
+    private CompanyProduct? _selectedFrequentProduct;
 
     public OrderViewModel()
     {
@@ -36,6 +38,8 @@ public class OrderViewModel : ViewModelBase
         SaveDraftCommand = new AsyncRelayCommand(ExecuteSaveDraftAsync);
         LoadDraftCommand = new RelayCommand<Order>(ExecuteLoadDraft);
         SearchCommand = new RelayCommand(ExecuteSearch);
+        AddToFrequentCommand = new AsyncRelayCommand(ExecuteAddToFrequentAsync);
+        RemoveFromFrequentCommand = new AsyncRelayCommand(ExecuteRemoveFromFrequentAsync);
 
         CurrentOrderItems.CollectionChanged += (_, _) => RecalculateTotal();
     }
@@ -132,6 +136,11 @@ public class OrderViewModel : ViewModelBase
         public Action? OnAmountChanged { get; set; }
     }
 
+    /// <summary>
+    /// 데이터 변경 시 다른 탭 갱신을 위한 콜백
+    /// </summary>
+    public Func<Task>? OnDataChanged { get; set; }
+
     // ═══════════════════════════════════════════════════════════
     // Properties
     // ═══════════════════════════════════════════════════════════
@@ -217,6 +226,24 @@ public class OrderViewModel : ViewModelBase
         set => SetProperty(ref _statusMessage, value);
     }
 
+    /// <summary>
+    /// 좌측 전체 품목에서 선택된 품목
+    /// </summary>
+    public Product? SelectedProduct
+    {
+        get => _selectedProduct;
+        set => SetProperty(ref _selectedProduct, value);
+    }
+
+    /// <summary>
+    /// 우측 자주 거래 품목에서 선택된 품목
+    /// </summary>
+    public CompanyProduct? SelectedFrequentProduct
+    {
+        get => _selectedFrequentProduct;
+        set => SetProperty(ref _selectedFrequentProduct, value);
+    }
+
     // ═══════════════════════════════════════════════════════════
     // Commands
     // ═══════════════════════════════════════════════════════════
@@ -255,6 +282,16 @@ public class OrderViewModel : ViewModelBase
     /// 검색
     /// </summary>
     public ICommand SearchCommand { get; }
+
+    /// <summary>
+    /// 자주거래 품목에 추가 (→ 버튼)
+    /// </summary>
+    public ICommand AddToFrequentCommand { get; }
+
+    /// <summary>
+    /// 자주거래 품목에서 제거 (← 버튼)
+    /// </summary>
+    public ICommand RemoveFromFrequentCommand { get; }
 
     // ═══════════════════════════════════════════════════════════
     // Public Methods
@@ -415,6 +452,9 @@ public class OrderViewModel : ViewModelBase
 
             // 현재 발주 초기화
             ClearCurrentOrder();
+
+            // 다른 탭 갱신 알림
+            if (OnDataChanged != null) await OnDataChanged();
         }
         catch (Exception ex)
         {
@@ -480,6 +520,55 @@ public class OrderViewModel : ViewModelBase
         }
 
         RecalculateTotal();
+    }
+
+    private async Task ExecuteAddToFrequentAsync()
+    {
+        if (SelectedProduct == null) return;
+
+        try
+        {
+            using var context = CreateDbContext();
+            var service = new PricePolicyService(context);
+            await service.RegisterCompanyProductAsync(CompanyId, SelectedProduct.ProductId);
+            await ReloadFrequentProductsAsync();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"자주거래 품목 추가 실패: {ex.Message}";
+        }
+    }
+
+    private async Task ExecuteRemoveFromFrequentAsync()
+    {
+        if (SelectedFrequentProduct == null) return;
+
+        try
+        {
+            using var context = CreateDbContext();
+            var service = new PricePolicyService(context);
+            await service.RemoveCompanyProductAsync(CompanyId, SelectedFrequentProduct.ProductId);
+            await ReloadFrequentProductsAsync();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"자주거래 품목 제거 실패: {ex.Message}";
+        }
+    }
+
+    private async Task ReloadFrequentProductsAsync()
+    {
+        using var context = CreateDbContext();
+        var frequentProducts = await context.CompanyProducts
+            .Include(cp => cp.Product)
+            .Where(cp => cp.CompanyId == CompanyId)
+            .OrderByDescending(cp => cp.OrderCount)
+            .Take(20)
+            .ToListAsync();
+
+        FrequentProducts.Clear();
+        foreach (var cp in frequentProducts)
+            FrequentProducts.Add(cp);
     }
 
     private void ExecuteSearch()

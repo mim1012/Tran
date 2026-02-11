@@ -4,7 +4,17 @@
              xmlns:local="clr-namespace:Tran.Desktop"
              xmlns:converters="clr-namespace:Tran.Desktop.Converters"
              StartupUri="Views/CompanySelectionWindow.xaml">
-    <Application.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-    </Application.Resources>
+   <Application.Resources>
+       <ResourceDictionary>
+           <ResourceDictionary.MergedDictionaries>
+               <ResourceDictionary Source="Themes/Colors.xaml"/>
+               <ResourceDictionary Source="Themes/Typography.xaml"/>
+               <ResourceDictionary Source="Themes/Controls.xaml"/>
+               <ResourceDictionary Source="Themes/Components.xaml"/>
+           </ResourceDictionary.MergedDictionaries>
+
+           <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+           <converters:RatioToPixelConverter x:Key="RatioToPixelConverter"/>
+       </ResourceDictionary>
+   </Application.Resources>
 </Application>

@@ -135,6 +135,30 @@ public class SaleService : ISaleService
                     CreatedAt = DateTime.UtcNow
                 };
                 _context.InventoryTransactions.Add(inventoryTransaction);
+
+                // CompanyProduct upsert (자주거래 품목 자동 등록)
+                var companyProduct = await _context.CompanyProducts
+                    .FirstOrDefaultAsync(cp =>
+                        cp.CompanyId == sale.CompanyId &&
+                        cp.ProductId == saleItem.ProductId);
+
+                if (companyProduct == null)
+                {
+                    companyProduct = new CompanyProduct
+                    {
+                        CompanyId = sale.CompanyId,
+                        ProductId = saleItem.ProductId,
+                        OrderCount = 1,
+                        LastOrderDate = DateTime.UtcNow,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _context.CompanyProducts.Add(companyProduct);
+                }
+                else
+                {
+                    companyProduct.OrderCount++;
+                    companyProduct.LastOrderDate = DateTime.UtcNow;
+                }
             }
 
             await _context.SaveChangesAsync();

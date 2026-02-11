@@ -29,9 +29,19 @@ public interface IPricePolicyService
     Task<List<PriceHistory>> GetPriceHistoryAsync(string companyId, int productId);
 
     /// <summary>
+    /// 특정 거래처의 전체 단가 변경 이력 (Product 네비게이션 포함)
+    /// </summary>
+    Task<List<PriceHistory>> GetAllPriceHistoriesForCompanyAsync(string companyId);
+
+    /// <summary>
     /// 거래처-품목 연결 등록
     /// </summary>
     Task RegisterCompanyProductAsync(string companyId, int productId);
+
+    /// <summary>
+    /// 거래처-품목 연결 제거
+    /// </summary>
+    Task RemoveCompanyProductAsync(string companyId, int productId);
 
     /// <summary>
     /// 특정 거래처의 거래 품목 목록

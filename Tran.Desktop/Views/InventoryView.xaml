@@ -3,97 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:Tran.Desktop.Converters"
              mc:Ignorable="d"
-             Background="White"
+             Background="{StaticResource Tran.Surface.Background}"
              d:DesignHeight="700" d:DesignWidth="1000">
 
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding AdjustInventoryCommand}"/>
         <KeyBinding Key="F9" Command="{Binding RefreshCommand}"/>
     </UserControl.InputBindings>
-
-    <UserControl.Resources>
-        <!-- 공통 DataGrid 컬럼 헤더 스타일 -->
-        <Style x:Key="InventoryColumnHeaderStyle" TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#F5F5F5"/>
-            <Setter Property="Foreground" Value="#333"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="BorderBrush" Value="#E0E0E0"/>
-            <Setter Property="BorderThickness" Value="0,0,1,1"/>
-        </Style>
-
-        <!-- 공통 DataGrid 셀 스타일 -->
-        <Style x:Key="InventoryCellStyle" TargetType="DataGridCell">
-            <Setter Property="Padding" Value="10,6"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="BorderBrush" Value="#F0F0F0"/>
-            <Setter Property="BorderThickness" Value="0,0,1,0"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#FFF5E6"/>
-                    <Setter Property="Foreground" Value="#000"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- 금액/수량 오른쪽 정렬 -->
-        <Style x:Key="RightAlignStyle" TargetType="TextBlock">
-            <Setter Property="TextAlignment" Value="Right"/>
-            <Setter Property="Padding" Value="0,0,5,0"/>
-        </Style>
-
-        <!-- 오렌지 버튼 스타일 -->
-        <Style x:Key="OrangeButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#F39C12"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="16,8"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Height" Value="34"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#E67E22"/>
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Background" Value="#F5D6A0"/>
-                    <Setter Property="Foreground" Value="#A0A0A0"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- 하단 탭 DataGrid 셀 스타일 -->
-        <Style x:Key="TransactionCellStyle" TargetType="DataGridCell">
-            <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="BorderBrush" Value="#F0F0F0"/>
-            <Setter Property="BorderThickness" Value="0,0,1,0"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#FFF5E6"/>
-                    <Setter Property="Foreground" Value="#000"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-    </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -105,10 +23,11 @@
         </Grid.RowDefinitions>
 
         <!-- 오렌지 악센트 바 (3px) -->
-        <Border Grid.Row="0" Background="#F39C12"/>
+        <Border Grid.Row="0" Background="{StaticResource Tran.Accent.Inventory}"
+                Style="{StaticResource Tran.AccentBar}"/>
 
         <!-- 헤더: 타이틀 + 검색 + 재고 조정 버튼 -->
-        <Border Grid.Row="1" Background="#F8F9FA" Padding="15,12" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+        <Border Grid.Row="1" Style="{StaticResource Tran.SectionHeader}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -118,12 +37,11 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Column="0" Text="재고 관리"
-                           FontSize="20" FontWeight="Bold"
-                           Foreground="#2C3E50"
+                           Style="{StaticResource Tran.Heading2}"
                            VerticalAlignment="Center"/>
 
                 <!-- 검색 -->
-                <Border Grid.Column="2" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="4"
+                <Border Grid.Column="2" Style="{StaticResource Tran.SearchBox}"
                         Height="32" Margin="0,0,12,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -134,16 +52,12 @@
                                    VerticalAlignment="Center" Margin="8,0,5,0"/>
                         <TextBox Grid.Column="1"
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Background="Transparent"
                                  BorderThickness="0"
+                                 Height="Auto"
                                  VerticalContentAlignment="Center"
                                  FontSize="13"
-                                 Padding="2,0">
-                            <TextBox.Style>
-                                <Style TargetType="TextBox">
-                                    <Setter Property="Foreground" Value="#333"/>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
+                                 Padding="2,0"/>
                     </Grid>
                 </Border>
 
@@ -151,7 +65,7 @@
                 <Button Grid.Column="3"
                         Content="&#x1F4CB; 재고 조정"
                         Command="{Binding AdjustInventoryCommand}"
-                        Style="{StaticResource OrangeButtonStyle}"/>
+                        Style="{StaticResource Tran.WarningButton}"/>
             </Grid>
         </Border>
 
@@ -159,33 +73,13 @@
         <DataGrid Grid.Row="2"
                   ItemsSource="{Binding InventoryList}"
                   SelectedItem="{Binding SelectedProduct}"
-                  AutoGenerateColumns="False"
                   IsReadOnly="True"
                   SelectionMode="Single"
-                  GridLinesVisibility="Horizontal"
-                  HeadersVisibility="Column"
-                  Background="White"
                   RowHeight="38"
                   BorderThickness="0"
                   Margin="15,10"
-                  ColumnHeaderStyle="{StaticResource InventoryColumnHeaderStyle}"
-                  CellStyle="{StaticResource InventoryCellStyle}"
                   VirtualizingStackPanel.IsVirtualizing="True"
                   VirtualizingStackPanel.VirtualizationMode="Recycling">
-            <DataGrid.RowStyle>
-                <Style TargetType="DataGridRow">
-                    <Setter Property="BorderThickness" Value="3,0,0,0"/>
-                    <Setter Property="BorderBrush" Value="Transparent"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="#FFF8EE"/>
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#FAFAFA"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.RowStyle>
 
             <DataGrid.Columns>
                 <!-- 품목코드 -->
@@ -214,7 +108,7 @@
                         <Style TargetType="TextBlock">
                             <Setter Property="TextAlignment" Value="Right"/>
                             <Setter Property="Padding" Value="0,0,8,0"/>
-                            <Setter Property="Foreground" Value="#27AE60"/>
+                            <Setter Property="Foreground" Value="{StaticResource Tran.Success}"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
@@ -225,7 +119,7 @@
                         <Style TargetType="TextBlock">
                             <Setter Property="TextAlignment" Value="Right"/>
                             <Setter Property="Padding" Value="0,0,8,0"/>
-                            <Setter Property="Foreground" Value="#E74C3C"/>
+                            <Setter Property="Foreground" Value="{StaticResource Tran.Danger}"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
@@ -237,7 +131,7 @@
                             <Setter Property="TextAlignment" Value="Right"/>
                             <Setter Property="Padding" Value="0,0,8,0"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
-                            <Setter Property="Foreground" Value="#1E90FF"/>
+                            <Setter Property="Foreground" Value="{StaticResource Tran.Primary.600}"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
@@ -245,8 +139,10 @@
                 <!-- 안전재고 -->
                 <DataGridTextColumn Header="안전재고" Binding="{Binding SafetyStock}" Width="90">
                     <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource RightAlignStyle}">
-                            <Setter Property="Foreground" Value="#95A5A6"/>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextAlignment" Value="Right"/>
+                            <Setter Property="Padding" Value="0,0,5,0"/>
+                            <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.400}"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
@@ -260,19 +156,19 @@
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Text" Value="--"/>
-                                        <Setter Property="Foreground" Value="#95A5A6"/>
+                                        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.400}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding StockStatus}" Value="정상">
                                                 <Setter Property="Text" Value="&#x2705; 정상"/>
-                                                <Setter Property="Foreground" Value="#27AE60"/>
+                                                <Setter Property="Foreground" Value="{StaticResource Tran.Success}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding StockStatus}" Value="부족">
                                                 <Setter Property="Text" Value="&#x26A0;&#xFE0F; 부족"/>
-                                                <Setter Property="Foreground" Value="#F39C12"/>
+                                                <Setter Property="Foreground" Value="{StaticResource Tran.Warning}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding StockStatus}" Value="품절">
                                                 <Setter Property="Text" Value="&#x274C; 품절"/>
-                                                <Setter Property="Foreground" Value="#E74C3C"/>
+                                                <Setter Property="Foreground" Value="{StaticResource Tran.Danger}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -288,39 +184,20 @@
         <GridSplitter Grid.Row="3"
                       Height="5"
                       HorizontalAlignment="Stretch"
-                      Background="#E0E0E0"
+                      Background="{StaticResource Tran.Neutral.200}"
                       ResizeDirection="Rows"
                       ShowsPreview="True"/>
 
         <!-- 하단 탭 영역 -->
-        <TabControl Grid.Row="4" Margin="15,5,15,10" BorderBrush="#E0E0E0">
-            <TabControl.Resources>
-                <Style TargetType="TabItem">
-                    <Setter Property="Padding" Value="12,6"/>
-                    <Setter Property="FontSize" Value="13"/>
-                    <Setter Property="FontWeight" Value="SemiBold"/>
-                    <Setter Property="Foreground" Value="#555"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Foreground" Value="#F39C12"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </TabControl.Resources>
+        <TabControl Grid.Row="4" Margin="15,5,15,10">
 
             <!-- 탭 1: 입출고 이력 -->
             <TabItem Header="입출고 이력">
                 <DataGrid ItemsSource="{Binding TransactionHistory}"
-                          AutoGenerateColumns="False"
                           IsReadOnly="True"
                           SelectionMode="Single"
-                          GridLinesVisibility="Horizontal"
-                          HeadersVisibility="Column"
-                          Background="White"
                           RowHeight="35"
                           BorderThickness="0"
-                          ColumnHeaderStyle="{StaticResource InventoryColumnHeaderStyle}"
-                          CellStyle="{StaticResource TransactionCellStyle}"
                           VirtualizingStackPanel.IsVirtualizing="True"
                           VirtualizingStackPanel.VirtualizationMode="Recycling">
                     <DataGrid.Columns>
@@ -338,16 +215,16 @@
                                             HorizontalAlignment="Center">
                                         <Border.Style>
                                             <Style TargetType="Border">
-                                                <Setter Property="Background" Value="#F0F0F0"/>
+                                                <Setter Property="Background" Value="{StaticResource Tran.State.Draft.Bg}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Type}" Value="Inbound">
-                                                        <Setter Property="Background" Value="#E6F4EA"/>
+                                                        <Setter Property="Background" Value="{StaticResource Tran.State.Confirmed.Bg}"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Type}" Value="Outbound">
-                                                        <Setter Property="Background" Value="#FFE5E5"/>
+                                                        <Setter Property="Background" Value="{StaticResource Tran.State.Cancelled.Bg}"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Type}" Value="Adjustment">
-                                                        <Setter Property="Background" Value="#FFF4E5"/>
+                                                        <Setter Property="Background" Value="{StaticResource Tran.State.RevisionRequested.Bg}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -357,19 +234,19 @@
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Text" Value="--"/>
-                                                    <Setter Property="Foreground" Value="#555"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.600}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding Type}" Value="Inbound">
                                                             <Setter Property="Text" Value="입고"/>
-                                                            <Setter Property="Foreground" Value="#1E7F34"/>
+                                                            <Setter Property="Foreground" Value="{StaticResource Tran.State.Confirmed.Fg}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding Type}" Value="Outbound">
                                                             <Setter Property="Text" Value="출고"/>
-                                                            <Setter Property="Foreground" Value="#C92A2A"/>
+                                                            <Setter Property="Foreground" Value="{StaticResource Tran.State.Cancelled.Fg}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding Type}" Value="Adjustment">
                                                             <Setter Property="Text" Value="조정"/>
-                                                            <Setter Property="Foreground" Value="#E67700"/>
+                                                            <Setter Property="Foreground" Value="{StaticResource Tran.State.RevisionRequested.Fg}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -389,16 +266,16 @@
                                                FontWeight="SemiBold">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="#333"/>
+                                                <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.700}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Type}" Value="Inbound">
-                                                        <Setter Property="Foreground" Value="#27AE60"/>
+                                                        <Setter Property="Foreground" Value="{StaticResource Tran.Success}"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Type}" Value="Outbound">
-                                                        <Setter Property="Foreground" Value="#E74C3C"/>
+                                                        <Setter Property="Foreground" Value="{StaticResource Tran.Danger}"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Type}" Value="Adjustment">
-                                                        <Setter Property="Foreground" Value="#E67700"/>
+                                                        <Setter Property="Foreground" Value="{StaticResource Tran.State.RevisionRequested.Fg}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -422,8 +299,9 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">
                     <StackPanel Margin="10">
                         <!-- 요약 카드 영역 -->
-                        <TextBlock Text="재고 현황 요약" FontSize="16" FontWeight="Bold"
-                                   Foreground="#2C3E50" Margin="0,0,0,15"/>
+                        <TextBlock Text="재고 현황 요약"
+                                   Style="{StaticResource Tran.Heading3}"
+                                   Margin="0,0,0,15"/>
 
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -434,49 +312,65 @@
                             </Grid.ColumnDefinitions>
 
                             <!-- 총 품목 수 -->
-                            <Border Grid.Column="0" Background="#F8F9FA" CornerRadius="6"
-                                    Padding="15" Margin="0,0,8,0" BorderBrush="#E0E0E0" BorderThickness="1">
+                            <Border Grid.Column="0" Style="{StaticResource Tran.SummaryCard}"
+                                    Background="{StaticResource Tran.Neutral.50}"
+                                    BorderBrush="{StaticResource Tran.Neutral.200}"
+                                    Margin="0,0,8,0">
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="총 품목 수" FontSize="12" Foreground="#95A5A6"
+                                    <TextBlock Text="총 품목 수" FontSize="12"
+                                               Foreground="{StaticResource Tran.Neutral.400}"
                                                HorizontalAlignment="Center" Margin="0,0,0,5"/>
                                     <TextBlock Text="{Binding TotalProductCount}"
-                                               FontSize="24" FontWeight="Bold" Foreground="#2C3E50"
+                                               FontSize="24" FontWeight="Bold"
+                                               Foreground="{StaticResource Tran.Neutral.800}"
                                                HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- 정상 재고 -->
-                            <Border Grid.Column="1" Background="#E6F4EA" CornerRadius="6"
-                                    Padding="15" Margin="4,0" BorderBrush="#C3E6CB" BorderThickness="1">
+                            <Border Grid.Column="1" Style="{StaticResource Tran.SummaryCard}"
+                                    Background="{StaticResource Tran.Success.Light}"
+                                    BorderBrush="{StaticResource Tran.Success}"
+                                    Margin="4,0">
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="정상 재고" FontSize="12" Foreground="#27AE60"
+                                    <TextBlock Text="정상 재고" FontSize="12"
+                                               Foreground="{StaticResource Tran.Success}"
                                                HorizontalAlignment="Center" Margin="0,0,0,5"/>
                                     <TextBlock Text="{Binding NormalStockCount}"
-                                               FontSize="24" FontWeight="Bold" Foreground="#27AE60"
+                                               FontSize="24" FontWeight="Bold"
+                                               Foreground="{StaticResource Tran.Success}"
                                                HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- 부족 재고 -->
-                            <Border Grid.Column="2" Background="#FFF5E6" CornerRadius="6"
-                                    Padding="15" Margin="4,0" BorderBrush="#FFE0B2" BorderThickness="1">
+                            <Border Grid.Column="2" Style="{StaticResource Tran.SummaryCard}"
+                                    Background="{StaticResource Tran.Warning.Light}"
+                                    BorderBrush="{StaticResource Tran.Warning}"
+                                    Margin="4,0">
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="부족 재고" FontSize="12" Foreground="#F39C12"
+                                    <TextBlock Text="부족 재고" FontSize="12"
+                                               Foreground="{StaticResource Tran.Warning}"
                                                HorizontalAlignment="Center" Margin="0,0,0,5"/>
                                     <TextBlock Text="{Binding LowStockCount}"
-                                               FontSize="24" FontWeight="Bold" Foreground="#F39C12"
+                                               FontSize="24" FontWeight="Bold"
+                                               Foreground="{StaticResource Tran.Warning}"
                                                HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- 품절 -->
-                            <Border Grid.Column="3" Background="#FDEDEC" CornerRadius="6"
-                                    Padding="15" Margin="8,0,0,0" BorderBrush="#F5C6CB" BorderThickness="1">
+                            <Border Grid.Column="3" Style="{StaticResource Tran.SummaryCard}"
+                                    Background="{StaticResource Tran.Danger.Light}"
+                                    BorderBrush="{StaticResource Tran.Danger}"
+                                    Margin="8,0,0,0">
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="품절" FontSize="12" Foreground="#E74C3C"
+                                    <TextBlock Text="품절" FontSize="12"
+                                               Foreground="{StaticResource Tran.Danger}"
                                                HorizontalAlignment="Center" Margin="0,0,0,5"/>
                                     <TextBlock Text="{Binding OutOfStockCount}"
-                                               FontSize="24" FontWeight="Bold" Foreground="#E74C3C"
+                                               FontSize="24" FontWeight="Bold"
+                                               Foreground="{StaticResource Tran.Danger}"
                                                HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
@@ -484,9 +378,168 @@
 
                         <!-- 안내 텍스트 -->
                         <TextBlock Text="* 재고 요약은 현재 확정 재고 기준입니다. 입고/출고 예정 수량은 포함되지 않습니다."
-                                   FontSize="12" Foreground="#95A5A6" Margin="0,20,0,0"/>
+                                   Style="{StaticResource Tran.Caption}"
+                                   Margin="0,20,0,0"/>
                     </StackPanel>
                 </ScrollViewer>
+            </TabItem>
+
+            <!-- 탭 3: 발주 제안 -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="발주 제안" VerticalAlignment="Center"/>
+                        <Border Background="{StaticResource Tran.Danger}"
+                                CornerRadius="8" Padding="5,1" Margin="6,0,0,0"
+                                VerticalAlignment="Center"
+                                Visibility="{Binding SuggestionCount,
+                            Converter={x:Static local:PositiveToVisibleConverter.Instance}}">
+                            <TextBlock Text="{Binding SuggestionCount}"
+                                       Foreground="White" FontSize="10" FontWeight="Bold"/>
+                        </Border>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <DataGrid Grid.Row="0"
+                              ItemsSource="{Binding OrderSuggestions}"
+                              IsReadOnly="False"
+                              SelectionMode="Single"
+                              RowHeight="38"
+                              BorderThickness="0"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling">
+                        <DataGrid.Columns>
+                            <!-- 품목명 -->
+                            <DataGridTextColumn Header="품목명" Binding="{Binding ProductName}" Width="2*" IsReadOnly="True"/>
+
+                            <!-- 품목코드 -->
+                            <DataGridTextColumn Header="코드" Binding="{Binding ProductCode}" Width="100" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.500}"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- 현재 재고 -->
+                            <DataGridTextColumn Header="현재재고" Binding="{Binding CurrentStock}" Width="85" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="0,0,8,0"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- 안전재고 -->
+                            <DataGridTextColumn Header="안전재고" Binding="{Binding SafetyStock}" Width="85" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="0,0,8,0"/>
+                                        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.400}"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- 부족수량 -->
+                            <DataGridTextColumn Header="부족수량" Binding="{Binding ShortageQty}" Width="85" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="0,0,8,0"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="Foreground" Value="{StaticResource Tran.Danger}"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- 추천 발주량 (편집 가능) -->
+                            <DataGridTextColumn Header="추천발주량" Binding="{Binding SuggestedQty, UpdateSourceTrigger=PropertyChanged}" Width="100">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="0,0,8,0"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Background" Value="{StaticResource Tran.Warning.Light}"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                                <DataGridTextColumn.EditingElementStyle>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Background" Value="{StaticResource Tran.Warning.Light}"/>
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="0,0,5,0"/>
+                                    </Style>
+                                </DataGridTextColumn.EditingElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- 추천 거래처 -->
+                            <DataGridTextColumn Header="추천거래처" Binding="{Binding SuggestedCompanyName}" Width="150" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{StaticResource Tran.Primary.600}"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- 추천 단가 -->
+                            <DataGridTextColumn Header="추천단가" Binding="{Binding SuggestedUnitPrice, StringFormat={}{0:N0}}" Width="100" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="0,0,8,0"/>
+                                        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.600}"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- 발주 버튼 -->
+                            <DataGridTemplateColumn Header="" Width="70">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="발주"
+                                                Command="{Binding DataContext.CreateOrderCommand,
+                                                    RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource Tran.PrimaryButton}"
+                                                Height="26" Padding="10,0" FontSize="11"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- 하단: 전체 발주 생성 버튼 -->
+                    <Border Grid.Row="1" Padding="10,8"
+                            BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,1,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       VerticalAlignment="Center" FontSize="12"
+                                       Foreground="{StaticResource Tran.Neutral.500}">
+                                <Run Text="* 추천발주량은 안전재고 x 2 - 현재재고로 산출됩니다. 수량 편집 후 발주 가능합니다."/>
+                            </TextBlock>
+
+                            <Button Grid.Column="1"
+                                    Content="전체 발주 생성"
+                                    Command="{Binding CreateAllOrdersCommand}"
+                                    Style="{StaticResource Tran.SuccessButton}"
+                                    Padding="20,6"/>
+                        </Grid>
+                    </Border>
+                </Grid>
             </TabItem>
         </TabControl>
     </Grid>

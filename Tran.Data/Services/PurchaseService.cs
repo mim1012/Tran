@@ -163,6 +163,33 @@ public class PurchaseService : IPurchaseService
                     };
                     _context.InventoryTransactions.Add(inventoryTransaction);
                 }
+
+                // CompanyProduct upsert (자주거래 품목 자동 등록)
+                if (purchase.State != PurchaseState.PartiallyDelivered)
+                {
+                    var companyProduct = await _context.CompanyProducts
+                        .FirstOrDefaultAsync(cp =>
+                            cp.CompanyId == purchase.CompanyId &&
+                            cp.ProductId == purchaseItem.ProductId);
+
+                    if (companyProduct == null)
+                    {
+                        companyProduct = new CompanyProduct
+                        {
+                            CompanyId = purchase.CompanyId,
+                            ProductId = purchaseItem.ProductId,
+                            OrderCount = 1,
+                            LastOrderDate = DateTime.UtcNow,
+                            CreatedAt = DateTime.UtcNow
+                        };
+                        _context.CompanyProducts.Add(companyProduct);
+                    }
+                    else
+                    {
+                        companyProduct.OrderCount++;
+                        companyProduct.LastOrderDate = DateTime.UtcNow;
+                    }
+                }
             }
 
             // 5. 입고 상태 설정

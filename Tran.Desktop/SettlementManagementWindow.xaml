@@ -6,7 +6,8 @@
         mc:Ignorable="d"
         Title="정산 관리 (읽기 전용)" Height="700" Width="1100"
         WindowStartupLocation="CenterScreen"
-        Background="#F5F5F5">
+        Background="{StaticResource Tran.Neutral.50}"
+        FontFamily="{StaticResource Tran.FontFamily}">
 
     <Window.Resources>
         <!-- BoolToVisibility Converter -->
@@ -23,9 +24,9 @@
         </Grid.RowDefinitions>
 
         <!-- 상단 안내 배너 (읽기 전용) -->
-        <Border Grid.Row="0" Background="#E8EAF6" Padding="15" Margin="0,0,0,10">
+        <Border Grid.Row="0" Background="{StaticResource Tran.Primary.50}" Padding="15" Margin="0,0,0,10">
             <StackPanel Orientation="Horizontal">
-                <Border Background="#5C6BC0"
+                <Border Background="{StaticResource Tran.Primary.600}"
                        CornerRadius="6"
                        Padding="10,5"
                        Margin="0,0,15,0">
@@ -35,7 +36,7 @@
                              FontWeight="Bold"/>
                 </Border>
                 <TextBlock Text="이 화면은 확정된 문서의 집계를 조회하는 읽기 전용 화면입니다"
-                         Foreground="#5C6BC0"
+                         Foreground="{StaticResource Tran.Primary.600}"
                          VerticalAlignment="Center"
                          FontSize="13"/>
             </StackPanel>
@@ -43,7 +44,7 @@
 
         <!-- 기간 선택 영역 -->
         <Border Grid.Row="1" Background="White" Padding="20" Margin="10,0,10,10"
-                BorderBrush="#E0E0E0" BorderThickness="1">
+                BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -79,44 +80,14 @@
                 <Button Grid.Column="5"
                        Content="조회"
                        Command="{Binding LoadSummariesCommand}"
-                       Background="#1E7F34"
-                       Foreground="White"
-                       Padding="25,8"
-                       BorderThickness="0"
-                       FontWeight="Bold"
-                       Cursor="Hand">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}"
-                                               CornerRadius="4"
-                                               Padding="{TemplateBinding Padding}">
-                                            <ContentPresenter HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#27AE60"/>
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter Property="Background" Value="#BDC3C7"/>
-                                    <Setter Property="Cursor" Value="Arrow"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
+                       Style="{StaticResource Tran.SuccessButton}"
+                       Padding="25,8"/>
             </Grid>
         </Border>
 
         <!-- 거래처별 집계 DataGrid -->
         <Border Grid.Row="2" Background="White" Padding="20" Margin="10,0,10,10"
-                BorderBrush="#E0E0E0" BorderThickness="1">
+                BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="1">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -138,7 +109,7 @@
                          CanUserReorderColumns="False"
                          GridLinesVisibility="Horizontal"
                          HeadersVisibility="Column"
-                         AlternatingRowBackground="#F9F9F9"
+                         AlternatingRowBackground="{StaticResource Tran.Surface.Section}"
                          RowHeight="40">
 
                     <DataGrid.Columns>
@@ -169,7 +140,7 @@
                                     <Setter Property="Padding" Value="10,0"/>
                                     <Setter Property="TextAlignment" Value="Right"/>
                                     <Setter Property="FontWeight" Value="Bold"/>
-                                    <Setter Property="Foreground" Value="#1E7F34"/>
+                                    <Setter Property="Foreground" Value="{StaticResource Tran.State.Confirmed.Fg}"/>
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
@@ -180,36 +151,21 @@
                                     <Setter Property="VerticalAlignment" Value="Center"/>
                                     <Setter Property="Padding" Value="10,0"/>
                                     <Setter Property="TextAlignment" Value="Right"/>
-                                    <Setter Property="Foreground" Value="#666"/>
+                                    <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.500}"/>
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                     </DataGrid.Columns>
-
-                    <DataGrid.RowStyle>
-                        <Style TargetType="DataGridRow">
-                            <Setter Property="Cursor" Value="Hand"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#E6F4EA"/>
-                                </Trigger>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="#C8E6C9"/>
-                                    <Setter Property="Foreground" Value="Black"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGrid.RowStyle>
                 </DataGrid>
             </Grid>
         </Border>
 
         <!-- 구분선 -->
-        <Border Grid.Row="3" Background="#E0E0E0" Height="1" Margin="10,0"/>
+        <Border Grid.Row="3" Background="{StaticResource Tran.Neutral.200}" Height="1" Margin="10,0"/>
 
         <!-- 선택된 거래처의 문서 목록 DataGrid -->
         <Border Grid.Row="4" Background="White" Padding="20" Margin="10,10,10,10"
-                BorderBrush="#E0E0E0" BorderThickness="1">
+                BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="1">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -222,7 +178,7 @@
                               VerticalAlignment="Center"/>
                     <TextBlock Text=" (더블클릭하여 상세 보기)"
                               FontSize="12"
-                              Foreground="#999"
+                              Foreground="{StaticResource Tran.Neutral.400}"
                               VerticalAlignment="Center"
                               Margin="10,0,0,0"/>
                 </StackPanel>
@@ -238,7 +194,7 @@
                          CanUserReorderColumns="False"
                          GridLinesVisibility="Horizontal"
                          HeadersVisibility="Column"
-                         AlternatingRowBackground="#F9F9F9"
+                         AlternatingRowBackground="{StaticResource Tran.Surface.Section}"
                          RowHeight="35"
                          MouseDoubleClick="DocumentsDataGrid_MouseDoubleClick">
 
@@ -269,7 +225,7 @@
                                     <Setter Property="Padding" Value="10,0"/>
                                     <Setter Property="TextAlignment" Value="Right"/>
                                     <Setter Property="FontWeight" Value="Bold"/>
-                                    <Setter Property="Foreground" Value="#1E7F34"/>
+                                    <Setter Property="Foreground" Value="{StaticResource Tran.State.Confirmed.Fg}"/>
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
@@ -279,7 +235,7 @@
                                 <Style TargetType="TextBlock">
                                     <Setter Property="VerticalAlignment" Value="Center"/>
                                     <Setter Property="Padding" Value="10,0"/>
-                                    <Setter Property="Foreground" Value="#666"/>
+                                    <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.500}"/>
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
@@ -290,24 +246,13 @@
                                     <Setter Property="VerticalAlignment" Value="Center"/>
                                     <Setter Property="Padding" Value="10,0"/>
                                     <Setter Property="TextAlignment" Value="Center"/>
-                                    <Setter Property="Background" Value="#E6F4EA"/>
-                                    <Setter Property="Foreground" Value="#1E7F34"/>
+                                    <Setter Property="Background" Value="{StaticResource Tran.State.Confirmed.Bg}"/>
+                                    <Setter Property="Foreground" Value="{StaticResource Tran.State.Confirmed.Fg}"/>
                                     <Setter Property="FontWeight" Value="Bold"/>
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                     </DataGrid.Columns>
-
-                    <DataGrid.RowStyle>
-                        <Style TargetType="DataGridRow">
-                            <Setter Property="Cursor" Value="Hand"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#F0F0F0"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGrid.RowStyle>
                 </DataGrid>
             </Grid>
         </Border>

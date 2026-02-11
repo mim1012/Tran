@@ -21,3 +21,15 @@ bld/
 *.db
 *.db-shm
 *.db-wal
+
+## Claude Code local settings
+.claude/settings.local.json
+
+## Publish output
+publish/
+
+## Release artifacts
+*.zip
+
+## Misc
+nul

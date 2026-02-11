@@ -13,4 +13,11 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Resource Include="Fonts\Pretendard-Regular.otf" />
+    <Resource Include="Fonts\Pretendard-Medium.otf" />
+    <Resource Include="Fonts\Pretendard-SemiBold.otf" />
+    <Resource Include="Fonts\Pretendard-Bold.otf" />
+  </ItemGroup>
+
 </Project>
