@@ -88,6 +88,21 @@ public class InventoryService : IInventoryService
     }
 
     /// <summary>
+    /// 재고 레코드 삭제
+    /// </summary>
+    public async Task DeleteInventoryAsync(int productId)
+    {
+        var inventory = await _context.Inventories
+            .FirstOrDefaultAsync(i => i.ProductId == productId);
+
+        if (inventory != null)
+        {
+            _context.Inventories.Remove(inventory);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    /// <summary>
     /// 입고 처리: ConfirmedQuantity 증가 + 트랜잭션 로그
     /// </summary>
     public async Task ProcessInboundAsync(int productId, decimal quantity, string referenceType, int referenceId)

@@ -30,6 +30,11 @@ public interface IInventoryService
     /// </summary>
     Task AdjustInventoryAsync(int productId, decimal adjustmentQty, string reason);
 
+    /// <summary>
+    /// 재고 레코드 삭제
+    /// </summary>
+    Task DeleteInventoryAsync(int productId);
+
     // ─── 내부 자동화 메서드 (다른 서비스에서 호출) ───
 
     /// <summary>

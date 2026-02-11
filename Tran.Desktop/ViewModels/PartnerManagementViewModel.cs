@@ -210,34 +210,30 @@ public class PartnerManagementViewModel : ViewModelBase
 
     /// <summary>
     /// 새 거래처 추가
-    /// TODO: PartnerManagementWindow에서 XAML 창으로 구현 필요
     /// </summary>
     private void AddCompany()
     {
-        MessageBox.Show(
-            "거래처 추가 기능은 PartnerManagementWindow XAML에서 구현하세요.\n\n" +
-            "임시로 Company 테이블에 직접 INSERT하거나,\n" +
-            "별도 CompanyEditWindow.xaml을 생성하세요.",
-            "구현 필요",
-            MessageBoxButton.OK,
-            MessageBoxImage.Information);
+        OnAddCompanyRequested?.Invoke();
     }
 
     /// <summary>
     /// 선택한 거래처 수정
-    /// TODO: PartnerManagementWindow에서 XAML 창으로 구현 필요
     /// </summary>
     private void EditCompany()
     {
         if (SelectedCompany == null) return;
-
-        MessageBox.Show(
-            $"'{SelectedCompany.CompanyName}' 수정 기능은 구현 예정입니다.\n\n" +
-            "PartnerManagementWindow XAML에서 편집 UI를 추가하세요.",
-            "구현 필요",
-            MessageBoxButton.OK,
-            MessageBoxImage.Information);
+        OnEditCompanyRequested?.Invoke(SelectedCompany);
     }
+
+    /// <summary>
+    /// 거래처 추가 요청 콜백
+    /// </summary>
+    public Action? OnAddCompanyRequested { get; set; }
+
+    /// <summary>
+    /// 거래처 수정 요청 콜백
+    /// </summary>
+    public Action<Company>? OnEditCompanyRequested { get; set; }
 
     /// <summary>
     /// 거래처 비활성화 (Soft Delete)

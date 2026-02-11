@@ -24,7 +24,10 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
@@ -33,8 +36,33 @@
                            Style="{StaticResource Tran.Heading2}"
                            VerticalAlignment="Center"/>
 
+                <!-- 회사 필터 ComboBox -->
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding FilterCompanies}"
+                          SelectedItem="{Binding SelectedCompanyFilter}"
+                          DisplayMemberPath="CompanyName"
+                          Height="32" Width="180"
+                          Margin="15,0,0,0"
+                          VerticalContentAlignment="Center"
+                          FontSize="13">
+                    <ComboBox.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="전체 회사"/>
+                        </Style>
+                    </ComboBox.Resources>
+                </ComboBox>
+
+                <!-- 전체 버튼 -->
+                <Button Grid.Column="2"
+                        Content="전체"
+                        Command="{Binding ClearFilterCommand}"
+                        Style="{StaticResource Tran.SecondaryButton}"
+                        Height="32" Padding="10,0"
+                        Margin="5,0,0,0"
+                        FontSize="12"/>
+
                 <!-- 검색 -->
-                <Border Grid.Column="2" Style="{StaticResource Tran.SearchBox}"
+                <Border Grid.Column="4" Style="{StaticResource Tran.SearchBox}"
                         Height="32" Margin="0,0,12,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -54,8 +82,15 @@
                     </Grid>
                 </Border>
 
+                <!-- ㄱ순 정렬 버튼 -->
+                <Button Grid.Column="5"
+                        Content="ㄱ순 정렬"
+                        Command="{Binding SortProductsCommand}"
+                        Style="{StaticResource Tran.SecondaryButton}"
+                        Margin="0,0,8,0"/>
+
                 <!-- 품목 추가 버튼 -->
-                <Button Grid.Column="3"
+                <Button Grid.Column="6"
                         Content="+ 품목 추가"
                         Command="{Binding AddProductCommand}"
                         Style="{StaticResource Tran.PrimaryButton}"/>
@@ -75,12 +110,13 @@
                   VirtualizingStackPanel.VirtualizationMode="Recycling">
 
             <DataGrid.Columns>
-                <!-- 품목코드 -->
-                <DataGridTextColumn Header="품목코드" Binding="{Binding ProductCode}" Width="120">
+                <!-- 회사명 -->
+                <DataGridTextColumn Header="회사명" Binding="{Binding CompanyNames}" Width="180">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
-                            <Setter Property="FontFamily" Value="Consolas"/>
                             <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.600}"/>
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                            <Setter Property="ToolTip" Value="{Binding CompanyNames}"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
@@ -147,6 +183,18 @@
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- 삭제 버튼 -->
+                <DataGridTemplateColumn Header="" Width="60">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="&#x2716;"
+                                    Command="{Binding DataContext.DeleteProductCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                    Style="{StaticResource Tran.IconButton.Danger}"
+                                    ToolTip="품목 삭제"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

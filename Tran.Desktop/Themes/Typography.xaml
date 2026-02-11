@@ -71,29 +71,46 @@
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="FontWeight" Value="Normal"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.700}"/>
-    </Style>
-
-    <!-- ============================================ -->
-    <!-- L4: 보조 텍스트                               -->
-    <!--     단위, 비고, 설명, 코드                     -->
-    <!--     시선 방해 없이 존재감만 유지               -->
-    <!-- ============================================ -->
-
-    <!-- 캡션/보조 (11.5px Normal) -->
-    <Style x:Key="Tran.Caption" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="11.5"/>
         <Setter Property="FontWeight" Value="Normal"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.400}"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
     </Style>
 
-    <!-- 폼 라벨 (12.5px Medium) -->
-    <Style x:Key="Tran.Label" TargetType="TextBlock">
+    <Style x:Key="Tran.Typography.Body2" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="12.5"/>
-        <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.600}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Secondary}"/>
     </Style>
+
+    <!-- Caption / Label -->
+    <Style x:Key="Tran.Typography.Caption" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Secondary}"/>
+    </Style>
+
+    <Style x:Key="Tran.Typography.Label" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Secondary}"/>
+    </Style>
+
+    <!-- ============================================ -->
+    <!-- Aliases (호환성)                             -->
+    <!-- ============================================ -->
+
+    <!-- Tran.Caption → Tran.Typography.Caption alias -->
+    <Style x:Key="Tran.Caption" TargetType="TextBlock" BasedOn="{StaticResource Tran.Typography.Caption}"/>
+
+    <!-- Tran.Label → Tran.Typography.Label alias -->
+    <Style x:Key="Tran.Label" TargetType="TextBlock" BasedOn="{StaticResource Tran.Typography.Label}"/>
+
+    <!-- Tran.Typography.H1 → Tran.Heading1 alias -->
+    <Style x:Key="Tran.Typography.H1" TargetType="TextBlock" BasedOn="{StaticResource Tran.Heading1}"/>
+
+    <!-- Tran.Typography.H2 → Tran.Heading2 alias -->
+    <Style x:Key="Tran.Typography.H2" TargetType="TextBlock" BasedOn="{StaticResource Tran.Heading2}"/>
 
 </ResourceDictionary>

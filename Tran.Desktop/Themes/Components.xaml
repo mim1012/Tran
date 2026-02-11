@@ -47,12 +47,12 @@
         <Setter Property="Background" Value="{StaticResource Tran.Surface.Card}"/>
         <Setter Property="CornerRadius" Value="8"/>
         <Setter Property="Padding" Value="16"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Tran.Neutral.200}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Light}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Effect">
             <Setter.Value>
                 <DropShadowEffect BlurRadius="12" ShadowDepth="2"
-                                  Color="#000000" Opacity="0.06" Direction="270"/>
+                                  Color="{StaticResource Tran.Shadow.Color}" Opacity="0.06" Direction="270"/>
             </Setter.Value>
         </Setter>
     </Style>
@@ -74,7 +74,7 @@
     <Style x:Key="Tran.SectionHeader" TargetType="Border">
         <Setter Property="Background" Value="{StaticResource Tran.Neutral.50}"/>
         <Setter Property="Padding" Value="16,12"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Tran.Neutral.200}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Medium}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
     </Style>
 
@@ -85,6 +85,7 @@
         <Setter Property="CornerRadius" Value="8"/>
         <Setter Property="Padding" Value="16"/>
         <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Light}"/>
     </Style>
 
     <!-- ============================================ -->
@@ -98,7 +99,7 @@
     <!-- Search Box Container                         -->
     <!-- ============================================ -->
     <Style x:Key="Tran.SearchBox" TargetType="Border">
-        <Setter Property="BorderBrush" Value="{StaticResource Tran.Neutral.300}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Medium}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="6"/>
         <Setter Property="Background" Value="White"/>

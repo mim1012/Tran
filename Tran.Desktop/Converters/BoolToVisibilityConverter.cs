@@ -10,6 +10,8 @@ namespace Tran.Desktop.Converters;
 /// </summary>
 public class BoolToVisibilityConverter : IValueConverter
 {
+    public static readonly BoolToVisibilityConverter Instance = new();
+
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is bool boolValue)

@@ -2,265 +2,56 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ============================================ -->
+    <!-- SHADOWS & EFFECTS                            -->
+    <!-- ============================================ -->
+    <DropShadowEffect x:Key="Tran.Effect.Shadow.Sm" BlurRadius="2" ShadowDepth="1" Direction="270" Opacity="0.1" Color="{StaticResource Tran.Shadow.Color}"/>
+    <DropShadowEffect x:Key="Tran.Effect.Shadow.Md" BlurRadius="4" ShadowDepth="2" Direction="270" Opacity="0.1" Color="{StaticResource Tran.Shadow.Color}"/>
+    <DropShadowEffect x:Key="Tran.Effect.Shadow.Lg" BlurRadius="10" ShadowDepth="4" Direction="270" Opacity="0.1" Color="{StaticResource Tran.Shadow.Color}"/>
+
+    <!-- ============================================ -->
     <!-- BUTTONS                                      -->
     <!-- ============================================ -->
-
-    <!-- Primary Button: #2563EB (L5: 버튼 텍스트 13px Medium) -->
-    <Style x:Key="Tran.PrimaryButton" TargetType="Button">
+    
+    <!-- Base Button Style -->
+    <Style x:Key="Tran.ButtonStyle.Base" TargetType="Button">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="Background" Value="{StaticResource Tran.Primary.600}"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Height" Value="36"/>
-        <Setter Property="Padding" Value="16,8"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="14"/>
         <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="6"
-                            Padding="{TemplateBinding Padding}"
-                            SnapsToDevicePixels="True">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource Tran.Primary.700}"/>
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource Tran.Primary.800}"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value="0.5"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!-- Secondary Button: Transparent bg, border -->
-    <Style x:Key="Tran.SecondaryButton" TargetType="Button">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.700}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Tran.Neutral.300}"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="20,0"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Height" Value="36"/>
-        <Setter Property="Padding" Value="16,8"/>
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="FontWeight" Value="Medium"/>
         <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd"
+                    <Border x:Name="border"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="6"
-                            Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
+                        <ContentPresenter x:Name="contentPresenter"
+                                          Focusable="False"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          Margin="{TemplateBinding Padding}"
+                                          RecognizesAccessKey="True"
+                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource Tran.Neutral.100}"/>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5"/>
+                            <Setter TargetName="border" Property="Effect" Value="{x:Null}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource Tran.Neutral.200}"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value="0.5"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!-- Ghost Button: Transparent, no border -->
-    <Style x:Key="Tran.GhostButton" TargetType="Button">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.600}"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Height" Value="36"/>
-        <Setter Property="Padding" Value="16,8"/>
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd"
-                            Background="{TemplateBinding Background}"
-                            CornerRadius="6"
-                            Padding="{TemplateBinding Padding}"
-                            SnapsToDevicePixels="True">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource Tran.Neutral.100}"/>
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource Tran.Neutral.200}"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value="0.5"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!-- Destructive Button: #DC2626 -->
-    <Style x:Key="Tran.DestructiveButton" TargetType="Button">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="Background" Value="{StaticResource Tran.Danger}"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Height" Value="36"/>
-        <Setter Property="Padding" Value="16,8"/>
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd"
-                            Background="{TemplateBinding Background}"
-                            CornerRadius="6"
-                            Padding="{TemplateBinding Padding}"
-                            SnapsToDevicePixels="True">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource Tran.Danger.Dark}"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value="0.5"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!-- Success Button: #16A34A -->
-    <Style x:Key="Tran.SuccessButton" TargetType="Button">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="Background" Value="{StaticResource Tran.Success}"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Height" Value="36"/>
-        <Setter Property="Padding" Value="16,8"/>
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd"
-                            Background="{TemplateBinding Background}"
-                            CornerRadius="6"
-                            Padding="{TemplateBinding Padding}"
-                            SnapsToDevicePixels="True">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource Tran.Success.Dark}"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value="0.5"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!-- Warning Button: #D97706 -->
-    <Style x:Key="Tran.WarningButton" TargetType="Button">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="Background" Value="{StaticResource Tran.Warning}"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Height" Value="36"/>
-        <Setter Property="Padding" Value="16,8"/>
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd"
-                            Background="{TemplateBinding Background}"
-                            CornerRadius="6"
-                            Padding="{TemplateBinding Padding}"
-                            SnapsToDevicePixels="True">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource Tran.Warning.Dark}"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value="0.5"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!-- Purple Accent Button (Purchase) -->
-    <Style x:Key="Tran.PurchaseButton" TargetType="Button">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="Background" Value="{StaticResource Tran.Accent.Purchase}"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Height" Value="36"/>
-        <Setter Property="Padding" Value="16,8"/>
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd"
-                            Background="{TemplateBinding Background}"
-                            CornerRadius="6"
-                            Padding="{TemplateBinding Padding}"
-                            SnapsToDevicePixels="True">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background">
+                            <Setter Property="RenderTransform">
                                 <Setter.Value>
-                                    <SolidColorBrush Color="#6D28D9"/>
+                                    <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
                                 </Setter.Value>
                             </Setter>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value="0.5"/>
+                            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -268,158 +59,144 @@
         </Setter>
     </Style>
 
-    <!-- Small icon button (circular, for + / X in data grids) -->
-    <Style x:Key="Tran.IconButton" TargetType="Button">
-        <Setter Property="Width" Value="28"/>
-        <Setter Property="Height" Value="28"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="White"/>
+    <!-- Primary Button (Indigo) -->
+    <Style x:Key="Tran.PrimaryButton" TargetType="Button" BasedOn="{StaticResource Tran.ButtonStyle.Base}">
         <Setter Property="Background" Value="{StaticResource Tran.Primary.600}"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd"
-                            Background="{TemplateBinding Background}"
-                            CornerRadius="14"
-                            SnapsToDevicePixels="True">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource Tran.Primary.700}"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Primary.600}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <!-- <Setter Property="Effect" Value="{StaticResource Tran.Effect.Shadow.Sm}"/> --> <!-- Optional: Remove if huge perf hit -->
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource Tran.Primary.700}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource Tran.Primary.700}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
-    <Style x:Key="Tran.IconButton.Danger" TargetType="Button" BasedOn="{StaticResource Tran.IconButton}">
-        <Setter Property="Background" Value="{StaticResource Tran.Danger}"/>
-        <Setter Property="Width" Value="24"/>
-        <Setter Property="Height" Value="24"/>
-        <Setter Property="FontSize" Value="12"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd"
-                            Background="{TemplateBinding Background}"
-                            CornerRadius="12"
-                            SnapsToDevicePixels="True">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource Tran.Danger.Dark}"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!-- ============================================ -->
-    <!-- DATAGRID (implicit)                          -->
-    <!-- ============================================ -->
-    <Style TargetType="DataGrid">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="13"/>
+    <!-- Secondary Button (White) -->
+    <Style x:Key="Tran.SecondaryButton" TargetType="Button" BasedOn="{StaticResource Tran.ButtonStyle.Base}">
         <Setter Property="Background" Value="White"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Tran.Neutral.200}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
-        <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource Tran.Neutral.100}"/>
-        <Setter Property="RowHeight" Value="40"/>
-        <Setter Property="HeadersVisibility" Value="Column"/>
-        <Setter Property="CanUserAddRows" Value="False"/>
-        <Setter Property="RowHeaderWidth" Value="0"/>
-        <Setter Property="SelectionUnit" Value="FullRow"/>
-        <Setter Property="AutoGenerateColumns" Value="False"/>
-    </Style>
-
-    <Style TargetType="DataGridColumnHeader">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="Background" Value="{StaticResource Tran.Neutral.50}"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.500}"/>
-        <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="FontSize" Value="12.5"/>
-        <Setter Property="Padding" Value="12,10"/>
-        <Setter Property="Height" Value="40"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Tran.Neutral.200}"/>
-        <Setter Property="BorderThickness" Value="0,0,0,1"/>
-    </Style>
-
-    <Style TargetType="DataGridRow">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="MinHeight" Value="40"/>
-        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Medium}"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource Tran.Neutral.50}"/>
-            </Trigger>
-            <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{StaticResource Tran.Primary.50}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource Tran.Neutral.400}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
 
-    <Style TargetType="DataGridCell">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="Padding" Value="12,8"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.700}"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+    <!-- Destructive Button (Red) -->
+    <Style x:Key="Tran.DestructiveButton" TargetType="Button" BasedOn="{StaticResource Tran.ButtonStyle.Base}">
+        <Setter Property="Background" Value="{StaticResource Tran.Danger}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Danger}"/>
+        <Setter Property="Foreground" Value="White"/>
         <Style.Triggers>
-            <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{StaticResource Tran.Primary.50}"/>
-                <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.900}"/>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource Tran.Danger.Dark}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource Tran.Danger.Dark}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
 
-    <!-- ============================================ -->
-    <!-- TABCONTROL / TABITEM (implicit)              -->
-    <!-- ============================================ -->
-    <Style TargetType="TabControl">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="Background" Value="White"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Padding" Value="0"/>
+    <!-- Success Button (Green) -->
+    <Style x:Key="Tran.SuccessButton" TargetType="Button" BasedOn="{StaticResource Tran.ButtonStyle.Base}">
+        <Setter Property="Background" Value="{StaticResource Tran.Success}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Success}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource Tran.Success.Dark}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource Tran.Success.Dark}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
-    <Style TargetType="TabItem">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="Padding" Value="16,10"/>
-        <Setter Property="FontSize" Value="13.5"/>
-        <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.400}"/>
+    <!-- Warning Button (Amber) -->
+    <Style x:Key="Tran.WarningButton" TargetType="Button" BasedOn="{StaticResource Tran.ButtonStyle.Base}">
+        <Setter Property="Background" Value="{StaticResource Tran.Warning}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Warning}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource Tran.Warning.Dark}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource Tran.Warning.Dark}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Ghost Button (Transparent) -->
+    <Style x:Key="Tran.GhostButton" TargetType="Button" BasedOn="{StaticResource Tran.ButtonStyle.Base}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Secondary}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource Tran.Neutral.100}"/>
+                <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Purchase Button (Purple/Accent) -->
+    <Style x:Key="Tran.PurchaseButton" TargetType="Button" BasedOn="{StaticResource Tran.ButtonStyle.Base}">
+        <Setter Property="Background" Value="{StaticResource Tran.Accent.Purchase}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Accent.Purchase}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#7C3AED"/>
+                <Setter Property="BorderBrush" Value="#7C3AED"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Icon Button (Round) -->
+    <Style x:Key="Tran.IconButton" TargetType="Button">
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="TabItem">
-                    <Border x:Name="TabBorder"
-                            Padding="{TemplateBinding Padding}"
-                            Background="Transparent"
-                            BorderThickness="0,0,0,3"
-                            BorderBrush="Transparent">
-                        <ContentPresenter ContentSource="Header"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="16"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="TabBorder" Property="Background" Value="{StaticResource Tran.Primary.50}"/>
-                            <Setter Property="Foreground" Value="{StaticResource Tran.Primary.600}"/>
-                            <Setter TargetName="TabBorder" Property="BorderBrush" Value="{StaticResource Tran.Primary.600}"/>
-                        </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="TabBorder" Property="Background" Value="{StaticResource Tran.Neutral.50}"/>
+                            <Setter TargetName="border" Property="Background" Value="{StaticResource Tran.Neutral.100}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Icon Button Danger (Round, Red) -->
+    <Style x:Key="Tran.IconButton.Danger" TargetType="Button">
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Danger}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="16"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{StaticResource Tran.Danger.Light}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -428,18 +205,20 @@
     </Style>
 
     <!-- ============================================ -->
-    <!-- TEXTBOX (implicit)                           -->
+    <!-- INPUTS (TextBox, ComboBox)                   -->
     <!-- ============================================ -->
+    
     <Style TargetType="TextBox">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="Height" Value="36"/>
-        <Setter Property="Padding" Value="10,7"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="12,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Tran.Neutral.300}"/>
-        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Background" Value="White"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.800}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Medium}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
+        <Setter Property="CaretBrush" Value="{StaticResource Tran.Primary.600}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
@@ -459,10 +238,13 @@
                             <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Tran.Neutral.400}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Tran.Primary.600}"/>
+                            <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Tran.Primary.500}"/>
+                            <Setter TargetName="border" Property="BorderThickness" Value="1.5"/>
+                            <Setter TargetName="border" Property="Background" Value="{StaticResource Tran.Primary.50}"/>
                         </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
+                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.6"/>
+                            <Setter TargetName="border" Property="Background" Value="{StaticResource Tran.Neutral.50}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -470,44 +252,138 @@
         </Setter>
     </Style>
 
-    <!-- ============================================ -->
-    <!-- COMBOBOX (implicit)                          -->
-    <!-- ============================================ -->
     <Style TargetType="ComboBox">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="Height" Value="36"/>
-        <Setter Property="Padding" Value="10,7"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="12,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Background" Value="White"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.800}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Medium}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
     </Style>
 
     <!-- ============================================ -->
-    <!-- SCROLLBAR (implicit - thin)                  -->
+    <!-- DATAGRID                                     -->
     <!-- ============================================ -->
-    <Style x:Key="Tran.ScrollBarThumb" TargetType="Thumb">
-        <Setter Property="OverridesDefaultStyle" Value="True"/>
-        <Setter Property="IsTabStop" Value="False"/>
+    
+    <Style TargetType="DataGrid">
+        <Setter Property="Background" Value="Transparent"/> <!-- Transparent to show card bg -->
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="RowHeight" Value="48"/>
+        <Setter Property="ColumnHeaderHeight" Value="48"/>
+        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource Tran.Border.Light}"/>
+        <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        <Setter Property="AutoGenerateColumns" Value="False"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="SelectionMode" Value="Single"/>
+        <Setter Property="SelectionUnit" Value="FullRow"/>
+    </Style>
+
+    <Style TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Secondary}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="Height" Value="48"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Medium}"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="Thumb">
-                    <Border Background="{StaticResource Tran.Neutral.300}"
-                            CornerRadius="3"
-                            Margin="1"/>
+                <ControlTemplate TargetType="DataGridColumnHeader">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter HorizontalAlignment="Left"
+                                          VerticalAlignment="Center"
+                                          Margin="{TemplateBinding Padding}"/>
+                    </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <Style TargetType="ScrollBar">
-        <Setter Property="Width" Value="8"/>
+    <Style TargetType="DataGridRow">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="FontSize" Value="14"/>
         <Style.Triggers>
-            <Trigger Property="Orientation" Value="Horizontal">
-                <Setter Property="Height" Value="8"/>
-                <Setter Property="Width" Value="Auto"/>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource Tran.Neutral.50}"/>
+                <Setter Property="Cursor" Value="Hand"/>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{StaticResource Tran.Primary.50}"/>
+                <Setter Property="Foreground" Value="{StaticResource Tran.Primary.900}"/>
             </Trigger>
         </Style.Triggers>
+    </Style>
+
+    <Style TargetType="DataGridCell">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridCell">
+                    <Border Background="Transparent" BorderThickness="0">
+                        <ContentPresenter VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============================================ -->
+    <!-- TAB CONTROL                                  -->
+    <!-- ============================================ -->
+
+    <Style TargetType="TabControl">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style TargetType="TabItem">
+        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Secondary}"/>
+        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="Margin" Value="0,0,0,0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <Grid>
+                        <Border x:Name="Border"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                BorderThickness="0,0,0,2"
+                                Margin="0,0,0,-1"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter x:Name="ContentSite"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Center"
+                                              ContentSource="Header"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource Tran.Primary.600}"/>
+                            <Setter Property="Foreground" Value="{StaticResource Tran.Primary.600}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource Tran.Neutral.50}"/>
+                            <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
 </ResourceDictionary>

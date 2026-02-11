@@ -7,11 +7,12 @@ namespace Tran.Desktop.Views;
 
 /// <summary>
 /// 메인 작업 화면
-/// 상단 거래처 탭 바 + 거래처 정보 바 + 탭 컨트롤(발주/견적/구매/판매/재고/품목/통계)
+/// 상단: 품목관리 고정 탭 + 거래처 탭 바
+/// 콘텐츠: 거래처 워크스페이스(발주/견적/구매/판매/재고/통계) 또는 글로벌 품목관리
 /// </summary>
 public partial class MainWorkspaceWindow : Window
 {
-    public MainWorkspaceWindow(object? selectedCompany = null)
+    public MainWorkspaceWindow(object? selectedCompany = null, bool productManagementMode = false)
     {
         InitializeComponent();
 
@@ -28,6 +29,11 @@ public partial class MainWorkspaceWindow : Window
         if (selectedCompany is Company company)
         {
             _ = viewModel.AddCompany(company);
+        }
+
+        if (productManagementMode)
+        {
+            viewModel.IsProductManagementMode = true;
         }
     }
 
@@ -70,5 +76,14 @@ public partial class MainWorkspaceWindow : Window
             var vm = (MainWorkspaceViewModel)DataContext;
             vm.ActiveWorkspace = workspace;
         }
+    }
+
+    /// <summary>
+    /// 품목관리 탭 클릭 핸들러
+    /// </summary>
+    private void ProductManagementTab_Click(object sender, MouseButtonEventArgs e)
+    {
+        var vm = (MainWorkspaceViewModel)DataContext;
+        vm.IsProductManagementMode = true;
     }
 }

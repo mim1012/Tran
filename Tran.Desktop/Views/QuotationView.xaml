@@ -479,6 +479,79 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
+
+            <!-- 탭 3: 양식 관리 -->
+            <TabItem Header="양식 관리">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 헤더: 타이틀 + 업로드 버튼 -->
+                    <Border Grid.Row="0" Padding="10,8"
+                            BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="업로드된 양식 (xlsx, pdf)"
+                                       FontSize="13" Foreground="{StaticResource Tran.Neutral.500}"
+                                       VerticalAlignment="Center"/>
+
+                            <Button Grid.Column="1"
+                                    Content="+ 양식 업로드"
+                                    Command="{Binding UploadTemplateCommand}"
+                                    Style="{StaticResource Tran.PrimaryButton}"
+                                    Height="30" Padding="12,0" FontSize="12"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 양식 목록 DataGrid -->
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding UploadedTemplates}"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              RowHeight="35"
+                              BorderThickness="0"
+                              VirtualizingStackPanel.IsVirtualizing="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="파일명" Binding="{Binding FileName}" Width="2*"/>
+                            <DataGridTextColumn Header="형식" Binding="{Binding FileType}" Width="80">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="크기" Binding="{Binding FileSize, StringFormat={}{0:N0} B}" Width="100">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="업로드일" Binding="{Binding CreatedAt, StringFormat=yyyy-MM-dd HH:mm}" Width="140"/>
+                            <DataGridTemplateColumn Header="" Width="60">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="&#x2716;"
+                                                Command="{Binding DataContext.DeleteTemplateCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource Tran.GhostButton}"
+                                                Foreground="{StaticResource Tran.Danger}"
+                                                Height="Auto" Width="Auto" Padding="4,2"
+                                                FontSize="14"
+                                                ToolTip="양식 삭제"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
         </TabControl>
 
         <!-- 하단 버튼 바 -->

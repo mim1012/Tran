@@ -11,6 +11,10 @@
         Background="White"
         FontFamily="{StaticResource Tran.FontFamily}">
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+    </Window.Resources>
+
     <DockPanel LastChildFill="True">
 
         <!-- 거래처 탭 바 -->
@@ -22,6 +26,28 @@
                         Style="{StaticResource Tran.GhostButton}"
                         Foreground="{StaticResource Tran.Neutral.300}"
                         FontSize="12" Padding="12,6" Margin="5,3"/>
+
+                <!-- 품목관리 고정 탭 -->
+                <Border DockPanel.Dock="Left" Margin="2,3" Padding="10,5" CornerRadius="4,4,0,0"
+                        Cursor="Hand" MouseLeftButtonDown="ProductManagementTab_Click">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsProductManagementMode}" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource Tran.Primary.600}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock Text="&#x1F3F7; 품목관리" Foreground="White"
+                               FontSize="12.5" FontWeight="Medium"
+                               VerticalAlignment="Center"/>
+                </Border>
+
+                <!-- 구분선 -->
+                <Border DockPanel.Dock="Left" Width="1" Background="{StaticResource Tran.Neutral.600}"
+                        Margin="4,6"/>
 
                 <ItemsControl ItemsSource="{Binding CompanyWorkspaces}">
                     <ItemsControl.ItemsPanel>
@@ -62,67 +88,6 @@
             </DockPanel>
         </Border>
 
-        <!-- 상단 바: 거래처 정보 + 거래처 변경 -->
-        <Border DockPanel.Dock="Top" Background="{StaticResource Tran.Surface.Header}" Padding="15,10">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- 거래처명 -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding CompanyName, FallbackValue='거래처명'}"
-                               FontSize="18" FontWeight="Bold"
-                               Foreground="White"
-                               VerticalAlignment="Center"/>
-                    <Border Background="{StaticResource Tran.Primary.500}" CornerRadius="4"
-                            Padding="8,3" Margin="12,0,0,0"
-                            VerticalAlignment="Center">
-                        <TextBlock Text="{Binding CompanyType, FallbackValue='고객사'}"
-                                   Foreground="White" FontSize="11"/>
-                    </Border>
-                </StackPanel>
-
-                <!-- 오늘 처리 건수 -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal"
-                            VerticalAlignment="Center" Margin="0,0,20,0">
-                    <TextBlock Text="오늘: " Foreground="{StaticResource Tran.Neutral.400}" FontSize="13"
-                               VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding TodayDocumentCount, FallbackValue='0'}"
-                               Foreground="White" FontSize="13" FontWeight="Bold"
-                               VerticalAlignment="Center"/>
-                    <TextBlock Text="건" Foreground="{StaticResource Tran.Neutral.400}" FontSize="13"
-                               VerticalAlignment="Center"/>
-                </StackPanel>
-
-                <!-- 데이터 가져오기 버튼 -->
-                <Button Grid.Column="3"
-                        Content="데이터 가져오기"
-                        Style="{StaticResource Tran.GhostButton}"
-                        Click="OpenDataImport_Click"
-                        Height="32" Padding="15,0"
-                        Foreground="White"
-                        Margin="0,0,10,0"/>
-
-                <!-- 구분선 -->
-                <Border Grid.Column="4" Width="1" Background="{StaticResource Tran.Neutral.600}"
-                        Margin="0,3,15,3"/>
-
-                <!-- 거래처 추가 버튼 -->
-                <Button Grid.Column="5"
-                        Content="+ 거래처 추가"
-                        Style="{StaticResource Tran.SecondaryButton}"
-                        Click="AddCompany_Click"
-                        Height="32" Padding="15,0"
-                        Foreground="White"/>
-            </Grid>
-        </Border>
-
         <!-- 하단 상태바 -->
         <Border DockPanel.Dock="Bottom" Background="{StaticResource Tran.Surface.Footer}" Padding="15,8"
                 BorderBrush="{StaticResource Tran.Neutral.300}" BorderThickness="0,1,0,0">
@@ -150,88 +115,149 @@
             </Grid>
         </Border>
 
-        <!-- 탭 컨트롤 (메인 작업 영역) -->
-        <TabControl Name="MainTabControl"
-                    SelectedIndex="{Binding SelectedTabIndex}"
-                    Padding="0" BorderThickness="0"
-                    Background="White">
+        <!-- 메인 콘텐츠 영역 -->
+        <Grid>
+            <!-- 거래처 워크스페이스 모드 -->
+            <DockPanel Visibility="{Binding IsCompanyWorkspaceMode, Converter={StaticResource BoolToVisConverter}}">
 
-            <!-- Tab 0: 발주 -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#x1F4E5;" Margin="0,0,5,0"/>
-                        <TextBlock Text="발주"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <local:OrderView DataContext="{Binding OrderVM}"/>
-            </TabItem>
+                <!-- 상단 바: 거래처 정보 + 거래처 변경 -->
+                <Border DockPanel.Dock="Top" Background="{StaticResource Tran.Surface.Header}" Padding="15,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-            <!-- Tab 1: 견적 -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#x1F4CB;" Margin="0,0,5,0"/>
-                        <TextBlock Text="견적"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <local:QuotationView DataContext="{Binding QuotationVM}"/>
-            </TabItem>
+                        <!-- 거래처명 -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding CompanyName, FallbackValue='거래처명'}"
+                                       FontSize="18" FontWeight="Bold"
+                                       Foreground="White"
+                                       VerticalAlignment="Center"/>
+                            <Border Background="{StaticResource Tran.Primary.500}" CornerRadius="4"
+                                    Padding="8,3" Margin="12,0,0,0"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CompanyType, FallbackValue='고객사'}"
+                                           Foreground="White" FontSize="11"/>
+                            </Border>
+                        </StackPanel>
 
-            <!-- Tab 2: 구매 -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#x1F4E6;" Margin="0,0,5,0"/>
-                        <TextBlock Text="구매"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <local:PurchaseView DataContext="{Binding PurchaseVM}"/>
-            </TabItem>
+                        <!-- 오늘 처리 건수 -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                    VerticalAlignment="Center" Margin="0,0,20,0">
+                            <TextBlock Text="오늘: " Foreground="{StaticResource Tran.Neutral.400}" FontSize="13"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding TodayDocumentCount, FallbackValue='0'}"
+                                       Foreground="White" FontSize="13" FontWeight="Bold"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="건" Foreground="{StaticResource Tran.Neutral.400}" FontSize="13"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
 
-            <!-- Tab 3: 판매 -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#x1F4E4;" Margin="0,0,5,0"/>
-                        <TextBlock Text="판매"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <local:SaleView DataContext="{Binding SaleVM}"/>
-            </TabItem>
+                        <!-- 데이터 가져오기 버튼 -->
+                        <Button Grid.Column="3"
+                                Content="데이터 가져오기"
+                                Style="{StaticResource Tran.GhostButton}"
+                                Click="OpenDataImport_Click"
+                                Height="32" Padding="15,0"
+                                Foreground="White"
+                                Margin="0,0,10,0"/>
 
-            <!-- Tab 4: 재고 -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#x1F4CA;" Margin="0,0,5,0"/>
-                        <TextBlock Text="재고"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <local:InventoryView DataContext="{Binding InventoryVM}"/>
-            </TabItem>
+                        <!-- 구분선 -->
+                        <Border Grid.Column="4" Width="1" Background="{StaticResource Tran.Neutral.600}"
+                                Margin="0,3,15,3"/>
 
-            <!-- Tab 5: 품목 -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#x1F3F7;" Margin="0,0,5,0"/>
-                        <TextBlock Text="품목"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <local:ProductManagementView DataContext="{Binding ProductVM}"/>
-            </TabItem>
+                        <!-- 거래처 추가 버튼 -->
+                        <Button Grid.Column="5"
+                                Content="+ 거래처 추가"
+                                Style="{StaticResource Tran.SecondaryButton}"
+                                Click="AddCompany_Click"
+                                Height="32" Padding="15,0"
+                                Foreground="White"/>
+                    </Grid>
+                </Border>
 
-            <!-- Tab 6: 통계 -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#x1F4C8;" Margin="0,0,5,0"/>
-                        <TextBlock Text="통계"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <local:SalesStatisticsView DataContext="{Binding SalesStatisticsVM}"/>
-            </TabItem>
-        </TabControl>
+                <!-- 탭 컨트롤 (메인 작업 영역 - 품목 탭 제거) -->
+                <TabControl Name="MainTabControl"
+                            SelectedIndex="{Binding SelectedTabIndex}"
+                            Padding="0" BorderThickness="0"
+                            Background="White">
+
+                    <!-- Tab 0: 발주 -->
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#x1F4E5;" Margin="0,0,5,0"/>
+                                <TextBlock Text="발주"/>
+                            </StackPanel>
+                        </TabItem.Header>
+                        <local:OrderView DataContext="{Binding OrderVM}"/>
+                    </TabItem>
+
+                    <!-- Tab 1: 견적 -->
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#x1F4CB;" Margin="0,0,5,0"/>
+                                <TextBlock Text="견적"/>
+                            </StackPanel>
+                        </TabItem.Header>
+                        <local:QuotationView DataContext="{Binding QuotationVM}"/>
+                    </TabItem>
+
+                    <!-- Tab 2: 구매 -->
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#x1F4E6;" Margin="0,0,5,0"/>
+                                <TextBlock Text="구매"/>
+                            </StackPanel>
+                        </TabItem.Header>
+                        <local:PurchaseView DataContext="{Binding PurchaseVM}"/>
+                    </TabItem>
+
+                    <!-- Tab 3: 판매 -->
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#x1F4E4;" Margin="0,0,5,0"/>
+                                <TextBlock Text="판매"/>
+                            </StackPanel>
+                        </TabItem.Header>
+                        <local:SaleView DataContext="{Binding SaleVM}"/>
+                    </TabItem>
+
+                    <!-- Tab 4: 재고 -->
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#x1F4CA;" Margin="0,0,5,0"/>
+                                <TextBlock Text="재고"/>
+                            </StackPanel>
+                        </TabItem.Header>
+                        <local:InventoryView DataContext="{Binding InventoryVM}"/>
+                    </TabItem>
+
+                    <!-- Tab 5: 통계 -->
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#x1F4C8;" Margin="0,0,5,0"/>
+                                <TextBlock Text="통계"/>
+                            </StackPanel>
+                        </TabItem.Header>
+                        <local:SalesStatisticsView DataContext="{Binding SalesStatisticsVM}"/>
+                    </TabItem>
+                </TabControl>
+            </DockPanel>
+
+            <!-- 품목관리 모드 -->
+            <local:ProductManagementView DataContext="{Binding GlobalProductVM}"
+                Visibility="{Binding IsProductManagementMode, Converter={StaticResource BoolToVisConverter}}"/>
+        </Grid>
     </DockPanel>
 </Window>

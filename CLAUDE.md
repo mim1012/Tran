@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Tran is a **B2B 거래명세표(Transaction Statement) management system** built as a WPF desktop application. It enables peer-to-peer document exchange between companies with state machine-based workflow control.
+Tran is a **B2B 거래명세표(Transaction Statement) management system** for medical device distribution, built as a WPF desktop application. It combines ERP modules (Order, Purchase, Sale, Quotation, Inventory) with peer-to-peer document exchange using state machine-based workflow control.
 
 **Core Principle:** "상태가 곧 권한이다" (State IS Permission) - All UI/permissions are controlled by document state.
 
@@ -19,82 +19,143 @@ dotnet build Tran.Desktop/Tran.Desktop.csproj
 
 # Run application
 dotnet run --project Tran.Desktop/Tran.Desktop.csproj
-
-# Or run built executable directly
-./Tran.Desktop/bin/Debug/net8.0-windows/Tran.Desktop.exe
 ```
+
+There are no test projects in this solution.
 
 ## Architecture
 
-### Solution Structure
+### Solution Structure & Dependencies
 
 ```
-Tran.sln
-├── Tran.Core/          # Domain models, business logic, services
-├── Tran.Data/          # EF Core DbContext, SQLite persistence
-└── Tran.Desktop/       # WPF UI (MVVM pattern)
+Tran.Desktop  →  Tran.Data  →  Tran.Core
+(WPF/MVVM)       (EF Core)     (Domain models, services)
 ```
 
-### Layer Dependencies
+- **Tran.Core** — Pure domain layer with no external dependencies. Models, enums, service interfaces, `StateTransitionService`, `UserContext`.
+- **Tran.Data** — EF Core 8.0 with SQLite, `DbContextFactory`, `DatabaseInitializer`, all service implementations. Also uses ClosedXML for Excel export.
+- **Tran.Desktop** — WPF UI with MVVM pattern (no DI container). Custom Pretendard font embedded. Theme resources in `Themes/` (Colors.xaml, Typography.xaml, Controls.xaml, Components.xaml).
+
+### No Dependency Injection Container
+
+The app does **not** use a DI framework. Services are created manually:
+
+```csharp
+// ViewModels create DbContext directly via factory
+using var context = DbContextFactory.Create();
+var service = new SomeService(context);
+```
+
+`DbContextFactory.Create()` is the centralized entry point for all database access. Never construct `TranDbContext` directly.
+
+### Application Startup Flow
 
 ```
-Tran.Desktop → Tran.Data → Tran.Core
+App.xaml.cs OnStartup()
+  → DatabaseInitializer.Initialize() + CreateErpSampleData()
+  → CompanySelectionWindow (entry point, set in App.xaml StartupUri)
+      → User selects company → UserContext.SetUser() → MainWorkspaceWindow
+      → Or "Product Management" → MainWorkspaceWindow(productManagementMode: true)
 ```
 
-### Key Technologies
+### UserContext (Static Singleton)
 
-- .NET 8.0
-- WPF (Windows Presentation Foundation)
-- Entity Framework Core 8.0 with SQLite
-- MVVM Pattern
+`UserContext` is set when a company is selected and is required for `StateTransitionService` to allow state transitions (`IsInitialized` must be true). It holds `CurrentUserId`, `CurrentUserName`, `CurrentCompanyId`.
+
+### Multi-Company Workspace Architecture
+
+`MainWorkspaceWindow` uses a **tabbed MDI** pattern:
+- Multiple company tabs open simultaneously (`CompanyWorkspaces: ObservableCollection<CompanyWorkspace>`)
+- Each `CompanyWorkspace` contains 6 ViewModels: Order, Quotation, Purchase, Sale, Inventory, SalesStatistics
+- Internal tabs per company: 발주(0), 견적(1), 구매(2), 판매(3), 재고(4), 통계(5)
+- Separate global mode: 품목관리 (Product Management, single instance)
+- **Cross-tab data sync** via `OnDataChanged` callbacks between ViewModels within a workspace
 
 ## Domain Model
 
 ### Document State Machine (Critical)
 
-The state machine is the heart of the system. All transitions must go through `StateTransitionService`.
+All transitions must go through `StateTransitionService`. Never set `Document.State` directly.
 
 ```
 Draft → Sent → Received → Confirmed (terminal)
-                       ↘ RevisionRequested → Draft (new version)
+                        ↘ RevisionRequested → Draft (creates NEW version with -V suffix,
+                                                      original becomes Superseded)
 Draft → Cancelled (terminal)
 ```
 
-**Terminal states:** Confirmed, Superseded, Cancelled (no further transitions allowed)
+**Terminal states:** Confirmed, Superseded, Cancelled
 
-### Core Entities
+**Special handling:** RevisionRequested → Draft creates a new `Document` (incremented version, `-V` suffix in DocumentNumber), sets original to Superseded, and returns two `StateLog` entries in `StateTransitionResult`.
 
-- **Document** - Transaction statement with state, hash, versions
-- **DocumentItem** - Line items within a document
-- **Company** - Trading partners (address book)
-- **DocumentStateLog** - Immutable audit trail for disputes
-- **DocumentTemplate** - Output formatting (never affects hash)
-- **Settlement** - Read-only aggregation of confirmed documents
+**Optimistic locking:** `Document.StateVersion` is an EF Core ConcurrencyToken preventing concurrent state transitions.
+
+### ERP Module States
+
+Order, Purchase, Sale, and Quotation each have their own state enums (Draft → Pending → Completed/Confirmed), separate from the Document state machine.
+
+### Key Patterns
+
+- **Soft delete:** `Company.IsActive` flag (Company.Status is `[NotMapped]`, computed from IsActive)
+- **Schema-less extensions:** `DocumentItem.ExtraDataJson` for flexible data
+- **ContentHash:** SHA-256 on Document content. Template changes never affect hash.
+- **Audit trail:** `DocumentStateLog` records are immutable (DeleteBehavior.Restrict)
+
+## Code Patterns
+
+### ViewModel Pattern
+
+```csharp
+public class SomeViewModel : ViewModelBase
+{
+    // Use SetProperty for property changes (auto-raises PropertyChanged)
+    private string _name;
+    public string Name { get => _name; set => SetProperty(ref _name, value); }
+
+    // Use AsyncRelayCommand for async operations (has IsExecuting guard)
+    public ICommand SaveCommand { get; }
+
+    // Cross-VM communication via callbacks
+    public Action? OnDataChanged { get; set; }
+}
+```
+
+- `ViewModelBase` — `INotifyPropertyChanged` + `IDisposable`, `SetProperty<T>`, `RaisePropertyChanged`
+- `RelayCommand` / `RelayCommand<T>` — synchronous commands
+- `AsyncRelayCommand` — async commands with built-in double-click prevention via `IsExecuting`
+
+### State Transitions
+
+```csharp
+var service = new StateTransitionService();
+if (service.CanTransition(document.State, DocumentState.Sent))
+{
+    var result = await service.TransitionAsync(document, DocumentState.Sent, userId, reason);
+    // result.StateLogs (list) should all be persisted
+    // result.NewVersionDocument is non-null for RevisionRequested→Draft
+}
+```
+
+## Database
+
+- **SQLite** file: `tran.db` (created in working directory)
+- **No migrations** — uses `EnsureCreated()` via `DatabaseInitializer`
+- **Sample data:** 10 companies, 20 products, 80+ sales records, 50+ purchases (8 months of history) seeded on first run when Documents table is empty
+- Key indexes: `idx_documents_state`, `idx_documents_company` (FromCompanyId+ToCompanyId), `idx_logs_document`
 
 ## UI Layer Rules
 
-### Hierarchy (from docs/UI_DEVELOPMENT_STRATEGY.md)
+### Screen Hierarchy
 
 ```
-거래명세표 (Core) - Only place where state machine operates
-    ↓
-거래처 관리 (Address Book) - Relationship management
-    ↓
-정산 관리 (Derived) - Read-only aggregation
-    ↓
-양식 관리 (Template) - Output formatting only
-    ↓
-로그/이력 (Audit) - Evidence storage
+거래명세표 (Core) — Only place where document state machine operates
+거래처 관리 (Address Book) — Relationship management
+정산 관리 (Derived) — Read-only aggregation of confirmed documents
+양식 관리 (Template) — Output formatting only, never affects ContentHash
+로그/이력 (Audit) — Immutable evidence storage
 ```
 
-### Immutable Rules
-
-- Only 거래명세표 screen can trigger state transitions
-- No document modifications from other screens
-- No changes that affect ContentHash outside core screen
-- Template changes NEVER affect document hash
-
-### State-Based UI Colors (from docs/UI_UX_GUIDELINES.md)
+### State-Based UI Colors
 
 | State | Badge Background | Badge Text |
 |-------|------------------|------------|
@@ -103,61 +164,13 @@ Draft → Cancelled (terminal)
 | Confirmed | `#E6F4EA` | `#1E7F34` |
 | RevisionRequested | `#FFF4E5` | `#E67700` |
 
-These colors must be consistent across ALL screens.
-
-## Code Patterns
-
-### State Transitions
-
-Always use `StateTransitionService` for document state changes:
-
-```csharp
-var service = new StateTransitionService();
-if (service.CanTransition(document.State, DocumentState.Sent))
-{
-    var result = await service.TransitionAsync(document, DocumentState.Sent, userId, reason);
-    // result.StateLog should be persisted
-}
-```
-
-### DbContext Usage
-
-```csharp
-var options = new DbContextOptionsBuilder<TranDbContext>()
-    .UseSqlite("Data Source=tran.db")
-    .Options;
-
-using var context = new TranDbContext(options);
-```
-
-### ViewModel Pattern
-
-ViewModels inherit from `ViewModelBase` and implement `INotifyPropertyChanged`. Use `RelayCommand` for command binding.
-
-```csharp
-public class SomeViewModel : ViewModelBase
-{
-    public ICommand SomeCommand { get; }
-    // Properties with OnPropertyChanged notifications
-}
-```
-
-## Database
-
-SQLite database file: `tran.db` (located in Tran.Desktop directory)
-
-Key indexes:
-- `idx_documents_state` - Query by document state
-- `idx_documents_company` - Query by FromCompanyId, ToCompanyId
-- `idx_logs_document` - Audit log lookup
+These colors must be consistent across ALL screens. Theme defined in `Themes/Colors.xaml` with `Tran.Primary.*` and `Tran.Neutral.*` brush naming.
 
 ## Korean Language Context
 
-The application uses Korean terminology:
 - 거래명세표 = Transaction Statement / Invoice
 - 거래처 = Trading Partner / Business Partner
 - 정산 = Settlement
 - 양식 = Template / Form
-- 확정 = Confirmed
-- 전송 = Sent
-- 수정요청 = Revision Request
+- 확정 = Confirmed, 전송 = Sent, 수정요청 = Revision Request
+- 발주 = Order, 견적 = Quotation, 구매 = Purchase, 판매 = Sale, 재고 = Inventory

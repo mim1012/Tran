@@ -9,11 +9,14 @@ namespace Tran.Desktop.ViewModels;
 /// <summary>
 /// 메인 워크스페이스 ViewModel
 /// 다중 거래처 탭 지원. 각 거래처는 CompanyWorkspace로 관리.
-/// 탭: 0=발주, 1=견적, 2=구매, 3=판매, 4=재고, 5=품목, 6=통계
+/// 거래처 워크스페이스 탭: 0=발주, 1=견적, 2=구매, 3=판매, 4=재고, 5=통계
+/// 품목관리는 상단 독립 탭으로 분리 (글로벌)
 /// </summary>
 public class MainWorkspaceViewModel : ViewModelBase
 {
     private int _selectedTabIndex;
+    private bool _isProductManagementMode;
+    private ProductManagementViewModel? _globalProductVM;
 
     public MainWorkspaceViewModel()
     {
@@ -21,6 +24,7 @@ public class MainWorkspaceViewModel : ViewModelBase
         SwitchTabCommand = new RelayCommand<int>(ExecuteSwitchTab);
         AddCompanyCommand = new RelayCommand(ExecuteAddCompany);
         CloseCompanyCommand = new RelayCommand<CompanyWorkspace>(ExecuteCloseCompany);
+        OpenProductManagementCommand = new RelayCommand(ExecuteOpenProductManagement);
 
         // 거래명세표/정산/양식/거래처 관리 창 열기 Commands
         OpenDocumentManagementCommand = new RelayCommand(ExecuteOpenDocumentManagement);
@@ -55,13 +59,16 @@ public class MainWorkspaceViewModel : ViewModelBase
             if (!SetProperty(ref _activeWorkspace, value))
                 return;
 
+            // 회사 워크스페이스 선택 시 품목관리 모드 해제
+            if (value != null)
+                IsProductManagementMode = false;
+
             // 모든 위임 프로퍼티 갱신 알림
             RaisePropertyChanged(nameof(OrderVM));
             RaisePropertyChanged(nameof(QuotationVM));
             RaisePropertyChanged(nameof(PurchaseVM));
             RaisePropertyChanged(nameof(SaleVM));
             RaisePropertyChanged(nameof(InventoryVM));
-            RaisePropertyChanged(nameof(ProductVM));
             RaisePropertyChanged(nameof(SalesStatisticsVM));
             RaisePropertyChanged(nameof(CompanyName));
             RaisePropertyChanged(nameof(WindowTitle));
@@ -122,6 +129,57 @@ public class MainWorkspaceViewModel : ViewModelBase
     public string StatusMessage => "준비";
 
     // ═══════════════════════════════════════════════════════════
+    // 품목관리 모드 전환
+    // ═══════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// 품목관리 모드 여부 (true: 품목관리 화면, false: 거래처 워크스페이스)
+    /// </summary>
+    public bool IsProductManagementMode
+    {
+        get => _isProductManagementMode;
+        set
+        {
+            if (SetProperty(ref _isProductManagementMode, value))
+            {
+                RaisePropertyChanged(nameof(IsCompanyWorkspaceMode));
+
+                // 품목관리 모드 진입 시 회사 탭 비활성화
+                if (value)
+                {
+                    foreach (var ws in CompanyWorkspaces)
+                        ws.IsActive = false;
+                }
+                else if (ActiveWorkspace != null)
+                {
+                    ActiveWorkspace.IsActive = true;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 거래처 워크스페이스 모드 여부 (IsProductManagementMode의 반전)
+    /// </summary>
+    public bool IsCompanyWorkspaceMode => !IsProductManagementMode;
+
+    /// <summary>
+    /// 글로벌 품목관리 ViewModel (단일 인스턴스, lazy 초기화)
+    /// </summary>
+    public ProductManagementViewModel GlobalProductVM
+    {
+        get
+        {
+            if (_globalProductVM == null)
+            {
+                _globalProductVM = new ProductManagementViewModel();
+                _ = _globalProductVM.LoadDataAsync();
+            }
+            return _globalProductVM;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // Child ViewModels (ActiveWorkspace 위임)
     // ═══════════════════════════════════════════════════════════
 
@@ -130,7 +188,6 @@ public class MainWorkspaceViewModel : ViewModelBase
     public PurchaseViewModel? PurchaseVM => ActiveWorkspace?.PurchaseVM;
     public SaleViewModel? SaleVM => ActiveWorkspace?.SaleVM;
     public InventoryViewModel? InventoryVM => ActiveWorkspace?.InventoryVM;
-    public ProductManagementViewModel? ProductVM => ActiveWorkspace?.ProductVM;
     public SalesStatisticsViewModel? SalesStatisticsVM => ActiveWorkspace?.SalesStatisticsVM;
 
     // ═══════════════════════════════════════════════════════════
@@ -141,6 +198,7 @@ public class MainWorkspaceViewModel : ViewModelBase
     public ICommand SwitchTabCommand { get; }
     public ICommand AddCompanyCommand { get; }
     public ICommand CloseCompanyCommand { get; }
+    public ICommand OpenProductManagementCommand { get; }
     public ICommand OpenDocumentManagementCommand { get; }
     public ICommand OpenPartnerManagementCommand { get; }
     public ICommand OpenSettlementManagementCommand { get; }
@@ -179,13 +237,12 @@ public class MainWorkspaceViewModel : ViewModelBase
 
         var workspace = new CompanyWorkspace(company);
 
-        // 자식 VM 생성
+        // 자식 VM 생성 (ProductVM은 글로벌로 이동)
         workspace.OrderVM = new OrderViewModel();
         workspace.QuotationVM = new QuotationViewModel();
         workspace.PurchaseVM = new PurchaseViewModel();
         workspace.SaleVM = new SaleViewModel();
         workspace.InventoryVM = new InventoryViewModel();
-        workspace.ProductVM = new ProductManagementViewModel();
         workspace.SalesStatisticsVM = new SalesStatisticsViewModel();
 
         // Part A: 탭 간 데이터 동기화 콜백 연결
@@ -212,7 +269,6 @@ public class MainWorkspaceViewModel : ViewModelBase
                 workspace.PurchaseVM.LoadDataAsync(company.CompanyId),
                 workspace.SaleVM.LoadDataAsync(company.CompanyId),
                 workspace.InventoryVM.LoadDataAsync(),
-                workspace.ProductVM.LoadDataAsync(),
                 workspace.SalesStatisticsVM.LoadDataAsync()
             );
         }
@@ -269,6 +325,11 @@ public class MainWorkspaceViewModel : ViewModelBase
         SelectedTabIndex = index;
     }
 
+    private void ExecuteOpenProductManagement()
+    {
+        IsProductManagementMode = true;
+    }
+
     private void ExecuteOpenDocumentManagement()
     {
         var window = new MainWindow();
@@ -309,7 +370,6 @@ public class CompanyWorkspace : ViewModelBase
     public PurchaseViewModel? PurchaseVM { get; set; }
     public SaleViewModel? SaleVM { get; set; }
     public InventoryViewModel? InventoryVM { get; set; }
-    public ProductManagementViewModel? ProductVM { get; set; }
     public SalesStatisticsViewModel? SalesStatisticsVM { get; set; }
     public int SelectedTabIndex { get; set; }
 

@@ -39,6 +39,7 @@ public class TranDbContext : DbContext
     public DbSet<CompanyPrice> CompanyPrices { get; set; } = null!;
     public DbSet<PriceHistory> PriceHistories { get; set; } = null!;
     public DbSet<CompanyProduct> CompanyProducts { get; set; } = null!;
+    public DbSet<QuotationTemplate> QuotationTemplates { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -413,6 +414,30 @@ public class TranDbContext : DbContext
             entity.HasIndex(e => new { e.CompanyId, e.ProductId })
                 .IsUnique()
                 .HasDatabaseName("idx_company_products_company_product");
+        });
+
+        // QuotationTemplate (견적서 양식)
+        modelBuilder.Entity<QuotationTemplate>(entity =>
+        {
+            entity.HasKey(e => e.TemplateId);
+
+            entity.HasOne(e => e.Company)
+                .WithMany()
+                .HasForeignKey(e => e.CompanyId);
+
+            entity.Property(e => e.FileName)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            entity.Property(e => e.FileType)
+                .IsRequired()
+                .HasMaxLength(10);
+
+            entity.Property(e => e.FileData)
+                .IsRequired();
+
+            entity.HasIndex(e => e.CompanyId)
+                .HasDatabaseName("idx_quotation_templates_company");
         });
     }
 }

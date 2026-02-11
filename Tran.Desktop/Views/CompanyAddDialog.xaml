@@ -1,0 +1,68 @@
+<Window x:Class="Tran.Desktop.Views.CompanyAddDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Name="DialogWindow"
+        Title="거래처 등록"
+        Width="450" Height="400"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        FontFamily="{StaticResource Tran.FontFamily}">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 거래처명 -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+            <TextBlock Text="거래처명 *" FontSize="12" Foreground="Gray" Margin="0,0,0,4"/>
+            <TextBox x:Name="CompanyNameBox" FontSize="14" Padding="8,6"/>
+        </StackPanel>
+
+        <!-- 사업자번호 -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,12">
+            <TextBlock Text="사업자번호 *" FontSize="12" Foreground="Gray" Margin="0,0,0,4"/>
+            <TextBox x:Name="BusinessNumberBox" FontSize="14" Padding="8,6"/>
+        </StackPanel>
+
+        <!-- 대표자명 -->
+        <StackPanel Grid.Row="2" Margin="0,0,0,12">
+            <TextBlock Text="대표자명" FontSize="12" Foreground="Gray" Margin="0,0,0,4"/>
+            <TextBox x:Name="RepresentativeBox" FontSize="14" Padding="8,6"/>
+        </StackPanel>
+
+        <!-- 연락처 -->
+        <StackPanel Grid.Row="3" Margin="0,0,0,12">
+            <TextBlock Text="연락처" FontSize="12" Foreground="Gray" Margin="0,0,0,4"/>
+            <TextBox x:Name="ContactBox" FontSize="14" Padding="8,6"/>
+        </StackPanel>
+
+        <!-- 주소 -->
+        <StackPanel Grid.Row="4" Margin="0,0,0,12">
+            <TextBlock Text="주소" FontSize="12" Foreground="Gray" Margin="0,0,0,4"/>
+            <TextBox x:Name="AddressBox" FontSize="14" Padding="8,6"/>
+        </StackPanel>
+
+        <!-- 에러 메시지 -->
+        <TextBlock Grid.Row="5" x:Name="ErrorText" Foreground="Red" FontSize="12"
+                   Visibility="Collapsed" Margin="0,0,0,8"/>
+
+        <!-- 버튼 -->
+        <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="취소" Width="80" Height="32" Margin="0,0,10,0"
+                    Click="Cancel_Click"/>
+            <Button x:Name="SaveButton" Content="등록" Width="80" Height="32"
+                    Click="Save_Click"
+                    Background="#2563EB" Foreground="White"
+                    FontWeight="SemiBold"/>
+        </StackPanel>
+    </Grid>
+</Window>

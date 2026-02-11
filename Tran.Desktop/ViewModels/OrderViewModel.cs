@@ -37,6 +37,7 @@ public class OrderViewModel : ViewModelBase
         CompleteOrderCommand = new AsyncRelayCommand(ExecuteCompleteOrderAsync);
         SaveDraftCommand = new AsyncRelayCommand(ExecuteSaveDraftAsync);
         LoadDraftCommand = new RelayCommand<Order>(ExecuteLoadDraft);
+        DeleteDraftCommand = new RelayCommand<Order>(async (o) => await ExecuteDeleteDraftAsync(o));
         SearchCommand = new RelayCommand(ExecuteSearch);
         AddToFrequentCommand = new AsyncRelayCommand(ExecuteAddToFrequentAsync);
         RemoveFromFrequentCommand = new AsyncRelayCommand(ExecuteRemoveFromFrequentAsync);
@@ -277,6 +278,11 @@ public class OrderViewModel : ViewModelBase
     /// 임시 저장 불러오기
     /// </summary>
     public ICommand LoadDraftCommand { get; }
+
+    /// <summary>
+    /// 임시 저장 삭제
+    /// </summary>
+    public ICommand DeleteDraftCommand { get; }
 
     /// <summary>
     /// 검색
@@ -520,6 +526,41 @@ public class OrderViewModel : ViewModelBase
         }
 
         RecalculateTotal();
+    }
+
+    private async Task ExecuteDeleteDraftAsync(Order? order)
+    {
+        if (order == null) return;
+
+        var result = System.Windows.MessageBox.Show(
+            $"임시저장 #{order.OrderId}를 삭제하시겠습니까?",
+            "임시저장 삭제 확인",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (result != System.Windows.MessageBoxResult.Yes) return;
+
+        try
+        {
+            using var context = CreateDbContext();
+            var dbOrder = await context.Orders
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.OrderId == order.OrderId);
+
+            if (dbOrder != null)
+            {
+                context.Orders.Remove(dbOrder);
+                await context.SaveChangesAsync();
+            }
+
+            DraftOrders.Remove(order);
+            StatusMessage = $"임시저장 #{order.OrderId} 삭제 완료";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"임시저장 삭제 실패: {ex.Message}";
+            System.Diagnostics.Debug.WriteLine($"임시저장 삭제 실패: {ex.Message}");
+        }
     }
 
     private async Task ExecuteAddToFrequentAsync()

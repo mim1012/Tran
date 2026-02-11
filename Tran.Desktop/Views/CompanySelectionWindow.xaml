@@ -42,7 +42,7 @@
                 BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,0,0,1"
                 Visibility="{Binding HasRecentCompanies, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel>
-                <TextBlock Text="최근 거래처" Style="{StaticResource Tran.Caption}"
+                <TextBlock Text="최근 거래처" Style="{StaticResource Tran.Typography.Caption}"
                            Margin="0,0,0,8"/>
                 <ItemsControl ItemsSource="{Binding RecentCompanies}">
                     <ItemsControl.ItemsPanel>
@@ -166,7 +166,7 @@
 
                                     <!-- 사업자번호 -->
                                     <TextBlock Grid.Row="2"
-                                               Style="{StaticResource Tran.Caption}"
+                                               Style="{StaticResource Tran.Typography.Caption}"
                                                Margin="0,0,0,3">
                                         <Run Text="사업자번호: "/>
                                         <Run Text="{Binding BusinessNumber, Mode=OneWay}"/>
@@ -175,18 +175,52 @@
                                     <!-- 주소 -->
                                     <TextBlock Grid.Row="3"
                                                Text="{Binding Address}"
-                                               Style="{StaticResource Tran.Caption}"
+                                               Style="{StaticResource Tran.Typography.Caption}"
                                                TextTrimming="CharacterEllipsis"
                                                Margin="0,0,0,12"/>
 
-                                    <!-- 선택 버튼 -->
-                                    <Button Grid.Row="4"
-                                            Content="선택"
-                                            Style="{StaticResource Tran.PrimaryButton}"
-                                            Command="{Binding DataContext.SelectCompanyCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                            CommandParameter="{Binding}"
-                                            HorizontalAlignment="Stretch"
-                                            Height="32"/>
+                                    <!-- 버튼 영역 -->
+                                    <Grid Grid.Row="4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- 선택 버튼 -->
+                                        <Button Grid.Column="0"
+                                                Content="선택"
+                                                Style="{StaticResource Tran.PrimaryButton}"
+                                                Command="{Binding DataContext.SelectCompanyCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                HorizontalAlignment="Stretch"
+                                                Height="32"/>
+
+                                        <!-- 수정 버튼 -->
+                                        <Button Grid.Column="1"
+                                                Content="&#x270F;"
+                                                ToolTip="수정"
+                                                Command="{Binding DataContext.EditCompanyCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource Tran.SecondaryButton}"
+                                                Width="32" Height="32"
+                                                Padding="0"
+                                                Margin="5,0,0,0"
+                                                FontSize="14"/>
+
+                                        <!-- 삭제 버튼 -->
+                                        <Button Grid.Column="2"
+                                                Content="&#x2716;"
+                                                ToolTip="삭제(비활성화)"
+                                                Command="{Binding DataContext.DeactivateCompanyCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource Tran.SecondaryButton}"
+                                                Width="32" Height="32"
+                                                Padding="0"
+                                                Margin="5,0,0,0"
+                                                FontSize="12"
+                                                Foreground="Red"/>
+                                    </Grid>
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -200,6 +234,8 @@
                 BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,1,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
@@ -211,8 +247,16 @@
                         HorizontalAlignment="Left"
                         Padding="20,8"/>
 
-                <TextBlock Grid.Column="1"
-                           Style="{StaticResource Tran.Caption}"
+                <Button Grid.Column="1"
+                        Content="&#x1F3F7; 품목관리"
+                        Style="{StaticResource Tran.SecondaryButton}"
+                        Command="{Binding OpenProductManagementCommand}"
+                        HorizontalAlignment="Left"
+                        Padding="20,8"
+                        Margin="10,0,0,0"/>
+
+                <TextBlock Grid.Column="3"
+                           Style="{StaticResource Tran.Typography.Caption}"
                            VerticalAlignment="Center">
                     <Run Text="총 "/>
                     <Run Text="{Binding TotalCompanyCount, Mode=OneWay}"/>

@@ -9,7 +9,6 @@
              d:DesignHeight="700" d:DesignWidth="1000">
 
     <UserControl.InputBindings>
-        <KeyBinding Key="F5" Command="{Binding AdjustInventoryCommand}"/>
         <KeyBinding Key="F9" Command="{Binding RefreshCommand}"/>
     </UserControl.InputBindings>
 
@@ -63,10 +62,24 @@
 
                 <!-- 재고 조정 버튼 -->
                 <Button Grid.Column="3"
-                        Content="&#x1F4CB; 재고 조정"
-                        Command="{Binding AdjustInventoryCommand}"
+                        Content="&#x1F4CB; F5 재고 조정"
+                        Click="AdjustButton_Click"
                         Style="{StaticResource Tran.WarningButton}"/>
             </Grid>
+        </Border>
+
+        <!-- 부족 재고 알림 배너 -->
+        <Border Grid.Row="2" VerticalAlignment="Top" Panel.ZIndex="1"
+                Background="#FFF4E5" BorderBrush="#E67700" BorderThickness="0,0,0,1"
+                Padding="15,8" Margin="15,0"
+                Visibility="{Binding HasLowStockAlert, Converter={x:Static local:BoolToVisibilityConverter.Instance}}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#x26A0;&#xFE0F;" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="{Binding LowStockAlertMessage}"
+                           FontSize="13" FontWeight="SemiBold"
+                           Foreground="#E67700" VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
         </Border>
 
         <!-- 메인 재고 DataGrid (읽기전용) -->
@@ -88,22 +101,8 @@
                 <!-- 품목명 -->
                 <DataGridTextColumn Header="품목명" Binding="{Binding ProductName}" Width="2*"/>
 
-                <!-- 카테고리 -->
-                <DataGridTextColumn Header="카테고리" Binding="{Binding Category}" Width="100"/>
-
-                <!-- 확정재고 -->
-                <DataGridTextColumn Header="확정재고" Binding="{Binding ConfirmedQuantity}" Width="90">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="TextAlignment" Value="Right"/>
-                            <Setter Property="Padding" Value="0,0,8,0"/>
-                            <Setter Property="FontWeight" Value="Bold"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-
-                <!-- 입고예정 -->
-                <DataGridTextColumn Header="입고예정" Binding="{Binding PendingInQuantity}" Width="90">
+                <!-- 입고 -->
+                <DataGridTextColumn Header="입고" Binding="{Binding PendingInQuantity}" Width="90">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="TextAlignment" Value="Right"/>
@@ -113,8 +112,8 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
 
-                <!-- 출고예정 -->
-                <DataGridTextColumn Header="출고예정" Binding="{Binding PendingOutQuantity}" Width="90">
+                <!-- 출고 -->
+                <DataGridTextColumn Header="출고" Binding="{Binding PendingOutQuantity}" Width="90">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="TextAlignment" Value="Right"/>
@@ -124,14 +123,13 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
 
-                <!-- 가용재고 -->
-                <DataGridTextColumn Header="가용재고" Binding="{Binding AvailableQuantity}" Width="90">
+                <!-- 현재재고 -->
+                <DataGridTextColumn Header="현재재고" Binding="{Binding ConfirmedQuantity}" Width="90">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="TextAlignment" Value="Right"/>
                             <Setter Property="Padding" Value="0,0,8,0"/>
-                            <Setter Property="FontWeight" Value="SemiBold"/>
-                            <Setter Property="Foreground" Value="{StaticResource Tran.Primary.600}"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>

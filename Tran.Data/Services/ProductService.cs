@@ -108,4 +108,103 @@ public class ProductService : IProductService
 
         await _context.SaveChangesAsync();
     }
+
+    /// <summary>
+    /// 전체 품목 + 연관 회사명 조회
+    /// </summary>
+    public async Task<List<ProductDisplayItem>> GetAllProductsWithCompaniesAsync(bool includeInactive = false)
+    {
+        var query = _context.Products.AsQueryable();
+        if (!includeInactive)
+            query = query.Where(p => p.IsActive);
+
+        var products = await query.OrderBy(p => p.ProductName).ToListAsync();
+
+        return await MapProductsWithCompanies(products);
+    }
+
+    /// <summary>
+    /// 특정 회사의 품목 조회
+    /// </summary>
+    public async Task<List<ProductDisplayItem>> GetProductsByCompanyAsync(string companyId, bool includeInactive = false)
+    {
+        var productIds = await _context.CompanyProducts
+            .Where(cp => cp.CompanyId == companyId)
+            .Select(cp => cp.ProductId)
+            .ToListAsync();
+
+        var query = _context.Products.Where(p => productIds.Contains(p.ProductId));
+        if (!includeInactive)
+            query = query.Where(p => p.IsActive);
+
+        var products = await query.OrderBy(p => p.ProductName).ToListAsync();
+
+        return await MapProductsWithCompanies(products);
+    }
+
+    /// <summary>
+    /// 키워드 검색 + 회사 필터
+    /// </summary>
+    public async Task<List<ProductDisplayItem>> SearchProductsWithCompaniesAsync(string keyword, string? companyId = null)
+    {
+        var query = _context.Products.Where(p => p.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            var normalizedKeyword = keyword.Trim().ToLower();
+            query = query.Where(p =>
+                p.ProductName.ToLower().Contains(normalizedKeyword) ||
+                (p.ProductCode != null && p.ProductCode.ToLower().Contains(normalizedKeyword)) ||
+                (p.Category != null && p.Category.ToLower().Contains(normalizedKeyword)));
+        }
+
+        if (!string.IsNullOrEmpty(companyId))
+        {
+            var productIds = await _context.CompanyProducts
+                .Where(cp => cp.CompanyId == companyId)
+                .Select(cp => cp.ProductId)
+                .ToListAsync();
+
+            query = query.Where(p => productIds.Contains(p.ProductId));
+        }
+
+        var products = await query.OrderBy(p => p.ProductName).ToListAsync();
+
+        return await MapProductsWithCompanies(products);
+    }
+
+    /// <summary>
+    /// Products에 연관 회사명 매핑
+    /// </summary>
+    private async Task<List<ProductDisplayItem>> MapProductsWithCompanies(List<Product> products)
+    {
+        if (products.Count == 0)
+            return new List<ProductDisplayItem>();
+
+        var productIds = products.Select(p => p.ProductId).ToList();
+
+        var companyMappings = await _context.CompanyProducts
+            .Where(cp => productIds.Contains(cp.ProductId))
+            .Include(cp => cp.Company)
+            .Select(cp => new { cp.ProductId, cp.CompanyId, cp.Company.CompanyName })
+            .ToListAsync();
+
+        var groupedByProduct = companyMappings
+            .GroupBy(m => m.ProductId)
+            .ToDictionary(
+                g => g.Key,
+                g => (
+                    Names: string.Join(", ", g.Select(x => x.CompanyName)),
+                    Ids: g.Select(x => x.CompanyId).ToList()
+                ));
+
+        return products.Select(p =>
+        {
+            var hasCompanies = groupedByProduct.TryGetValue(p.ProductId, out var info);
+            return ProductDisplayItem.FromProduct(
+                p,
+                hasCompanies ? info.Names : "",
+                hasCompanies ? info.Ids : new List<string>());
+        }).ToList();
+    }
 }

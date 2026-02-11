@@ -28,6 +28,7 @@ public class InventoryViewModel : ViewModelBase
         RefreshCommand = new RelayCommand(async () => await LoadDataAsync());
         CreateOrderCommand = new RelayCommand<OrderSuggestionRow>(async (row) => await ExecuteCreateOrderAsync(row));
         CreateAllOrdersCommand = new RelayCommand(async () => await ExecuteCreateAllOrdersAsync());
+        DeleteInventoryCommand = new RelayCommand<InventoryRow>(async (row) => await ExecuteDeleteInventoryAsync(row));
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -144,16 +145,16 @@ public class InventoryViewModel : ViewModelBase
         }
 
         /// <summary>
-        /// 재고 상태 계산
+        /// 재고 상태 계산 (현재재고 기준)
         /// </summary>
         public void ComputeStockStatus()
         {
-            if (AvailableQuantity <= 0)
+            if (ConfirmedQuantity <= 0)
             {
                 StockStatus = "품절";
                 StockStatusColor = "#C92A2A";
             }
-            else if (SafetyStock > 0 && AvailableQuantity <= SafetyStock)
+            else if (SafetyStock > 0 && ConfirmedQuantity < SafetyStock)
             {
                 StockStatus = "부족";
                 StockStatusColor = "#E67700";
@@ -221,6 +222,27 @@ public class InventoryViewModel : ViewModelBase
     public int LowStockCount => InventoryList.Count(i => i.StockStatus == "부족");
     public int OutOfStockCount => InventoryList.Count(i => i.StockStatus == "품절");
 
+    // 부족 재고 알림 프로퍼티
+    private int _lowStockAlertCount;
+    public int LowStockAlertCount
+    {
+        get => _lowStockAlertCount;
+        set
+        {
+            if (SetProperty(ref _lowStockAlertCount, value))
+                RaisePropertyChanged(nameof(HasLowStockAlert));
+        }
+    }
+
+    private string _lowStockAlertMessage = string.Empty;
+    public string LowStockAlertMessage
+    {
+        get => _lowStockAlertMessage;
+        set => SetProperty(ref _lowStockAlertMessage, value);
+    }
+
+    public bool HasLowStockAlert => LowStockAlertCount > 0;
+
     /// <summary>
     /// 검색어
     /// </summary>
@@ -281,6 +303,11 @@ public class InventoryViewModel : ViewModelBase
     /// </summary>
     public ICommand CreateAllOrdersCommand { get; }
 
+    /// <summary>
+    /// 재고 레코드 삭제
+    /// </summary>
+    public ICommand DeleteInventoryCommand { get; }
+
     // ═══════════════════════════════════════════════════════════
     // Public Methods
     // ═══════════════════════════════════════════════════════════
@@ -329,6 +356,18 @@ public class InventoryViewModel : ViewModelBase
             RaisePropertyChanged(nameof(NormalStockCount));
             RaisePropertyChanged(nameof(LowStockCount));
             RaisePropertyChanged(nameof(OutOfStockCount));
+
+            // 부족 재고 알림 계산
+            var lowStockItems = InventoryList
+                .Where(i => i.SafetyStock > 0 && i.ConfirmedQuantity < i.SafetyStock)
+                .ToList();
+            LowStockAlertCount = lowStockItems.Count;
+            if (lowStockItems.Count > 0)
+            {
+                var names = string.Join(", ", lowStockItems.Select(i => i.ProductName));
+                LowStockAlertMessage = $"안전재고 미달 {lowStockItems.Count}건: {names}";
+                StatusMessage = LowStockAlertMessage;
+            }
 
             // 발주 제안 로드
             await LoadSuggestionsAsync();
@@ -542,6 +581,42 @@ public class InventoryViewModel : ViewModelBase
         {
             StatusMessage = $"일괄 발주 생성 중 오류 ({created}건 생성 후): {ex.Message}";
             System.Diagnostics.Debug.WriteLine($"일괄 발주 생성 실패: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 재고 레코드 삭제
+    /// </summary>
+    private async Task ExecuteDeleteInventoryAsync(InventoryRow? row)
+    {
+        if (row == null) return;
+
+        var result = System.Windows.MessageBox.Show(
+            $"'{row.ProductName}' 재고 레코드를 삭제하시겠습니까?",
+            "재고 삭제 확인",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (result != System.Windows.MessageBoxResult.Yes) return;
+
+        try
+        {
+            using var context = CreateDbContext();
+            var inventoryService = new InventoryService(context);
+
+            await inventoryService.DeleteInventoryAsync(row.ProductId);
+
+            InventoryList.Remove(row);
+            StatusMessage = $"'{row.ProductName}' 재고 레코드 삭제 완료";
+            RaisePropertyChanged(nameof(TotalProductCount));
+            RaisePropertyChanged(nameof(NormalStockCount));
+            RaisePropertyChanged(nameof(LowStockCount));
+            RaisePropertyChanged(nameof(OutOfStockCount));
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"재고 삭제 실패: {ex.Message}";
+            System.Diagnostics.Debug.WriteLine($"재고 삭제 실패: {ex.Message}");
         }
     }
 }

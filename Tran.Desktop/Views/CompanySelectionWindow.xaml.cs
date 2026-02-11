@@ -18,6 +18,7 @@ public partial class CompanySelectionWindow : Window
     public Action<Company>? OnCompanySelected { get; set; }
 
     private readonly bool _dialogMode;
+    private readonly CompanySelectionViewModel _viewModel;
 
     public CompanySelectionWindow() : this(dialogMode: false) { }
 
@@ -26,24 +27,48 @@ public partial class CompanySelectionWindow : Window
         _dialogMode = dialogMode;
         InitializeComponent();
 
-        var viewModel = new CompanySelectionViewModel();
-        viewModel.OnCompanySelected = company =>
+        _viewModel = new CompanySelectionViewModel();
+        _viewModel.OnCompanySelected = company =>
         {
             if (_dialogMode)
             {
-                // 다이얼로그 모드: 콜백 호출 후 닫기
                 OnCompanySelected?.Invoke(company);
                 this.Close();
             }
             else
             {
-                // 기존 모드: UserContext 설정 + 새 창 열기
                 UserContext.SetUser(company.CompanyId, company.CompanyName, company.CompanyId);
                 var workspaceWindow = new MainWorkspaceWindow(company);
                 workspaceWindow.Show();
                 this.Close();
             }
         };
-        DataContext = viewModel;
+
+        _viewModel.OnAddNewCompanyRequested = () =>
+        {
+            var dialog = new CompanyAddDialog { Owner = this };
+            if (dialog.ShowDialog() == true)
+            {
+                _ = _viewModel.ReloadAsync();
+            }
+        };
+
+        _viewModel.OnEditCompanyRequested = company =>
+        {
+            var dialog = new CompanyAddDialog(company) { Owner = this };
+            if (dialog.ShowDialog() == true)
+            {
+                _ = _viewModel.ReloadAsync();
+            }
+        };
+
+        _viewModel.OnProductManagementRequested = () =>
+        {
+            var workspaceWindow = new MainWorkspaceWindow(productManagementMode: true);
+            workspaceWindow.Show();
+            this.Close();
+        };
+
+        DataContext = _viewModel;
     }
 }

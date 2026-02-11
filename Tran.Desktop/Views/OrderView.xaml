@@ -24,7 +24,7 @@
         <!-- 상단 Blue 액센트 바 -->
         <Border Grid.Row="0" Height="3" Background="{StaticResource Tran.Accent.Order}"/>
 
-        <!-- 상단 영역: 좌측 전체 품목 + 우측 자주 거래 품목 (50%) -->
+        <!-- 상단 영역: 좌측 자주 거래 품목 + 우측 전체 품목 (50%) -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -32,8 +32,8 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- 좌측: 전체 품목 -->
-            <Grid Grid.Column="0" Margin="15,10,5,10">
+            <!-- 우측: 전체 품목 -->
+            <Grid Grid.Column="2" Margin="5,10,15,10">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -64,7 +64,7 @@
                 </Border>
 
                 <!-- 전체 품목 DataGrid (가상 스크롤) -->
-                <DataGrid Grid.Row="2"
+                <DataGrid Grid.Row="2" Name="AllProductsGrid"
                           ItemsSource="{Binding FilteredProducts}"
                           SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
                           IsReadOnly="True"
@@ -76,7 +76,9 @@
                           VirtualizingStackPanel.IsVirtualizing="True"
                           VirtualizingStackPanel.VirtualizationMode="Recycling"
                           ScrollViewer.CanContentScroll="True"
-                          MouseDoubleClick="ProductGrid_MouseDoubleClick">
+                          MouseDoubleClick="ProductGrid_MouseDoubleClick"
+                          PreviewMouseLeftButtonDown="ProductGrid_PreviewMouseLeftButtonDown"
+                          PreviewMouseMove="ProductGrid_PreviewMouseMove">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="품목명" Binding="{Binding ProductName}" Width="2*"/>
                         <DataGridTextColumn Header="품목코드" Binding="{Binding ProductCode}" Width="*"/>
@@ -100,18 +102,26 @@
 
             <!-- 중간: 화살표 토글 버튼 -->
             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="5,0">
-                <Button Content="&#x2192;" Command="{Binding AddToFrequentCommand}"
-                        Width="36" Height="36" FontSize="18" Margin="0,0,0,8"
+                <Button Command="{Binding AddToFrequentCommand}"
+                        Width="36" Height="36" Margin="0,0,0,8"
                         ToolTip="자주거래 품목에 추가"
-                        Style="{StaticResource Tran.SecondaryButton}"/>
-                <Button Content="&#x2190;" Command="{Binding RemoveFromFrequentCommand}"
-                        Width="36" Height="36" FontSize="18"
+                        Background="White" BorderBrush="#CCCCCC" BorderThickness="1"
+                        Cursor="Hand">
+                    <TextBlock Text="&#x25C0;" FontSize="16" Foreground="#222222"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+                <Button Command="{Binding RemoveFromFrequentCommand}"
+                        Width="36" Height="36"
                         ToolTip="자주거래 품목에서 제거"
-                        Style="{StaticResource Tran.SecondaryButton}"/>
+                        Background="White" BorderBrush="#CCCCCC" BorderThickness="1"
+                        Cursor="Hand">
+                    <TextBlock Text="&#x25B6;" FontSize="16" Foreground="#222222"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
             </StackPanel>
 
-            <!-- 우측: 자주 거래 품목 -->
-            <Grid Grid.Column="2" Margin="5,10,15,10">
+            <!-- 좌측: 자주 거래 품목 -->
+            <Grid Grid.Column="0" Margin="15,10,5,10">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -131,6 +141,11 @@
                 <ListBox Grid.Row="1"
                          ItemsSource="{Binding FrequentProducts}"
                          SelectedItem="{Binding SelectedFrequentProduct, Mode=TwoWay}"
+                         AllowDrop="True"
+                         Drop="FrequentListBox_Drop"
+                         DragOver="FrequentListBox_DragOver"
+                         PreviewMouseLeftButtonDown="FrequentListBox_PreviewMouseLeftButtonDown"
+                         PreviewMouseMove="FrequentListBox_PreviewMouseMove"
                          BorderBrush="{StaticResource Tran.Neutral.200}"
                          BorderThickness="1"
                          Background="White"
@@ -204,7 +219,6 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- 등록 탭 헤더 -->
@@ -213,10 +227,14 @@
                             <TextBlock Text="현재 발주 품목"
                                        FontSize="14" FontWeight="SemiBold"
                                        Foreground="{StaticResource Tran.Neutral.800}" VerticalAlignment="Center"/>
-                            <TextBlock Text=" (0개 품목)"
-                                       FontSize="12" Foreground="{StaticResource Tran.Neutral.400}"
-                                       VerticalAlignment="Center" Margin="5,0,0,0"/>
+                            <TextBlock FontSize="12" Foreground="{StaticResource Tran.Neutral.400}"
+                                       VerticalAlignment="Center" Margin="5,0,0,0">
+                                <Run Text=" ("/>
+                                <Run Text="{Binding CurrentOrderItems.Count, Mode=OneWay}"/>
+                                <Run Text="개 품목)"/>
+                            </TextBlock>
                             <Button Content="F7 품목 선택"
+                                    Click="AddProduct_Click"
                                     Style="{StaticResource Tran.PrimaryButton}"
                                     Height="28" Padding="10,0"
                                     FontSize="12"
@@ -227,6 +245,9 @@
                     <!-- 발주 품목 DataGrid (수량/단가 편집 가능) -->
                     <DataGrid Grid.Row="1"
                               ItemsSource="{Binding CurrentOrderItems}"
+                              AllowDrop="True"
+                              Drop="OrderItemsGrid_Drop"
+                              DragOver="OrderItemsGrid_DragOver"
                               CanUserDeleteRows="False"
                               Background="White"
                               RowHeight="38"
@@ -295,43 +316,42 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <!-- 합계 영역 -->
-                    <Border Grid.Row="2" Background="{StaticResource Tran.State.Draft.Bg}" Padding="15,10"
+                    <!-- 합계 + 버튼 통합 영역 -->
+                    <Border Grid.Row="2" Background="{StaticResource Tran.State.Draft.Bg}" Padding="10,5"
                             BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,1,0,0">
                         <Grid>
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Column="0" Text="합계"
-                                       FontSize="15" FontWeight="SemiBold"
-                                       VerticalAlignment="Center" Foreground="{StaticResource Tran.Neutral.800}"/>
+                                       FontSize="13" FontWeight="SemiBold"
+                                       VerticalAlignment="Center" Foreground="{StaticResource Tran.Neutral.800}"
+                                       Margin="0,0,8,0"/>
                             <TextBlock Grid.Column="1"
-                                       FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource Tran.Accent.Order}">
+                                       FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource Tran.Accent.Order}"
+                                       VerticalAlignment="Center">
                                 <Run Text="&#x20A9;"/>
                                 <Run Text="{Binding TotalAmount, StringFormat=\{0:N0\}, Mode=OneWay, FallbackValue='0'}"/>
                             </TextBlock>
-                        </Grid>
-                    </Border>
 
-                    <!-- 하단 버튼 영역 -->
-                    <Border Grid.Row="3" Background="{StaticResource Tran.Neutral.50}" Padding="15,10"
-                            BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,1,0,0">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="F6 임시저장"
+                            <Button Grid.Column="3" Content="F6 임시저장"
                                     Command="{Binding SaveDraftCommand}"
                                     Style="{StaticResource Tran.SecondaryButton}"
-                                    Height="36" Padding="20,0"
-                                    FontSize="13" FontWeight="Medium"
-                                    Margin="0,0,10,0"/>
+                                    Height="30" Padding="15,0"
+                                    FontSize="12" FontWeight="Medium"
+                                    Margin="0,0,8,0"/>
 
-                            <Button Content="F5 발주 완료"
+                            <Button Grid.Column="4" Content="F5 발주 완료"
                                     Command="{Binding CompleteOrderCommand}"
                                     Style="{StaticResource Tran.PrimaryButton}"
-                                    Height="36" Padding="20,0"
-                                    FontSize="13" FontWeight="Medium"/>
-                        </StackPanel>
+                                    Height="30" Padding="15,0"
+                                    FontSize="12" FontWeight="Medium"/>
+                        </Grid>
                     </Border>
                 </Grid>
             </TabItem>
@@ -385,12 +405,21 @@
                                             <Run Text="{Binding TotalAmount, StringFormat=\{0:N0\}, Mode=OneWay}"/>
                                         </TextBlock>
 
-                                        <Button Grid.Column="2" Content="불러오기"
-                                                Command="{Binding DataContext.LoadDraftCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                Style="{StaticResource Tran.PrimaryButton}"
-                                                Height="28" Padding="10,0"
-                                                FontSize="12"/>
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                            <Button Content="불러오기"
+                                                    Command="{Binding DataContext.LoadDraftCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource Tran.PrimaryButton}"
+                                                    Height="28" Padding="10,0"
+                                                    FontSize="12"
+                                                    Margin="0,0,5,0"/>
+                                            <Button Content="&#x2716;"
+                                                    Command="{Binding DataContext.DeleteDraftCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource Tran.IconButton.Danger}"
+                                                    Height="28" Width="28"
+                                                    ToolTip="임시저장 삭제"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

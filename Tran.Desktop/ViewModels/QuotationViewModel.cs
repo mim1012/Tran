@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Windows.Input;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32;
 using Tran.Core.Models;
 using Tran.Core.Services;
 using Tran.Data;
@@ -27,12 +29,15 @@ public class QuotationViewModel : ViewModelBase
         QuotationHistory = new ObservableCollection<Quotation>();
         PricePreview = new ObservableCollection<PriceChangePreview>();
         PriceHistory = new ObservableCollection<PriceHistoryRow>();
+        UploadedTemplates = new ObservableCollection<QuotationTemplate>();
 
         AddProductCommand = new RelayCommand<Product>(ExecuteAddProduct);
         RemoveItemCommand = new RelayCommand<QuotationItemRow>(ExecuteRemoveItem);
         SaveDraftCommand = new AsyncRelayCommand(ExecuteSaveDraftAsync);
         SendCommand = new AsyncRelayCommand(ExecuteSendAsync);
         ConfirmCommand = new AsyncRelayCommand(ExecuteConfirmAsync);
+        UploadTemplateCommand = new AsyncRelayCommand(ExecuteUploadTemplateAsync);
+        DeleteTemplateCommand = new RelayCommand<QuotationTemplate>(async (t) => await ExecuteDeleteTemplateAsync(t));
 
         CurrentItems.CollectionChanged += (_, _) =>
         {
@@ -295,6 +300,21 @@ public class QuotationViewModel : ViewModelBase
     /// </summary>
     public ICommand ConfirmCommand { get; }
 
+    /// <summary>
+    /// 양식 업로드
+    /// </summary>
+    public ICommand UploadTemplateCommand { get; }
+
+    /// <summary>
+    /// 양식 삭제
+    /// </summary>
+    public ICommand DeleteTemplateCommand { get; }
+
+    /// <summary>
+    /// 업로드된 양식 목록
+    /// </summary>
+    public ObservableCollection<QuotationTemplate> UploadedTemplates { get; }
+
     // ═══════════════════════════════════════════════════════════
     // Public Methods
     // ═══════════════════════════════════════════════════════════
@@ -330,6 +350,9 @@ public class QuotationViewModel : ViewModelBase
 
             // 단가 이력 로드
             await LoadPriceHistoryAsync();
+
+            // 양식 목록 로드
+            await LoadTemplatesAsync();
 
             // 현재 견적 초기화
             UnsubscribeAllItems();
@@ -677,6 +700,116 @@ public class QuotationViewModel : ViewModelBase
     private void RecalculateTotal()
     {
         TotalAmount = CurrentItems.Sum(i => i.LineAmount);
+    }
+
+    /// <summary>
+    /// 양식 업로드 (OpenFileDialog → DB BLOB 저장)
+    /// </summary>
+    private async Task ExecuteUploadTemplateAsync()
+    {
+        if (string.IsNullOrEmpty(CompanyId))
+        {
+            StatusMessage = "거래처를 먼저 선택해 주세요.";
+            return;
+        }
+
+        var dialog = new OpenFileDialog
+        {
+            Title = "견적서 양식 업로드",
+            Filter = "Excel 파일 (*.xlsx)|*.xlsx|PDF 파일 (*.pdf)|*.pdf",
+            Multiselect = false
+        };
+
+        if (dialog.ShowDialog() != true) return;
+
+        var fileInfo = new FileInfo(dialog.FileName);
+
+        // 10MB 제한
+        if (fileInfo.Length > 10 * 1024 * 1024)
+        {
+            StatusMessage = "파일 크기가 10MB를 초과합니다.";
+            return;
+        }
+
+        try
+        {
+            var fileData = await File.ReadAllBytesAsync(dialog.FileName);
+            var template = new QuotationTemplate
+            {
+                CompanyId = CompanyId,
+                FileName = fileInfo.Name,
+                FileType = fileInfo.Extension.TrimStart('.').ToLowerInvariant(),
+                FileData = fileData,
+                FileSize = fileInfo.Length,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            using var context = CreateDbContext();
+            var templateService = new QuotationTemplateService(context);
+            await templateService.UploadAsync(template);
+
+            UploadedTemplates.Insert(0, template);
+            StatusMessage = $"양식 '{fileInfo.Name}' 업로드 완료 ({fileInfo.Length / 1024:N0} KB)";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"양식 업로드 실패: {ex.Message}";
+            System.Diagnostics.Debug.WriteLine($"양식 업로드 실패: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 양식 삭제
+    /// </summary>
+    private async Task ExecuteDeleteTemplateAsync(QuotationTemplate? template)
+    {
+        if (template == null) return;
+
+        var result = System.Windows.MessageBox.Show(
+            $"'{template.FileName}' 양식을 삭제하시겠습니까?",
+            "양식 삭제 확인",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (result != System.Windows.MessageBoxResult.Yes) return;
+
+        try
+        {
+            using var context = CreateDbContext();
+            var templateService = new QuotationTemplateService(context);
+            await templateService.DeleteAsync(template.TemplateId);
+
+            UploadedTemplates.Remove(template);
+            StatusMessage = $"양식 '{template.FileName}' 삭제 완료";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"양식 삭제 실패: {ex.Message}";
+            System.Diagnostics.Debug.WriteLine($"양식 삭제 실패: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 양식 목록 로드
+    /// </summary>
+    private async Task LoadTemplatesAsync()
+    {
+        try
+        {
+            using var context = CreateDbContext();
+            var templateService = new QuotationTemplateService(context);
+            var templates = await templateService.GetByCompanyAsync(CompanyId);
+
+            UploadedTemplates.Clear();
+            foreach (var t in templates)
+            {
+                UploadedTemplates.Add(t);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"양식 목록 로드 실패: {ex.Message}");
+        }
     }
 
     protected override void Dispose(bool disposing)

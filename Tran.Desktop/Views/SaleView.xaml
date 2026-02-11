@@ -100,14 +100,22 @@
 
             <!-- 중간: 화살표 토글 버튼 -->
             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="5,0">
-                <Button Content="&#x2192;" Command="{Binding AddToFrequentCommand}"
-                        Width="36" Height="36" FontSize="18" Margin="0,0,0,8"
+                <Button Command="{Binding AddToFrequentCommand}"
+                        Width="36" Height="36" Margin="0,0,0,8"
                         ToolTip="자주거래 품목에 추가"
-                        Style="{StaticResource Tran.SecondaryButton}"/>
-                <Button Content="&#x2190;" Command="{Binding RemoveFromFrequentCommand}"
-                        Width="36" Height="36" FontSize="18"
+                        Background="White" BorderBrush="#CCCCCC" BorderThickness="1"
+                        Cursor="Hand">
+                    <TextBlock Text="&#x25B6;" FontSize="16" Foreground="#222222"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+                <Button Command="{Binding RemoveFromFrequentCommand}"
+                        Width="36" Height="36"
                         ToolTip="자주거래 품목에서 제거"
-                        Style="{StaticResource Tran.SecondaryButton}"/>
+                        Background="White" BorderBrush="#CCCCCC" BorderThickness="1"
+                        Cursor="Hand">
+                    <TextBlock Text="&#x25C0;" FontSize="16" Foreground="#222222"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
             </StackPanel>
 
             <!-- 우측: 자주 거래 품목 -->

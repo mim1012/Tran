@@ -23,9 +23,12 @@ public class CompanySelectionViewModel : ViewModelBase
         RecentCompanies = new ObservableCollection<Company>();
 
         SelectCompanyCommand = new RelayCommand<Company>(ExecuteSelectCompany);
+        EditCompanyCommand = new RelayCommand<Company>(c => { if (c != null) OnEditCompanyRequested?.Invoke(c); });
+        DeactivateCompanyCommand = new RelayCommand<Company>(ExecuteDeactivateCompany);
         SearchCommand = new RelayCommand(ExecuteSearch);
         FocusSearchCommand = new RelayCommand(() => { /* UI에서 Focus 처리 */ });
-        AddNewCompanyCommand = new RelayCommand(() => { /* 거래처 추가 - 향후 구현 */ });
+        AddNewCompanyCommand = new RelayCommand(() => OnAddNewCompanyRequested?.Invoke());
+        OpenProductManagementCommand = new RelayCommand(() => OnProductManagementRequested?.Invoke());
 
         CompanyTypes = new ObservableCollection<string> { "전체", "고객사", "공급사" };
 
@@ -115,6 +118,21 @@ public class CompanySelectionViewModel : ViewModelBase
     public ICommand AddNewCompanyCommand { get; }
 
     /// <summary>
+    /// 거래처 수정 명령
+    /// </summary>
+    public ICommand EditCompanyCommand { get; }
+
+    /// <summary>
+    /// 거래처 비활성화(삭제) 명령
+    /// </summary>
+    public ICommand DeactivateCompanyCommand { get; }
+
+    /// <summary>
+    /// 품목관리 화면 열기 명령
+    /// </summary>
+    public ICommand OpenProductManagementCommand { get; }
+
+    /// <summary>
     /// 거래처 유형 목록 (필터용)
     /// </summary>
     public ObservableCollection<string> CompanyTypes { get; }
@@ -142,6 +160,33 @@ public class CompanySelectionViewModel : ViewModelBase
     /// 거래처 선택 완료 시 콜백 (부모 윈도우에 통지)
     /// </summary>
     public Action<Company>? OnCompanySelected { get; set; }
+
+    /// <summary>
+    /// 새 거래처 등록 요청 콜백
+    /// </summary>
+    public Action? OnAddNewCompanyRequested { get; set; }
+
+    /// <summary>
+    /// 거래처 수정 요청 콜백
+    /// </summary>
+    public Action<Company>? OnEditCompanyRequested { get; set; }
+
+    /// <summary>
+    /// 품목관리 화면 열기 요청 콜백
+    /// </summary>
+    public Action? OnProductManagementRequested { get; set; }
+
+    // ═══════════════════════════════════════════════════════════
+    // Public Methods
+    // ═══════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// 데이터 다시 로드 (거래처 등록 후 목록 갱신용)
+    /// </summary>
+    public async Task ReloadAsync()
+    {
+        await LoadDataAsync();
+    }
 
     // ═══════════════════════════════════════════════════════════
     // Private Methods
@@ -242,5 +287,39 @@ public class CompanySelectionViewModel : ViewModelBase
     private void ExecuteSearch()
     {
         ApplyFilter();
+    }
+
+    /// <summary>
+    /// 거래처 비활성화 (soft delete)
+    /// </summary>
+    private async void ExecuteDeactivateCompany(Company? company)
+    {
+        if (company == null) return;
+
+        var result = System.Windows.MessageBox.Show(
+            $"'{company.CompanyName}'을(를) 삭제(비활성화)하시겠습니까?\n\n비활성화된 거래처는 목록에서 숨겨집니다.",
+            "거래처 삭제 확인",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (result != System.Windows.MessageBoxResult.Yes) return;
+
+        try
+        {
+            using var context = CreateDbContext();
+            var existing = await context.Companies.FindAsync(company.CompanyId);
+            if (existing != null)
+            {
+                existing.IsActive = false;
+                await context.SaveChangesAsync();
+            }
+
+            await LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"삭제 실패: {ex.Message}", "오류",
+                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
     }
 }

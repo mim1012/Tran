@@ -1,6 +1,7 @@
 using System.Windows;
 using Tran.Data;
 using Tran.Desktop.ViewModels;
+using Tran.Desktop.Views;
 
 namespace Tran.Desktop;
 
@@ -18,6 +19,25 @@ public partial class PartnerManagementWindow : Window
 
         _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
         DataContext = _viewModel;
+
+        // CRUD 콜백 연결
+        _viewModel.OnAddCompanyRequested = () =>
+        {
+            var dialog = new CompanyAddDialog { Owner = this };
+            if (dialog.ShowDialog() == true)
+            {
+                _viewModel.LoadCompaniesCommand.Execute(null);
+            }
+        };
+
+        _viewModel.OnEditCompanyRequested = company =>
+        {
+            var dialog = new CompanyAddDialog(company) { Owner = this };
+            if (dialog.ShowDialog() == true)
+            {
+                _viewModel.LoadCompaniesCommand.Execute(null);
+            }
+        };
 
         // 초기 로딩 후 카운트 업데이트
         Loaded += async (s, e) =>
