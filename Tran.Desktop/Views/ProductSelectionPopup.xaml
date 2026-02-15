@@ -35,9 +35,9 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- 헤더 -->
-        <Border Grid.Row="0" Background="{StaticResource Tran.Neutral.50}" Padding="15,12"
-                BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,0,0,1">
+        <!-- 헤더 (피플카 스타일: 다크 네이비 배경) -->
+        <Border Grid.Row="0" Background="{StaticResource Tran.Primary.900}" Padding="15,12"
+                BorderBrush="{StaticResource Tran.Primary.800}" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -46,7 +46,7 @@
 
                 <TextBlock Grid.Column="0" Text="품목 선택"
                            FontSize="16" FontWeight="Bold"
-                           Foreground="{StaticResource Tran.Neutral.800}" VerticalAlignment="Center"/>
+                           Foreground="White" VerticalAlignment="Center"/>
 
                 <Button Grid.Column="1" Content="X 닫기"
                         Command="{Binding CancelCommand}"

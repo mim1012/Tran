@@ -3,66 +3,76 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Name="DialogWindow"
         Title="거래처 등록"
-        Width="450" Height="400"
+        Width="450" Height="420"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
+        Background="{StaticResource Tran.Surface.Background}"
         FontFamily="{StaticResource Tran.FontFamily}">
 
-    <Grid Margin="20">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="*"/>    <!-- Form -->
+            <RowDefinition Height="Auto"/> <!-- Footer -->
         </Grid.RowDefinitions>
 
-        <!-- 거래처명 -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,12">
-            <TextBlock Text="거래처명 *" FontSize="12" Foreground="Gray" Margin="0,0,0,4"/>
-            <TextBox x:Name="CompanyNameBox" FontSize="14" Padding="8,6"/>
-        </StackPanel>
+        <!-- 다크 네이비 헤더 -->
+        <Border Grid.Row="0" Background="{StaticResource Tran.Primary.900}" Padding="20,16">
+            <TextBlock Text="거래처 등록" FontSize="16" FontWeight="Bold" Foreground="White"/>
+        </Border>
 
-        <!-- 사업자번호 -->
-        <StackPanel Grid.Row="1" Margin="0,0,0,12">
-            <TextBlock Text="사업자번호 *" FontSize="12" Foreground="Gray" Margin="0,0,0,4"/>
-            <TextBox x:Name="BusinessNumberBox" FontSize="14" Padding="8,6"/>
-        </StackPanel>
+        <!-- Form Area -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="24,20">
+                <!-- 거래처명 -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="거래처명 *" Style="{StaticResource Tran.Typography.Label}" Margin="0,0,0,6"/>
+                    <TextBox x:Name="CompanyNameBox"/>
+                </StackPanel>
 
-        <!-- 대표자명 -->
-        <StackPanel Grid.Row="2" Margin="0,0,0,12">
-            <TextBlock Text="대표자명" FontSize="12" Foreground="Gray" Margin="0,0,0,4"/>
-            <TextBox x:Name="RepresentativeBox" FontSize="14" Padding="8,6"/>
-        </StackPanel>
+                <!-- 사업자번호 -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="사업자번호 *" Style="{StaticResource Tran.Typography.Label}" Margin="0,0,0,6"/>
+                    <TextBox x:Name="BusinessNumberBox"/>
+                </StackPanel>
 
-        <!-- 연락처 -->
-        <StackPanel Grid.Row="3" Margin="0,0,0,12">
-            <TextBlock Text="연락처" FontSize="12" Foreground="Gray" Margin="0,0,0,4"/>
-            <TextBox x:Name="ContactBox" FontSize="14" Padding="8,6"/>
-        </StackPanel>
+                <!-- 대표자명 -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="대표자명" Style="{StaticResource Tran.Typography.Label}" Margin="0,0,0,6"/>
+                    <TextBox x:Name="RepresentativeBox"/>
+                </StackPanel>
 
-        <!-- 주소 -->
-        <StackPanel Grid.Row="4" Margin="0,0,0,12">
-            <TextBlock Text="주소" FontSize="12" Foreground="Gray" Margin="0,0,0,4"/>
-            <TextBox x:Name="AddressBox" FontSize="14" Padding="8,6"/>
-        </StackPanel>
+                <!-- 연락처 -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="연락처" Style="{StaticResource Tran.Typography.Label}" Margin="0,0,0,6"/>
+                    <TextBox x:Name="ContactBox"/>
+                </StackPanel>
 
-        <!-- 에러 메시지 -->
-        <TextBlock Grid.Row="5" x:Name="ErrorText" Foreground="Red" FontSize="12"
-                   Visibility="Collapsed" Margin="0,0,0,8"/>
+                <!-- 주소 -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="주소" Style="{StaticResource Tran.Typography.Label}" Margin="0,0,0,6"/>
+                    <TextBox x:Name="AddressBox"/>
+                </StackPanel>
 
-        <!-- 버튼 -->
-        <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="취소" Width="80" Height="32" Margin="0,0,10,0"
-                    Click="Cancel_Click"/>
-            <Button x:Name="SaveButton" Content="등록" Width="80" Height="32"
-                    Click="Save_Click"
-                    Background="#2563EB" Foreground="White"
-                    FontWeight="SemiBold"/>
-        </StackPanel>
+                <!-- 에러 메시지 -->
+                <TextBlock Grid.Row="5" x:Name="ErrorText" Foreground="{StaticResource Tran.Danger}" 
+                           FontSize="12" Visibility="Collapsed"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer Buttons -->
+        <Border Grid.Row="2" Background="{StaticResource Tran.Surface.Footer}" Padding="24,14"
+                BorderBrush="{StaticResource Tran.Border.Light}" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="취소" Style="{StaticResource Tran.SecondaryButton}"
+                        Width="100" Height="38" Margin="0,0,10,0"
+                        Click="Cancel_Click"/>
+                <Button x:Name="SaveButton" Content="등록" 
+                        Style="{StaticResource Tran.PrimaryButton}"
+                        Width="100" Height="38"
+                        Click="Save_Click"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>

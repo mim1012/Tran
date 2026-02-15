@@ -12,131 +12,173 @@
     
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="260"/> <!-- Modern Wide Sidebar -->
+            <ColumnDefinition Width="240"/> <!-- 피플카 스타일 사이드바 -->
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <!-- ============================================ -->
-        <!-- SIDEBAR                                      -->
+        <!-- SIDEBAR (다크 네이비 배경, 흰색 텍스트)       -->
+        <!-- 피플카 ERP 핵심 디자인 요소                    -->
         <!-- ============================================ -->
-        <Border Grid.Column="0" Background="{StaticResource Tran.Surface.Sidebar}" BorderBrush="{StaticResource Tran.Border.Light}" BorderThickness="0,0,1,0">
+        <Border Grid.Column="0" Background="{StaticResource Tran.Surface.Sidebar}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/> <!-- Brand -->
+                    <RowDefinition Height="Auto"/> <!-- User Profile -->
+                    <RowDefinition Height="Auto"/> <!-- Menu Label -->
                     <RowDefinition Height="*"/>    <!-- Menu -->
                     <RowDefinition Height="Auto"/> <!-- Footer -->
                 </Grid.RowDefinitions>
 
                 <!-- Brand Area -->
-                <StackPanel Grid.Row="0" Margin="24,32,24,40">
-                    <TextBlock Text="Tran" Style="{StaticResource Tran.Typography.H1}" Foreground="{StaticResource Tran.Primary.700}"/>
-                    <TextBlock Text="ERP System" Style="{StaticResource Tran.Typography.Caption}" Margin="0,4,0,0"/>
+                <StackPanel Grid.Row="0" Margin="20,24,20,16">
+                    <StackPanel Orientation="Horizontal">
+                        <!-- 브랜드 아이콘 (원형 배경) -->
+                        <Border Background="{StaticResource Tran.Accent.Blue}" 
+                                CornerRadius="8" Width="36" Height="36"
+                                VerticalAlignment="Center" Margin="0,0,12,0">
+                            <TextBlock Text="T" FontSize="18" FontWeight="Bold" 
+                                       Foreground="White" HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Tran ERP" Style="{StaticResource Tran.Sidebar.Title}"/>
+                            <TextBlock Text="거래 관리 시스템" Style="{StaticResource Tran.Sidebar.Subtitle}"/>
+                        </StackPanel>
+                    </StackPanel>
                 </StackPanel>
+
+                <!-- User Profile Area -->
+                <Border Grid.Row="1" Style="{StaticResource Tran.UserProfile}" Margin="12,0,12,16">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Background="{StaticResource Tran.Accent.Blue}" 
+                                CornerRadius="16" Width="32" Height="32"
+                                Margin="0,0,10,0">
+                            <TextBlock Text="&#x1F464;" FontSize="14" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="관리자님" Foreground="White" FontSize="13" FontWeight="SemiBold"/>
+                            <TextBlock Text="환영합니다" Foreground="{StaticResource Tran.Sidebar.Text.Muted}" FontSize="11"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Menu Section Label -->
+                <TextBlock Grid.Row="2" Text="메인 메뉴" 
+                           Style="{StaticResource Tran.Sidebar.MenuLabel}"
+                           Margin="24,8,0,8"/>
 
                 <!-- Navigation Menu -->
-                <StackPanel Grid.Row="1" Margin="12,0">
-                    <!-- Dashboard / Home (Active State Example) -->
-                    <Button Content="거래명세표"
-                            Height="48"
+                <StackPanel Grid.Row="3" Margin="8,0">
+                    <!-- 거래명세표 (Active State) -->
+                    <Button Content="&#x1F4C4;  거래명세표"
+                            Height="44"
                             HorizontalContentAlignment="Left"
                             Padding="16,0"
-                            Margin="0,0,0,4"
-                            Style="{StaticResource Tran.GhostButton}"
-                            Background="{StaticResource Tran.Primary.50}"
-                            Foreground="{StaticResource Tran.Primary.700}"
-                            FontWeight="SemiBold"/>
+                            Margin="0,2"
+                            Style="{StaticResource Tran.SidebarButton.Active}"/>
                     
-                    <Button Content="거래처 관리"
-                            Height="48"
+                    <Button Content="&#x1F3E2;  거래처 관리"
+                            Height="44"
                             HorizontalContentAlignment="Left"
                             Padding="16,0"
-                            Margin="0,0,0,4"
-                            Style="{StaticResource Tran.GhostButton}"
+                            Margin="0,2"
+                            Style="{StaticResource Tran.SidebarButton}"
                             Click="PartnerManagement_Click"/>
                             
-                    <Button Content="정산 관리"
-                            Height="48"
+                    <Button Content="&#x1F4B0;  정산 관리"
+                            Height="44"
                             HorizontalContentAlignment="Left"
                             Padding="16,0"
-                            Margin="0,0,0,4"
-                            Style="{StaticResource Tran.GhostButton}"
+                            Margin="0,2"
+                            Style="{StaticResource Tran.SidebarButton}"
                             Click="SettlementManagement_Click"/>
                             
-                    <Button Content="양식 관리"
-                            Height="48"
+                    <Button Content="&#x1F4DD;  양식 관리"
+                            Height="44"
                             HorizontalContentAlignment="Left"
                             Padding="16,0"
-                            Margin="0,0,0,4"
-                            Style="{StaticResource Tran.GhostButton}"
+                            Margin="0,2"
+                            Style="{StaticResource Tran.SidebarButton}"
                             Click="TemplateManagement_Click"/>
                             
-                    <Button Content="로그 및 이력"
-                            Height="48"
+                    <Button Content="&#x1F4CB;  로그 및 이력"
+                            Height="44"
                             HorizontalContentAlignment="Left"
                             Padding="16,0"
-                            Margin="0,0,0,4"
-                            Style="{StaticResource Tran.GhostButton}"/>
+                            Margin="0,2"
+                            Style="{StaticResource Tran.SidebarButton}"/>
                 </StackPanel>
 
-                <!-- Bottom Settings -->
-                <StackPanel Grid.Row="2" Margin="12,24">
-                     <Button Content="설정"
-                            Height="48"
+                <!-- Bottom: 로그아웃 -->
+                <StackPanel Grid.Row="4" Margin="8,16,8,20">
+                    <Border Style="{StaticResource Tran.Sidebar.Divider}"/>
+                    <Button Content="&#x1F6AA;  로그아웃"
+                            Height="44"
                             HorizontalContentAlignment="Left"
                             Padding="16,0"
-                            Style="{StaticResource Tran.GhostButton}"/>
+                            Style="{StaticResource Tran.SidebarButton}"/>
                 </StackPanel>
             </Grid>
         </Border>
 
         <!-- ============================================ -->
         <!-- MAIN CONTENT AREA                            -->
+        <!-- 피플카 스타일: 밝은 회색 배경, 흰색 카드      -->
         <!-- ============================================ -->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="70"/> <!-- Header -->
+                <RowDefinition Height="64"/> <!-- Header -->
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Top Header -->
-            <Border Grid.Row="0" Background="{StaticResource Tran.Surface.Header}" BorderBrush="{StaticResource Tran.Border.Light}" BorderThickness="0,0,0,1" Padding="32,0">
+            <!-- Top Header (흰색 배경, 깔끔한 구분) -->
+            <Border Grid.Row="0" Background="{StaticResource Tran.Surface.Header}" 
+                    BorderBrush="{StaticResource Tran.Border.Light}" BorderThickness="0,0,0,1" 
+                    Padding="28,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <!-- Page Title -->
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="거래명세표 관리" Style="{StaticResource Tran.Typography.H2}"/>
-                    </StackPanel>
+                    <!-- 햄버거 메뉴 아이콘 -->
+                    <TextBlock Text="&#x2630;" FontSize="18" VerticalAlignment="Center" 
+                               Foreground="{StaticResource Tran.Text.Secondary}" Margin="0,0,16,0"/>
 
-                    <!-- Header Actions / User Profile -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Background="{StaticResource Tran.Success.Light}" CornerRadius="16" Padding="12,6" Margin="0,0,16,0">
-                             <StackPanel Orientation="Horizontal">
-                                 <Ellipse Width="8" Height="8" Fill="{StaticResource Tran.Success}" Margin="0,0,8,0"/>
-                                 <TextBlock Text="연결됨" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource Tran.Success.Dark}"/>
-                             </StackPanel>
+                    <!-- Page Title -->
+                    <TextBlock Grid.Column="1" Text="거래명세표 관리" 
+                               Style="{StaticResource Tran.Heading1}" VerticalAlignment="Center"/>
+
+                    <!-- Header Actions -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- 검색 아이콘 -->
+                        <Border Background="{StaticResource Tran.Neutral.100}" CornerRadius="8" 
+                                Padding="10,8" Margin="0,0,12,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#x1F50D;" FontSize="12" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="검색어를 입력하세요..." FontSize="12" 
+                                           Foreground="{StaticResource Tran.Text.Disabled}" VerticalAlignment="Center"
+                                           Width="160"/>
+                            </StackPanel>
                         </Border>
-                        
-                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                            <TextBlock Text="관리자" Style="{StaticResource Tran.Typography.Body2}" FontWeight="Bold" HorizontalAlignment="Right"/>
-                             <TextBlock Text="Admin User" Style="{StaticResource Tran.Typography.Caption}" HorizontalAlignment="Right"/>
-                        </StackPanel>
+                        <!-- 알림 아이콘 -->
+                        <Button Content="&#x1F514;" Style="{StaticResource Tran.IconButton}" Margin="0,0,8,0"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <!-- Dashboard Content -->
-            <Grid Grid.Row="1" Margin="32">
+            <Grid Grid.Row="1" Margin="28,24">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/> <!-- Filters -->
                     <RowDefinition Height="*"/>    <!-- Data Card -->
                 </Grid.RowDefinitions>
 
                 <!-- Filters & Actions Bar -->
-                <Grid Grid.Row="0" Margin="0,0,0,24">
+                <Grid Grid.Row="0" Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/> <!-- Search -->
                          <ColumnDefinition Width="Auto"/> <!-- Spacer -->
@@ -152,18 +194,21 @@
                              <ColumnDefinition Width="300"/>
                              <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="문서번호" VerticalAlignment="Center" Margin="0,0,12,0" Style="{StaticResource Tran.Typography.Body2}"/>
-                        <TextBox Grid.Column="1" Name="SearchBox" Padding="10" VerticalContentAlignment="Center"/>
-                        <Button Grid.Column="2" Content="검색" Margin="8,0,0,0" Style="{StaticResource Tran.PrimaryButton}" Width="80"/>
+                        <TextBlock Text="문서번호" VerticalAlignment="Center" Margin="0,0,12,0" 
+                                   Style="{StaticResource Tran.Typography.Label}"/>
+                        <TextBox Grid.Column="1" Name="SearchBox" Padding="12" VerticalContentAlignment="Center"/>
+                        <Button Grid.Column="2" Content="검색" Margin="8,0,0,0" 
+                                Style="{StaticResource Tran.PrimaryButton}" Width="80"/>
                     </Grid>
 
                     <!-- Status Filter -->
-                     <Grid Grid.Column="2" Margin="32,0,0,0">
+                     <Grid Grid.Column="2" Margin="24,0,0,0">
                         <Grid.ColumnDefinitions>
                              <ColumnDefinition Width="Auto"/>
                              <ColumnDefinition Width="180"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="상태" VerticalAlignment="Center" Margin="0,0,12,0" Style="{StaticResource Tran.Typography.Body2}"/>
+                        <TextBlock Text="상태" VerticalAlignment="Center" Margin="0,0,12,0" 
+                                   Style="{StaticResource Tran.Typography.Label}"/>
                         <ComboBox Grid.Column="1" Name="StateFilterComboBox" VerticalContentAlignment="Center" SelectedIndex="0">
                             <ComboBoxItem Content="전체"/>
                             <ComboBoxItem Content="작성중"/>
@@ -175,13 +220,14 @@
 
                     <!-- Right Actions -->
                     <StackPanel Grid.Column="4" Orientation="Horizontal">
-                        <Button Content="+ 신규 작성" Style="{StaticResource Tran.PrimaryButton}" Click="CreateDocumentButton_Click"/>
+                        <Button Content="+ 신규 작성" Style="{StaticResource Tran.PrimaryButton}" 
+                                Click="CreateDocumentButton_Click"/>
                         <Button Content="새로고침" Style="{StaticResource Tran.SecondaryButton}" Margin="8,0,0,0"/>
                     </StackPanel>
                 </Grid>
 
-                <!-- Data Card -->
-                <Border Grid.Row="1" Background="{StaticResource Tran.Surface.Card}" CornerRadius="12" BorderBrush="{StaticResource Tran.Border.Light}" BorderThickness="1">
+                <!-- Data Card (피플카 스타일: 둥근 모서리 + Drop Shadow) -->
+                <Border Grid.Row="1" Style="{StaticResource Tran.Card}" Padding="0">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -190,11 +236,11 @@
 
                         <DataGrid Grid.Row="0" Name="DocumentsDataGrid"
                                   BorderThickness="0"
-                                  Margin="2"
-                                  ColumnHeaderHeight="50"
+                                  Margin="0"
+                                  ColumnHeaderHeight="48"
                                   RowHeight="52"
                                   MouseDoubleClick="DocumentsDataGrid_MouseDoubleClick">
-                            <!-- Custom Row Style for Hover/Selection -->
+                            <!-- Custom Row Style -->
                              <DataGrid.RowStyle>
                                 <Style TargetType="DataGridRow">
                                     <Setter Property="Background" Value="Transparent"/>
@@ -203,10 +249,10 @@
                                     <Setter Property="Cursor" Value="Hand"/>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="{StaticResource Tran.Neutral.50}"/>
+                                            <Setter Property="Background" Value="{StaticResource Tran.Accent.Blue.Light}"/>
                                         </Trigger>
                                         <Trigger Property="IsSelected" Value="True">
-                                             <Setter Property="Background" Value="{StaticResource Tran.Primary.50}"/>
+                                             <Setter Property="Background" Value="{StaticResource Tran.Accent.Blue.Light}"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -218,11 +264,11 @@
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Border Background="{Binding StatePillBackground}"
-                                                    CornerRadius="16"
+                                                    CornerRadius="12"
                                                     Padding="12,4"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding StateDisplayText}"
+                                                <TextBlock Text="{Binding StateDisplayName}"
                                                           Foreground="{Binding StatePillForeground}"
                                                           FontSize="12"
                                                           FontWeight="SemiBold"
@@ -248,7 +294,8 @@
                         </DataGrid>
 
                         <!-- Pagination / Footer Actions -->
-                        <Border Grid.Row="1" BorderBrush="{StaticResource Tran.Border.Light}" BorderThickness="0,1,0,0" Padding="16">
+                        <Border Grid.Row="1" BorderBrush="{StaticResource Tran.Border.Light}" 
+                                BorderThickness="0,1,0,0" Padding="20,12">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                                 <Button Content="선택 항목 열기" Style="{StaticResource Tran.SecondaryButton}" Margin="0,0,8,0"/>
                                 <Button Content="삭제" Style="{StaticResource Tran.DestructiveButton}"/>

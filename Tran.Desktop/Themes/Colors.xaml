@@ -2,106 +2,124 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ============================================ -->
-    <!-- Modern Palette: Slate (Neutrals) & Indigo (Primary) -->
-    <!-- Brand Identity: Professional, Trustworthy, Clean -->
+    <!-- 피플카 ERP 스타일 팔레트                       -->
+    <!-- Brand Identity: 신뢰, 효율, 깔끔함            -->
+    <!-- Primary: Dark Navy / Accent: Blue             -->
     <!-- ============================================ -->
 
-    <!-- Primary Brand Colors (Indigo/Blurple) -->
-    <SolidColorBrush x:Key="Tran.Primary.50"  Color="#EEF2FF"/>
-    <SolidColorBrush x:Key="Tran.Primary.100" Color="#E0E7FF"/>
-    <SolidColorBrush x:Key="Tran.Primary.200" Color="#C7D2FE"/>
-    <SolidColorBrush x:Key="Tran.Primary.300" Color="#A5B4FC"/>
-    <SolidColorBrush x:Key="Tran.Primary.400" Color="#818CF8"/>
-    <SolidColorBrush x:Key="Tran.Primary.500" Color="#6366F1"/>
-    <SolidColorBrush x:Key="Tran.Primary.600" Color="#4F46E5"/>
-    <SolidColorBrush x:Key="Tran.Primary.700" Color="#4338CA"/>
-    <SolidColorBrush x:Key="Tran.Primary.800" Color="#3730A3"/>
-    <SolidColorBrush x:Key="Tran.Primary.900" Color="#312E81"/>
+    <!-- Primary Brand Colors (Dark Navy) -->
+    <SolidColorBrush x:Key="Tran.Primary.50"  Color="#E8EDF5"/>
+    <SolidColorBrush x:Key="Tran.Primary.100" Color="#C5D0E3"/>
+    <SolidColorBrush x:Key="Tran.Primary.200" Color="#9BADC9"/>
+    <SolidColorBrush x:Key="Tran.Primary.300" Color="#7189AF"/>
+    <SolidColorBrush x:Key="Tran.Primary.400" Color="#4A6690"/>
+    <SolidColorBrush x:Key="Tran.Primary.500" Color="#34445F"/>
+    <SolidColorBrush x:Key="Tran.Primary.600" Color="#1B3158"/>
+    <SolidColorBrush x:Key="Tran.Primary.700" Color="#142749"/>
+    <SolidColorBrush x:Key="Tran.Primary.800" Color="#0E1F3A"/>
+    <SolidColorBrush x:Key="Tran.Primary.900" Color="#091C3E"/>
 
-    <!-- Neutral Colors (Slate - Cool Grey) -->
-    <SolidColorBrush x:Key="Tran.Neutral.50"  Color="#F8FAFC"/>
-    <SolidColorBrush x:Key="Tran.Neutral.100" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="Tran.Neutral.200" Color="#E2E8F0"/>
-    <SolidColorBrush x:Key="Tran.Neutral.300" Color="#CBD5E1"/>
-    <SolidColorBrush x:Key="Tran.Neutral.400" Color="#94A3B8"/>
-    <SolidColorBrush x:Key="Tran.Neutral.500" Color="#64748B"/>
-    <SolidColorBrush x:Key="Tran.Neutral.600" Color="#475569"/>
-    <SolidColorBrush x:Key="Tran.Neutral.700" Color="#334155"/>
-    <SolidColorBrush x:Key="Tran.Neutral.800" Color="#1E293B"/>
-    <SolidColorBrush x:Key="Tran.Neutral.900" Color="#0F172A"/>
+    <!-- Accent Colors (Blue - 활성 메뉴, 버튼, 링크) -->
+    <SolidColorBrush x:Key="Tran.Accent.Blue"       Color="#3B82F6"/>
+    <SolidColorBrush x:Key="Tran.Accent.Blue.Light"  Color="#DBEAFE"/>
+    <SolidColorBrush x:Key="Tran.Accent.Blue.Dark"   Color="#2563EB"/>
+    <SolidColorBrush x:Key="Tran.Accent.Blue.Darker" Color="#1D4ED8"/>
+
+    <!-- Neutral Colors (Cool Grey) -->
+    <SolidColorBrush x:Key="Tran.Neutral.50"  Color="#F9FAFB"/>
+    <SolidColorBrush x:Key="Tran.Neutral.100" Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Tran.Neutral.200" Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="Tran.Neutral.300" Color="#D1D5DB"/>
+    <SolidColorBrush x:Key="Tran.Neutral.400" Color="#9CA3AF"/>
+    <SolidColorBrush x:Key="Tran.Neutral.500" Color="#6B7280"/>
+    <SolidColorBrush x:Key="Tran.Neutral.600" Color="#4B5563"/>
+    <SolidColorBrush x:Key="Tran.Neutral.700" Color="#374151"/>
+    <SolidColorBrush x:Key="Tran.Neutral.800" Color="#1F2937"/>
+    <SolidColorBrush x:Key="Tran.Neutral.900" Color="#111827"/>
 
     <!-- Functional Colors -->
-    <!-- Success: Emerald -->
-    <SolidColorBrush x:Key="Tran.Success"       Color="#10B981"/>
-    <SolidColorBrush x:Key="Tran.Success.Light" Color="#D1FAE5"/>
-    <SolidColorBrush x:Key="Tran.Success.Dark"  Color="#047857"/>
+    <!-- Success: Emerald (유지, 톤 조정) -->
+    <SolidColorBrush x:Key="Tran.Success"       Color="#22C55E"/>
+    <SolidColorBrush x:Key="Tran.Success.Light" Color="#DCFCE7"/>
+    <SolidColorBrush x:Key="Tran.Success.Dark"  Color="#16A34A"/>
     
-    <!-- Danger: Rose -->
-    <SolidColorBrush x:Key="Tran.Danger"        Color="#F43F5E"/>
-    <SolidColorBrush x:Key="Tran.Danger.Light"  Color="#FFE4E6"/>
-    <SolidColorBrush x:Key="Tran.Danger.Dark"   Color="#BE123C"/>
+    <!-- Danger: Red (유지, 톤 조정) -->
+    <SolidColorBrush x:Key="Tran.Danger"        Color="#EF4444"/>
+    <SolidColorBrush x:Key="Tran.Danger.Light"  Color="#FEE2E2"/>
+    <SolidColorBrush x:Key="Tran.Danger.Dark"   Color="#DC2626"/>
     
-    <!-- Warning: Amber -->
+    <!-- Warning: Amber (유지) -->
     <SolidColorBrush x:Key="Tran.Warning"       Color="#F59E0B"/>
     <SolidColorBrush x:Key="Tran.Warning.Light" Color="#FEF3C7"/>
-    <SolidColorBrush x:Key="Tran.Warning.Dark"  Color="#B45309"/>
+    <SolidColorBrush x:Key="Tran.Warning.Dark"  Color="#D97706"/>
     
-    <!-- Info: Sky -->
-    <SolidColorBrush x:Key="Tran.Info"          Color="#0EA5E9"/>
-    <SolidColorBrush x:Key="Tran.Info.Light"    Color="#E0F2FE"/>
-    <SolidColorBrush x:Key="Tran.Info.Dark"     Color="#0369A1"/>
+    <!-- Info: Sky Blue -->
+    <SolidColorBrush x:Key="Tran.Info"          Color="#3B82F6"/>
+    <SolidColorBrush x:Key="Tran.Info.Light"    Color="#DBEAFE"/>
+    <SolidColorBrush x:Key="Tran.Info.Dark"     Color="#2563EB"/>
 
-    <!-- Document State Colors -->
-    <SolidColorBrush x:Key="Tran.State.Draft.Bg"              Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="Tran.State.Draft.Fg"              Color="#64748B"/>
-    <SolidColorBrush x:Key="Tran.State.Sent.Bg"               Color="#EEF2FF"/>
-    <SolidColorBrush x:Key="Tran.State.Sent.Fg"               Color="#4F46E5"/>
-    <SolidColorBrush x:Key="Tran.State.Confirmed.Bg"          Color="#ECFDF5"/>
-    <SolidColorBrush x:Key="Tran.State.Confirmed.Fg"          Color="#059669"/>
-    <SolidColorBrush x:Key="Tran.State.RevisionRequested.Bg"  Color="#FFFBEB"/>
+    <!-- Document State Colors (톤 조정) -->
+    <SolidColorBrush x:Key="Tran.State.Draft.Bg"              Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Tran.State.Draft.Fg"              Color="#6B7280"/>
+    <SolidColorBrush x:Key="Tran.State.Sent.Bg"               Color="#DBEAFE"/>
+    <SolidColorBrush x:Key="Tran.State.Sent.Fg"               Color="#2563EB"/>
+    <SolidColorBrush x:Key="Tran.State.Confirmed.Bg"          Color="#DCFCE7"/>
+    <SolidColorBrush x:Key="Tran.State.Confirmed.Fg"          Color="#16A34A"/>
+    <SolidColorBrush x:Key="Tran.State.RevisionRequested.Bg"  Color="#FEF3C7"/>
     <SolidColorBrush x:Key="Tran.State.RevisionRequested.Fg"  Color="#D97706"/>
-    <SolidColorBrush x:Key="Tran.State.Cancelled.Bg"          Color="#FEF2F2"/>
+    <SolidColorBrush x:Key="Tran.State.Cancelled.Bg"          Color="#FEE2E2"/>
     <SolidColorBrush x:Key="Tran.State.Cancelled.Fg"          Color="#DC2626"/>
 
     <!-- Surface & Background Colors -->
-    <!-- Main App Background (Off-white/Light Slate) -->
-    <SolidColorBrush x:Key="Tran.Surface.Background" Color="#F8FAFC"/>
+    <!-- 피플카 스타일: 밝은 회색 배경 + 흰색 카드 -->
+    <SolidColorBrush x:Key="Tran.Surface.Background" Color="#F5F5F5"/>
     
-    <!-- Content Cards (Pure White) -->
-    <SolidColorBrush x:Key="Tran.Surface.Card"       Color="#FFFFFF"/>
+    <!-- Content Cards (거의 순백) -->
+    <SolidColorBrush x:Key="Tran.Surface.Card"       Color="#FEFEFE"/>
     
-    <!-- Sidebar/Header (Dark Slate or White depending on theme preference, keeping dark for contrast) -->
-    <SolidColorBrush x:Key="Tran.Surface.Sidebar"    Color="#FFFFFF"/> 
+    <!-- Sidebar: 다크 네이비 배경 (피플카 핵심 스타일) -->
+    <SolidColorBrush x:Key="Tran.Surface.Sidebar"    Color="#091C3E"/>
+    
+    <!-- Header: 흰색 배경 (콘텐츠와 구분) -->
     <SolidColorBrush x:Key="Tran.Surface.Header"     Color="#FFFFFF"/>
     
     <!-- Footer -->
-    <SolidColorBrush x:Key="Tran.Surface.Footer"     Color="#F1F5F9"/>
+    <SolidColorBrush x:Key="Tran.Surface.Footer"     Color="#F3F4F6"/>
 
-    <!-- Section Background (DataGrid alternating rows) -->
-    <SolidColorBrush x:Key="Tran.Surface.Section"    Color="#F8FAFC"/>
+    <!-- Section Background (DataGrid Zebra Striping) -->
+    <SolidColorBrush x:Key="Tran.Surface.Section"    Color="#F9FAFB"/>
 
     <!-- Dividers/Borders -->
-    <SolidColorBrush x:Key="Tran.Border.Light"       Color="#E2E8F0"/>
-    <SolidColorBrush x:Key="Tran.Border.Medium"      Color="#CBD5E1"/>
+    <SolidColorBrush x:Key="Tran.Border.Light"       Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="Tran.Border.Medium"      Color="#D1D5DB"/>
 
     <!-- Badge Colors -->
-    <SolidColorBrush x:Key="Tran.Badge.Active.Bg"    Color="#ECFDF5"/>
-    <SolidColorBrush x:Key="Tran.Badge.Active.Fg"    Color="#059669"/>
-    <SolidColorBrush x:Key="Tran.Badge.Inactive.Bg"  Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="Tran.Badge.Inactive.Fg"  Color="#64748B"/>
+    <SolidColorBrush x:Key="Tran.Badge.Active.Bg"    Color="#DCFCE7"/>
+    <SolidColorBrush x:Key="Tran.Badge.Active.Fg"    Color="#16A34A"/>
+    <SolidColorBrush x:Key="Tran.Badge.Inactive.Bg"  Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Tran.Badge.Inactive.Fg"  Color="#6B7280"/>
 
     <!-- Text Colors -->
-    <SolidColorBrush x:Key="Tran.Text.Primary"       Color="#1E293B"/> <!-- High Contrast -->
-    <SolidColorBrush x:Key="Tran.Text.Secondary"     Color="#64748B"/> <!-- Medium Contrast -->
-    <SolidColorBrush x:Key="Tran.Text.Disabled"      Color="#94A3B8"/> <!-- Low Contrast -->
+    <SolidColorBrush x:Key="Tran.Text.Primary"       Color="#111827"/> <!-- High Contrast -->
+    <SolidColorBrush x:Key="Tran.Text.Secondary"     Color="#6B7280"/> <!-- Medium Contrast -->
+    <SolidColorBrush x:Key="Tran.Text.Disabled"      Color="#9CA3AF"/> <!-- Low Contrast -->
     <SolidColorBrush x:Key="Tran.Text.Inverse"       Color="#FFFFFF"/> <!-- On Dark Bg -->
 
-    <!-- Shadows (Simulated with colors for now, actual shadows use DropShadowEffect) -->
-    <Color x:Key="Tran.Shadow.Color">#0F172A</Color>
+    <!-- Sidebar Text Colors (다크 네이비 배경 위) -->
+    <SolidColorBrush x:Key="Tran.Sidebar.Text"           Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Tran.Sidebar.Text.Secondary" Color="#94A3B8"/>
+    <SolidColorBrush x:Key="Tran.Sidebar.Text.Muted"     Color="#64748B"/>
+    <SolidColorBrush x:Key="Tran.Sidebar.Hover"          Color="#34445F"/>
+    <SolidColorBrush x:Key="Tran.Sidebar.Active"         Color="#3B82F6"/>
+    <SolidColorBrush x:Key="Tran.Sidebar.ActiveBg"       Color="#1B3158"/>
+    <SolidColorBrush x:Key="Tran.Sidebar.Divider"        Color="#1B3158"/>
+
+    <!-- Shadows -->
+    <Color x:Key="Tran.Shadow.Color">#091C3E</Color>
 
     <!-- Tab Accent Colors -->
-    <SolidColorBrush x:Key="Tran.Accent.Order"     Color="#4F46E5"/>
-    <SolidColorBrush x:Key="Tran.Accent.Sale"      Color="#10B981"/>
+    <SolidColorBrush x:Key="Tran.Accent.Order"     Color="#3B82F6"/>
+    <SolidColorBrush x:Key="Tran.Accent.Sale"      Color="#22C55E"/>
     <SolidColorBrush x:Key="Tran.Accent.Purchase"  Color="#8B5CF6"/>
     <SolidColorBrush x:Key="Tran.Accent.Inventory" Color="#F59E0B"/>
 
