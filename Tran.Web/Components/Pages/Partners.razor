@@ -228,8 +228,17 @@
 
     private async Task SaveCompany()
     {
-        if (string.IsNullOrEmpty(editCompany.CompanyName) || string.IsNullOrEmpty(editCompany.BusinessNumber)) return;
         if (isSaving) return;
+        if (string.IsNullOrEmpty(editCompany.CompanyName))
+        {
+            ShowAlert("회사명을 입력해주세요.", "toast-error");
+            return;
+        }
+        if (string.IsNullOrEmpty(editCompany.BusinessNumber))
+        {
+            ShowAlert("사업자번호를 입력해주세요.", "toast-error");
+            return;
+        }
 
         try
         {

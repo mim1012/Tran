@@ -203,8 +203,22 @@
 
     private async Task SaveProduct()
     {
-        if (string.IsNullOrEmpty(editProduct.ProductName)) return;
         if (isSaving) return;
+        if (string.IsNullOrEmpty(editProduct.ProductName))
+        {
+            ShowAlert("품목명을 입력해주세요.", "toast-error");
+            return;
+        }
+        if (string.IsNullOrEmpty(editProduct.Unit))
+        {
+            ShowAlert("단위를 입력해주세요.", "toast-error");
+            return;
+        }
+        if (editProduct.DefaultPrice < 0)
+        {
+            ShowAlert("기본단가는 0 이상이어야 합니다.", "toast-error");
+            return;
+        }
 
         try
         {

@@ -170,12 +170,22 @@
 
     private async Task CreateSettlement()
     {
+        if (isSaving) return;
         if (string.IsNullOrEmpty(newSettlement.CompanyId))
         {
             ShowAlert("거래처를 선택해주세요.", "alert-warning");
             return;
         }
-        if (isSaving) return;
+        if (newSettlement.PeriodStart >= newSettlement.PeriodEnd)
+        {
+            ShowAlert("정산 시작일은 종료일보다 이전이어야 합니다.", "alert-warning");
+            return;
+        }
+        if (newSettlement.TotalAmount < 0)
+        {
+            ShowAlert("정산 금액은 0 이상이어야 합니다.", "alert-warning");
+            return;
+        }
 
         try
         {

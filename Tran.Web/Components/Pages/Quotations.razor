@@ -260,6 +260,11 @@
             ShowAlert("거래처를 선택해주세요.", "alert-warning");
             return;
         }
+        if (newValidUntil < newQuotationDate)
+        {
+            ShowAlert("유효기간은 견적일 이후여야 합니다.", "alert-warning");
+            return;
+        }
         isSaving = true;
         try
         {
