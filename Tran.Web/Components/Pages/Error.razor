@@ -1,0 +1,24 @@
+@page "/Error"
+@using System.Diagnostics
+
+<PageTitle>오류 - Tran ERP</PageTitle>
+
+<div style="max-width:600px;margin:80px auto;text-align:center;">
+    <h1 class="page-title" style="color:var(--tran-accent-red);">오류가 발생했습니다</h1>
+    <p class="page-description" style="margin-top:16px;">
+        요청을 처리하는 중 문제가 발생했습니다.<br />
+        잠시 후 다시 시도해 주세요.
+    </p>
+    <a href="/" class="btn btn-primary" style="margin-top:24px;">대시보드로 돌아가기</a>
+</div>
+
+@code {
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    private string? RequestId { get; set; }
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    protected override void OnInitialized() =>
+        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+}

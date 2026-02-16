@@ -1,0 +1,95 @@
+@inherits LayoutComponentBase
+@inject AppStateService AppState
+
+<div class="app-container">
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2 class="app-title">Tran ERP</h2>
+            <p class="app-subtitle">거래 관리 시스템</p>
+        </div>
+
+        <div class="nav-section">
+            <span class="nav-section-title">메인</span>
+            <NavLink class="nav-item" href="" Match="NavLinkMatch.All">
+                <span class="nav-icon">📊</span>
+                <span>대시보드</span>
+            </NavLink>
+        </div>
+
+        <div class="nav-section">
+            <span class="nav-section-title">거래 관리</span>
+            <NavLink class="nav-item" href="documents">
+                <span class="nav-icon">📄</span>
+                <span>거래명세표</span>
+            </NavLink>
+            <NavLink class="nav-item" href="orders">
+                <span class="nav-icon">📋</span>
+                <span>발주 관리</span>
+            </NavLink>
+            <NavLink class="nav-item" href="purchases">
+                <span class="nav-icon">📥</span>
+                <span>구매 관리</span>
+            </NavLink>
+            <NavLink class="nav-item" href="sales">
+                <span class="nav-icon">📤</span>
+                <span>판매 관리</span>
+            </NavLink>
+            <NavLink class="nav-item" href="quotations">
+                <span class="nav-icon">📝</span>
+                <span>견적 관리</span>
+            </NavLink>
+        </div>
+
+        <div class="nav-section">
+            <span class="nav-section-title">마스터 데이터</span>
+            <NavLink class="nav-item" href="products">
+                <span class="nav-icon">📦</span>
+                <span>품목 관리</span>
+            </NavLink>
+            <NavLink class="nav-item" href="partners">
+                <span class="nav-icon">🏢</span>
+                <span>거래처 관리</span>
+            </NavLink>
+            <NavLink class="nav-item" href="inventory">
+                <span class="nav-icon">🏭</span>
+                <span>재고 관리</span>
+            </NavLink>
+        </div>
+
+        <div class="nav-section">
+            <span class="nav-section-title">정산/통계</span>
+            <NavLink class="nav-item" href="settlements">
+                <span class="nav-icon">💰</span>
+                <span>정산 관리</span>
+            </NavLink>
+            <NavLink class="nav-item" href="statistics">
+                <span class="nav-icon">📈</span>
+                <span>매출 통계</span>
+            </NavLink>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <span class="user-icon">👤</span>
+                <div>
+                    <div class="user-name">@AppState.CurrentUserName</div>
+                    <div class="user-role">관리자</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="breadcrumb">
+                @if (!string.IsNullOrEmpty(AppState.SelectedCompanyName))
+                {
+                    <span class="company-badge">@AppState.SelectedCompanyName</span>
+                }
+            </div>
+        </header>
+        <div class="page-content">
+            @Body
+        </div>
+    </main>
+</div>
