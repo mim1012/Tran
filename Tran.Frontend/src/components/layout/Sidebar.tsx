@@ -15,6 +15,12 @@ const navSections = [
     ],
   },
   {
+    title: '거래명세표',
+    items: [
+      { path: '/documents', icon: 'fa-file-invoice-dollar', label: '거래명세표' },
+    ],
+  },
+  {
     title: '구매 관리',
     items: [
       { path: '/orders', icon: 'fa-file-invoice', label: '발주 관리', badge: 5 },

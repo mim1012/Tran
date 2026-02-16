@@ -100,3 +100,33 @@ public class RecentOrderDto
     public decimal TotalAmount { get; set; }
     public string State { get; set; } = string.Empty;
 }
+
+/// <summary>
+/// 거래명세표 생성 요청 DTO
+/// </summary>
+public class CreateDocumentRequest
+{
+    public string ToCompanyId { get; set; } = string.Empty;
+    public DateTime TransactionDate { get; set; }
+    public string? Memo { get; set; }
+    public List<DocumentItemDto> Items { get; set; } = new();
+}
+
+/// <summary>
+/// 거래명세표 품목 DTO
+/// </summary>
+public class DocumentItemDto
+{
+    public string ItemName { get; set; } = string.Empty;
+    public decimal Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+    public string? OptionText { get; set; }
+}
+
+/// <summary>
+/// 거래명세표 품목 일괄 수정 요청 DTO
+/// </summary>
+public class UpdateDocumentItemsRequest
+{
+    public List<DocumentItemDto> Items { get; set; } = new();
+}

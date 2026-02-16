@@ -175,6 +175,20 @@ using (var scope = app.Services.CreateScope())
         // Azure SQL - Apply migrations
         context.Database.Migrate();
     }
+
+    // 샘플 사용자 시드 (없으면 생성)
+    if (!context.Users.Any())
+    {
+        context.Users.Add(new Tran.Core.Models.User
+        {
+            UserId = "admin",
+            CompanyId = "COMP001",
+            UserName = "김관리",
+            Role = Tran.Core.Models.UserRole.Admin,
+            CreatedAt = DateTime.UtcNow
+        });
+        context.SaveChanges();
+    }
 }
 
 // ════════════════════════════════════════════

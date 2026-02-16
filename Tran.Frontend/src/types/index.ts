@@ -192,6 +192,69 @@ export interface Inventory {
   product?: Product;
 }
 
+// ═══════════════════════════════════════
+// 거래명세표 (Document)
+// ═══════════════════════════════════════
+
+export enum DocumentState {
+  Draft = 0,
+  Sent = 1,
+  Received = 2,
+  RevisionRequested = 3,
+  Confirmed = 4,
+  Superseded = 5,
+  Cancelled = 6,
+}
+
+export interface Document {
+  documentId: string;
+  parentDocumentId?: string;
+  versionNumber: number;
+  fromCompanyId: string;
+  toCompanyId: string;
+  state: DocumentState;
+  stateVersion: number;
+  totalAmount: number;
+  contentHash?: string;
+  createdBy: string;
+  createdAt: string;
+  sentAt?: string;
+  confirmedAt?: string;
+  transactionDate: string;
+  memo?: string;
+  internalMemo?: string;
+  items: DocumentItem[];
+}
+
+export interface DocumentItem {
+  itemId: string;
+  documentId: string;
+  itemName: string;
+  quantity: number;
+  unitPrice: number;
+  optionText?: string;
+  lineAmount: number;
+  extraDataJson?: string;
+}
+
+export interface CreateDocumentRequest {
+  toCompanyId: string;
+  transactionDate: string;
+  memo?: string;
+  items: DocumentItemDto[];
+}
+
+export interface DocumentItemDto {
+  itemName: string;
+  quantity: number;
+  unitPrice: number;
+  optionText?: string;
+}
+
+export interface UpdateDocumentItemsRequest {
+  items: DocumentItemDto[];
+}
+
 export interface DashboardSummary {
   totalOrders: number;
   approvedOrders: number;
