@@ -54,18 +54,18 @@ export default function SaleManagement() {
   return (
     <div className="flex-1 flex flex-col">
       <Topbar title="판매 관리" breadcrumb="판매 관리" />
-      <div className="flex-1 p-6 overflow-y-auto">
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">
           <div>
-            <h2 className="text-lg font-bold text-gray-900 mb-0.5">판매 관리</h2>
-            <p className="text-[13px] text-gray-500">판매 등록, 조회 및 상태 관리</p>
+            <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-0.5">판매 관리</h2>
+            <p className="text-xs sm:text-[13px] text-gray-500">판매 등록, 조회 및 상태 관리</p>
           </div>
           <button className="btn-primary self-start"><i className="fas fa-plus" /> 판매 등록</button>
         </div>
 
         {/* Filter Card */}
-        <div className="card p-5 mb-5">
+        <div className="card p-4 sm:p-5 mb-4 sm:mb-5">
           <div className="filter-card-header">
             <h3><i className="fas fa-filter" /> 검색 필터</h3>
           </div>
@@ -102,15 +102,15 @@ export default function SaleManagement() {
         <div className="table-count-bar">
           <div className="count">총 <strong>{filtered.length}</strong>건</div>
           <div className="actions">
-            <button className="btn-util"><i className="fas fa-download" /> 엑셀 다운로드</button>
-            <button className="btn-util"><i className="fas fa-print" /> 인쇄</button>
+            <button className="btn-util"><i className="fas fa-download" /> <span className="hidden sm:inline">엑셀 다운로드</span></button>
+            <button className="btn-util"><i className="fas fa-print" /> <span className="hidden sm:inline">인쇄</span></button>
           </div>
         </div>
 
         {/* Table */}
         <div className="card overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full" style={{ minWidth: '600px' }}>
               <thead>
                 <tr>
                   <th className="table-header">판매번호</th>
@@ -145,7 +145,7 @@ export default function SaleManagement() {
             </table>
           </div>
           {/* Pagination */}
-          <div className="pagination">
+          <div className="pagination flex-col sm:flex-row gap-2">
             <div className="info">{(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, filtered.length)} / 총 {filtered.length}건</div>
             <div className="pages">
               <button className="page-btn" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}><i className="fas fa-chevron-left" /></button>

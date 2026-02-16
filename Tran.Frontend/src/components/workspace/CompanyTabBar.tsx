@@ -12,13 +12,13 @@ export default function CompanyTabBar() {
 
   return (
     <div
-      className="flex items-center overflow-x-auto flex-shrink-0"
+      className="flex items-center overflow-x-auto flex-shrink-0 scrollbar-hide px-3 sm:px-4"
       style={{
         background: '#F9FAFB',
         borderBottom: '1px solid #E5E7EB',
-        padding: '0 16px',
         minHeight: '42px',
         gap: '4px',
+        WebkitOverflowScrolling: 'touch',
       }}
     >
       {/* 거래처 선택 버튼 */}
@@ -29,7 +29,7 @@ export default function CompanyTabBar() {
           display: 'flex',
           alignItems: 'center',
           gap: '6px',
-          padding: '6px 14px',
+          padding: '6px 12px',
           borderRadius: '6px',
           border: showCompanySelection ? '1px solid #2E4A7A' : '1px solid transparent',
           background: showCompanySelection ? '#EBF0F7' : 'transparent',
@@ -107,7 +107,7 @@ export default function CompanyTabBar() {
                 fontSize: '12.5px',
                 fontWeight: isActive ? 600 : 400,
                 color: isActive ? '#2E4A7A' : '#6B7280',
-                maxWidth: '120px',
+                maxWidth: '100px',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
               }}

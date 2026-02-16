@@ -15,8 +15,8 @@ export default function Reports() {
       <Topbar title="리포트" breadcrumb="리포트" />
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         <div className="mb-5">
-          <h2 className="text-lg font-bold text-gray-900 mb-0.5">리포트</h2>
-          <p className="text-[13px] text-gray-500">매출, 구매, 재고 분석 리포트</p>
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-0.5">리포트</h2>
+          <p className="text-xs sm:text-[13px] text-gray-500">매출, 구매, 재고 분석 리포트</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {reportItems.map((item, idx) => (

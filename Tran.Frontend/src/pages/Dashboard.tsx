@@ -77,10 +77,10 @@ export default function Dashboard() {
   ];
 
   const quickActions = [
-    { icon: 'fa-plus', label: '신규 발주 등록', iconBg: '#EBF0F7', iconColor: '#2E4A7A', hoverBorder: '#2E4A7A', hoverBg: '#EBF0F7' },
-    { icon: 'fa-box', label: '입고 처리', iconBg: '#E8F5E9', iconColor: '#27AE60', hoverBorder: '#27AE60', hoverBg: '#E8F5E9' },
-    { icon: 'fa-clipboard-list', label: '재고 실사', iconBg: '#FFF3E0', iconColor: '#F39C12', hoverBorder: '#F39C12', hoverBg: '#FFF3E0' },
-    { icon: 'fa-file-export', label: '리포트 생성', iconBg: '#F3E5F5', iconColor: '#8E44AD', hoverBorder: '#8E44AD', hoverBg: '#F3E5F5' },
+    { icon: 'fa-plus', label: '신규 발주 등록', iconBg: '#EBF0F7', iconColor: '#2E4A7A' },
+    { icon: 'fa-box', label: '입고 처리', iconBg: '#E8F5E9', iconColor: '#27AE60' },
+    { icon: 'fa-clipboard-list', label: '재고 실사', iconBg: '#FFF3E0', iconColor: '#F39C12' },
+    { icon: 'fa-file-export', label: '리포트 생성', iconBg: '#F3E5F5', iconColor: '#8E44AD' },
   ];
 
   const notices = [
@@ -94,28 +94,21 @@ export default function Dashboard() {
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
       <Topbar title="대시보드" breadcrumb="대시보드" />
 
-      <div style={{ flex: 1, padding: '24px', overflowY: 'auto' }}>
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         {/* Summary Cards */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '20px',
-            marginBottom: '28px',
-          }}
-        >
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mb-5 sm:mb-7">
           {summaryCards.map((card, idx) => (
             <div
               key={idx}
               style={{
                 background: '#fff',
                 borderRadius: '12px',
-                padding: '24px',
                 position: 'relative',
                 overflow: 'hidden',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
                 transition: 'box-shadow 0.2s ease',
               }}
+              className="p-4 sm:p-6"
             >
               {/* Background accent circle */}
               <div
@@ -132,39 +125,30 @@ export default function Dashboard() {
               />
               {/* Icon */}
               <div
+                className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl mb-2.5 sm:mb-3.5"
                 style={{
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '12px',
                   background: card.iconBg,
                   color: card.iconColor,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '18px',
-                  marginBottom: '14px',
                 }}
               >
-                <i className={`fas ${card.icon}`} />
+                <i className={`fas ${card.icon} text-sm sm:text-lg`} />
               </div>
               {/* Label */}
-              <div style={{ fontSize: '13px', color: '#6B7280', fontWeight: 500, marginBottom: '6px' }}>
+              <div className="text-xs sm:text-[13px] text-gray-500 font-medium mb-1 sm:mb-1.5">
                 {card.label}
               </div>
               {/* Value */}
-              <div style={{ fontSize: '28px', fontWeight: 800, color: '#111827', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+              <div className="text-xl sm:text-[28px] font-extrabold text-gray-900" style={{ letterSpacing: '-0.02em', lineHeight: 1.1 }}>
                 {card.value}
               </div>
               {/* Change */}
               <div
+                className="text-[10px] sm:text-[11px] mt-1.5 sm:mt-2 flex items-center gap-1 font-medium"
                 style={{
-                  fontSize: '11px',
                   color: card.changeType === 'up' && card.accentColor === '#E74C3C' ? '#E74C3C' : card.changeType === 'up' ? '#27AE60' : '#E74C3C',
-                  marginTop: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  fontWeight: 500,
                 }}
               >
                 <i className={`fas fa-arrow-${card.changeType}`} style={{ fontSize: '9px' }} />
@@ -175,9 +159,9 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Orders Table */}
-        <div style={{ marginBottom: '28px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-            <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#111827' }}>최근 발주 내역</h2>
+        <div className="mb-5 sm:mb-7">
+          <div className="flex items-center justify-between mb-3 sm:mb-3.5">
+            <h2 className="text-[15px] sm:text-base font-bold text-gray-900">최근 발주 내역</h2>
             <div
               style={{
                 fontSize: '13px',
@@ -201,24 +185,14 @@ export default function Dashboard() {
               boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
             }}
           >
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div className="overflow-x-auto">
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '500px' }}>
                 <thead>
                   <tr>
                     {['발주번호', '거래처', '발주일', '금액', '상태'].map((header) => (
                       <th
                         key={header}
-                        style={{
-                          padding: '14px 20px',
-                          textAlign: 'left',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          color: '#6B7280',
-                          borderBottom: '1px solid #E5E7EB',
-                          background: '#F9FAFB',
-                          whiteSpace: 'nowrap',
-                          letterSpacing: '-0.01em',
-                        }}
+                        className="table-header"
                       >
                         {header}
                       </th>
@@ -229,19 +203,19 @@ export default function Dashboard() {
                   {summary?.recentOrders && summary.recentOrders.length > 0 ? (
                     summary.recentOrders.map((order) => (
                       <tr key={order.orderId} style={{ transition: 'background 0.15s' }}>
-                        <td style={{ padding: '14px 20px', fontSize: '13px', borderBottom: '1px solid #F3F4F6', fontWeight: 600, color: '#2E4A7A' }}>
+                        <td className="table-cell font-semibold text-primary">
                           PO-{order.orderId.toString().padStart(6, '0')}
                         </td>
-                        <td style={{ padding: '14px 20px', fontSize: '13px', borderBottom: '1px solid #F3F4F6', color: '#374151' }}>
+                        <td className="table-cell">
                           {order.companyName}
                         </td>
-                        <td style={{ padding: '14px 20px', fontSize: '13px', borderBottom: '1px solid #F3F4F6', color: '#374151' }}>
+                        <td className="table-cell">
                           {new Date(order.orderDate).toLocaleDateString('ko-KR')}
                         </td>
-                        <td style={{ padding: '14px 20px', fontSize: '13px', borderBottom: '1px solid #F3F4F6', fontWeight: 600, color: '#111827' }}>
+                        <td className="table-cell font-semibold text-gray-900">
                           ₩{order.totalAmount.toLocaleString()}
                         </td>
-                        <td style={{ padding: '14px 20px', fontSize: '13px', borderBottom: '1px solid #F3F4F6' }}>
+                        <td className="table-cell">
                           <StatusBadge state={order.state} />
                         </td>
                       </tr>
@@ -250,13 +224,7 @@ export default function Dashboard() {
                     <tr>
                       <td
                         colSpan={5}
-                        style={{
-                          padding: '32px 20px',
-                          textAlign: 'center',
-                          fontSize: '13px',
-                          color: '#9CA3AF',
-                          borderBottom: '1px solid #F3F4F6',
-                        }}
+                        className="px-5 py-8 text-center text-[13px] text-gray-400"
                       >
                         발주 내역이 없습니다.
                       </td>
@@ -269,32 +237,20 @@ export default function Dashboard() {
         </div>
 
         {/* Bottom Grid: Quick Actions + Notices */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '2fr 1fr',
-            gap: '20px',
-          }}
-        >
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 sm:gap-5">
           {/* Quick Actions */}
           <div
             style={{
               background: '#fff',
               borderRadius: '12px',
-              padding: '24px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
             }}
+            className="p-4 sm:p-6"
           >
-            <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#111827', marginBottom: '16px' }}>
+            <h3 className="text-[14px] sm:text-[15px] font-bold text-gray-900 mb-3 sm:mb-4">
               빠른 실행
             </h3>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '12px',
-              }}
-            >
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
               {quickActions.map((action, idx) => (
                 <div
                   key={idx}
@@ -311,22 +267,18 @@ export default function Dashboard() {
                   }}
                 >
                   <div
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-[10px] flex-shrink-0"
                     style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '10px',
                       background: action.iconBg,
                       color: action.iconColor,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '15px',
-                      flexShrink: 0,
                     }}
                   >
-                    <i className={`fas ${action.icon}`} />
+                    <i className={`fas ${action.icon} text-sm sm:text-[15px]`} />
                   </div>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>
+                  <div className="text-xs sm:text-[13px] font-semibold text-gray-700">
                     {action.label}
                   </div>
                 </div>
@@ -339,11 +291,11 @@ export default function Dashboard() {
             style={{
               background: '#fff',
               borderRadius: '12px',
-              padding: '24px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
             }}
+            className="p-4 sm:p-6"
           >
-            <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#111827', marginBottom: '16px' }}>
+            <h3 className="text-[14px] sm:text-[15px] font-bold text-gray-900 mb-3 sm:mb-4">
               공지사항
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>

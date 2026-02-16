@@ -10,12 +10,12 @@ export default function FunctionTabBar({ companyId, activeFunctionTab }: Functio
 
   return (
     <div
-      className="flex items-center overflow-x-auto flex-shrink-0"
+      className="flex items-center overflow-x-auto flex-shrink-0 px-3 sm:px-6 scrollbar-hide"
       style={{
         background: '#fff',
         borderBottom: '2px solid #E5E7EB',
-        padding: '0 24px',
         gap: '0',
+        WebkitOverflowScrolling: 'touch',
       }}
     >
       {FUNCTION_TABS.map(tab => {
@@ -28,8 +28,8 @@ export default function FunctionTabBar({ companyId, activeFunctionTab }: Functio
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '7px',
-              padding: '12px 18px',
+              gap: '6px',
+              padding: '10px 12px',
               border: 'none',
               background: 'transparent',
               color: isActive ? '#2E4A7A' : '#6B7280',
@@ -41,6 +41,7 @@ export default function FunctionTabBar({ companyId, activeFunctionTab }: Functio
               marginBottom: '-2px',
               whiteSpace: 'nowrap',
               position: 'relative',
+              flexShrink: 0,
             }}
           >
             <i className={`fas ${tab.icon}`} style={{ fontSize: '12px' }} />

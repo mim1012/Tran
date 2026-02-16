@@ -6,8 +6,8 @@ export default function Settings() {
       <Topbar title="설정" breadcrumb="설정" />
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         <div className="mb-5">
-          <h2 className="text-lg font-bold text-gray-900 mb-0.5">시스템 설정</h2>
-          <p className="text-[13px] text-gray-500">시스템 환경 및 사용자 설정 관리</p>
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-0.5">시스템 설정</h2>
+          <p className="text-xs sm:text-[13px] text-gray-500">시스템 환경 및 사용자 설정 관리</p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="card p-5">

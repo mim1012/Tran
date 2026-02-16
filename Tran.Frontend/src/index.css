@@ -343,6 +343,15 @@ tbody tr:hover {
   background: #9ca3af;
 }
 
+/* ─── Hide Scrollbar Utility ─── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ─── Company Card ─── */
 .company-card:hover {
   box-shadow: 0 4px 16px rgba(46, 74, 122, 0.12);
@@ -385,9 +394,66 @@ tbody tr:hover {
   border-bottom: 2px solid #2E4A7A !important;
 }
 
-/* ─── Responsive ─── */
-@media (max-width: 1023px) {
-  .lg\:hidden {
-    display: flex !important;
+/* ─── Mobile Responsive ─── */
+@media (max-width: 639px) {
+  /* Reduce table padding on mobile */
+  .table-header {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.6875rem;
+  }
+  .table-cell {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  /* Smaller buttons on mobile */
+  .btn-primary {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+  }
+  .btn-secondary {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+  }
+
+  /* Pagination compact */
+  .pagination {
+    padding: 0.625rem 0.75rem;
+  }
+  .pagination .page-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.75rem;
+  }
+
+  /* Table count bar */
+  .table-count-bar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .table-count-bar .count {
+    font-size: 0.75rem;
+  }
+
+  /* Utility buttons compact */
+  .btn-util {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.6875rem;
+  }
+
+  /* Form controls */
+  .form-input {
+    font-size: 1rem; /* prevent iOS zoom */
+  }
+}
+
+/* ─── Touch-friendly targets ─── */
+@media (pointer: coarse) {
+  .sidebar-nav-item {
+    min-height: 44px;
+  }
+  .company-tab-btn,
+  .company-tab-item {
+    min-height: 40px;
   }
 }

@@ -89,12 +89,12 @@ export default function CompanySelection() {
   };
 
   return (
-    <div className="flex-1 p-6 overflow-y-auto">
+    <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       {/* Page Header - 공통 구조 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">
         <div>
-          <h2 className="text-lg font-bold text-gray-900 mb-0.5">거래처 선택</h2>
-          <p className="text-[13px] text-gray-500">작업할 거래처를 선택하면 해당 거래처의 작업 화면으로 이동합니다</p>
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-0.5">거래처 선택</h2>
+          <p className="text-xs sm:text-[13px] text-gray-500">작업할 거래처를 선택하면 해당 거래처의 작업 화면으로 이동합니다</p>
         </div>
         <button className="btn-primary self-start"><i className="fas fa-plus" /> 새 거래처 등록</button>
       </div>
@@ -136,7 +136,7 @@ export default function CompanySelection() {
       )}
 
       {/* Filter Card - 공통 구조 */}
-      <div className="card p-5 mb-5">
+      <div className="card p-4 sm:p-5 mb-4 sm:mb-5">
         <div className="filter-card-header">
           <h3><i className="fas fa-filter" /> 검색 필터</h3>
         </div>
@@ -174,13 +174,13 @@ export default function CompanySelection() {
       <div className="table-count-bar">
         <div className="count">총 <strong>{filtered.length}</strong>개 거래처</div>
         <div className="actions">
-          <button className="btn-util"><i className="fas fa-download" /> 엑셀 다운로드</button>
-          <button className="btn-util"><i className="fas fa-print" /> 인쇄</button>
+          <button className="btn-util"><i className="fas fa-download" /> <span className="hidden sm:inline">엑셀 다운로드</span></button>
+          <button className="btn-util"><i className="fas fa-print" /> <span className="hidden sm:inline">인쇄</span></button>
         </div>
       </div>
 
       {/* 거래처 카드 그리드 */}
-      <div className="card p-5">
+      <div className="card p-3 sm:p-5">
         {loading ? (
           <div className="text-center py-16 text-gray-400 text-sm">
             <i className="fas fa-spinner fa-spin mr-2" />
@@ -195,7 +195,7 @@ export default function CompanySelection() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
               gap: '16px',
             }}
           >
@@ -212,7 +212,7 @@ export default function CompanySelection() {
 
         {/* Pagination - 공통 구조 */}
         {!loading && filtered.length > 0 && (
-          <div className="pagination" style={{ marginTop: '16px', borderTop: '1px solid #f3f4f6', paddingTop: '12px' }}>
+          <div className="pagination flex-col sm:flex-row gap-2" style={{ marginTop: '16px', borderTop: '1px solid #f3f4f6', paddingTop: '12px' }}>
             <div className="info">
               {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, filtered.length)} / 총 {filtered.length}개
             </div>

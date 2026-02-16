@@ -25,19 +25,15 @@ export default function CompanyWorkspaceView({ companyId }: CompanyWorkspaceView
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      {/* 거래처 정보 헤더 - card 스타일 적용 */}
+      {/* 거래처 정보 헤더 */}
       <div
-        className="flex-shrink-0"
+        className="flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-4 sm:px-6 py-3"
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '12px 24px',
           background: '#FEFEFE',
           borderBottom: '1px solid #E5E7EB',
         }}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           <div
             style={{
               width: '36px',
@@ -55,21 +51,21 @@ export default function CompanyWorkspaceView({ companyId }: CompanyWorkspaceView
           >
             {workspace.company.companyName.charAt(0)}
           </div>
-          <div>
-            <div className="text-[15px] font-bold text-gray-900" style={{ lineHeight: 1.2 }}>
+          <div className="min-w-0">
+            <div className="text-[14px] sm:text-[15px] font-bold text-gray-900 truncate" style={{ lineHeight: 1.2 }}>
               {workspace.company.companyName}
             </div>
-            <div className="text-[11px] text-gray-400 mt-0.5">
+            <div className="text-[11px] text-gray-400 mt-0.5 truncate">
               {workspace.company.businessNumber || workspace.company.companyId}
             </div>
           </div>
-          <span className={`status-badge ${typeBadge.cls}`} style={{ marginLeft: '4px' }}>
+          <span className={`status-badge ${typeBadge.cls} flex-shrink-0`} style={{ marginLeft: '4px' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-current" />
             {typeBadge.label}
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 sm:flex-shrink-0">
           <span className="text-xs text-gray-400">
             오늘: <strong className="text-gray-700">0</strong>건
           </span>

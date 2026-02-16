@@ -313,8 +313,8 @@ export default function DocumentManagement() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
           <div>
-            <h2 className="text-lg font-bold text-gray-900 mb-0.5">거래명세표 관리</h2>
-            <p className="text-[13px] text-gray-500">거래명세표 등록, 조회 및 상태 관리</p>
+            <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-0.5">거래명세표 관리</h2>
+            <p className="text-xs sm:text-[13px] text-gray-500">거래명세표 등록, 조회 및 상태 관리</p>
           </div>
           <button onClick={() => { resetCreateForm(); setShowCreateModal(true); }} className="btn-primary self-start">
             <i className="fas fa-plus"></i> 신규 거래명세표
@@ -390,7 +390,7 @@ export default function DocumentManagement() {
         {/* Table */}
         <div className="card overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full" style={{ minWidth: '700px' }}>
               <thead>
                 <tr className="bg-gray-50">
                   <th className="table-header">상태</th>
@@ -445,7 +445,7 @@ export default function DocumentManagement() {
               </tbody>
             </table>
           </div>
-          <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-4 sm:px-5 py-3 border-t border-gray-100">
             <div className="text-[12px] text-gray-500">1-{filtered.length} / 총 {filtered.length}건</div>
             <div className="flex gap-1">
               <button className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 hover:border-primary hover:text-primary transition-colors">
@@ -464,13 +464,13 @@ export default function DocumentManagement() {
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-[760px] max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-100">
               <h3 className="text-[15px] font-bold text-gray-900">신규 거래명세표</h3>
               <button onClick={() => setShowCreateModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
                 <i className="fas fa-times"></i>
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="form-label">수신 거래처</label>
@@ -519,7 +519,7 @@ export default function DocumentManagement() {
                 </div>
               </div>
             </div>
-            <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-100">
+            <div className="flex justify-end gap-2 px-4 sm:px-6 py-4 border-t border-gray-100">
               <button onClick={() => setShowCreateModal(false)} className="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 text-[13px] font-semibold hover:bg-gray-200 transition-colors">
                 취소
               </button>
@@ -535,7 +535,7 @@ export default function DocumentManagement() {
       {showDetailModal && selectedDocument && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-[760px] max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-100">
               <div className="flex items-center gap-3">
                 <h3 className="text-[15px] font-bold text-gray-900">거래명세표 상세</h3>
                 {badge(selectedDocument.state)}
@@ -544,7 +544,7 @@ export default function DocumentManagement() {
                 <i className="fas fa-times"></i>
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4">
               {/* Document Info */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[13px]">
                 <div><span className="text-gray-500">문서번호:</span> <span className="font-semibold ml-2">{selectedDocument.documentId.substring(0, 8).toUpperCase()}</span></div>
@@ -619,7 +619,7 @@ export default function DocumentManagement() {
             </div>
 
             {/* Detail Modal Footer */}
-            <div className="flex justify-between px-6 py-4 border-t border-gray-100">
+            <div className="flex justify-between px-4 sm:px-6 py-4 border-t border-gray-100">
               <div>
                 {selectedDocument.state === DocumentState.Draft && (
                   <button onClick={() => handleSend(selectedDocument.documentId)} className="px-4 py-2 rounded-lg bg-primary text-white text-[13px] font-semibold shadow-sm hover:bg-primary-light transition-colors">

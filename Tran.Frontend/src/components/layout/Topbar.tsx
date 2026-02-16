@@ -6,15 +6,12 @@ interface TopbarProps {
 export default function Topbar({ title, breadcrumb }: TopbarProps) {
   return (
     <header
+      className="hidden lg:flex items-center justify-between flex-shrink-0"
       style={{
         height: '56px',
         background: '#fff',
         padding: '0 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
         borderBottom: '1px solid #F3F4F6',
-        flexShrink: 0,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
