@@ -9,7 +9,10 @@ export default function CompanySelection() {
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [selectedType, setSelectedType] = useState<string>('전체');
+  const [currentPage, setCurrentPage] = useState(1);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  const PAGE_SIZE = 12;
 
   useEffect(() => {
     loadRecentCompanies();
@@ -32,7 +35,6 @@ export default function CompanySelection() {
       const res = await apiClient.get('/companies');
       setCompanies(res.data.data || []);
     } catch {
-      // fallback: 더미 데이터
       setCompanies([
         { companyId: 'C001', companyName: '삼성전자', companyType: '고객사', businessNumber: '123-45-67890', address: '경기도 수원시 영통구', isActive: true, createdAt: '2026-01-01', representative: '이재용', phone: '031-200-1234' },
         { companyId: 'C002', companyName: 'LG화학', companyType: '공급사', businessNumber: '234-56-78901', address: '서울특별시 영등포구', isActive: true, createdAt: '2026-01-05', representative: '신학철', phone: '02-3773-1114' },
@@ -63,6 +65,9 @@ export default function CompanySelection() {
     return true;
   });
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   const handleSelect = (company: Company) => {
     openCompany(company);
   };
@@ -73,158 +78,118 @@ export default function CompanySelection() {
       await apiClient.delete(`/companies/${company.companyId}`);
       fetchCompanies();
     } catch {
-      // fallback: 로컬에서 제거
       setCompanies(prev => prev.filter(c => c.companyId !== company.companyId));
     }
   };
 
+  const handleReset = () => {
+    setSearchText('');
+    setSelectedType('전체');
+    setCurrentPage(1);
+  };
+
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#F0F2F5', minHeight: '100vh' }}>
-      {/* 헤더 영역 */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #2E4A7A 0%, #3B5998 50%, #4A6FA5 100%)',
-          padding: '40px 20px',
-          textAlign: 'center',
-        }}
-      >
-        <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#fff', margin: 0 }}>
-          작업할 거래처를 선택하세요
-        </h1>
-        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', marginTop: '10px' }}>
-          거래처를 선택하면 해당 거래처와의 작업 화면으로 이동합니다
-        </p>
+    <div className="flex-1 p-6 overflow-y-auto">
+      {/* Page Header - 공통 구조 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900 mb-0.5">거래처 선택</h2>
+          <p className="text-[13px] text-gray-500">작업할 거래처를 선택하면 해당 거래처의 작업 화면으로 이동합니다</p>
+        </div>
+        <button className="btn-primary self-start"><i className="fas fa-plus" /> 새 거래처 등록</button>
       </div>
 
-      {/* 최근 거래처 칩 영역 */}
+      {/* 최근 거래처 카드 */}
       {recentCompanies.length > 0 && (
-        <div
-          style={{
-            background: '#F9FAFB',
-            padding: '14px 24px',
-            borderBottom: '1px solid #E5E7EB',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            flexWrap: 'wrap',
-          }}
-        >
-          <span style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', marginRight: '4px' }}>
-            최근 거래처
-          </span>
-          {recentCompanies.map(c => (
-            <button
-              key={c.companyId}
-              onClick={() => handleSelect(c)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 14px',
-                borderRadius: '20px',
-                border: '1px solid #D1D5DB',
-                background: '#fff',
-                color: '#2E4A7A',
-                fontSize: '13px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = '#EBF0F7';
-                e.currentTarget.style.borderColor = '#2E4A7A';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = '#fff';
-                e.currentTarget.style.borderColor = '#D1D5DB';
-              }}
-            >
-              <i className="fas fa-clock" style={{ fontSize: '10px', opacity: 0.5 }} />
-              {c.companyName}
-            </button>
-          ))}
+        <div className="card p-4 mb-5">
+          <div className="flex items-center gap-2 mb-3">
+            <i className="fas fa-clock text-primary" style={{ fontSize: '12px' }} />
+            <span className="text-[13px] font-bold text-gray-900">최근 거래처</span>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {recentCompanies.map(c => (
+              <button
+                key={c.companyId}
+                onClick={() => handleSelect(c)}
+                className="company-chip"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 14px',
+                  borderRadius: '20px',
+                  border: '1px solid #D1D5DB',
+                  background: '#fff',
+                  color: '#2E4A7A',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <i className="fas fa-building" style={{ fontSize: '10px', opacity: 0.5 }} />
+                {c.companyName}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* 검색 및 필터 영역 */}
-      <div
-        style={{
-          padding: '16px 24px',
-          background: '#fff',
-          borderBottom: '1px solid #E5E7EB',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          flexWrap: 'wrap',
-        }}
-      >
-        <div
-          style={{
-            flex: 1,
-            minWidth: '200px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: '#F9FAFB',
-            borderRadius: '8px',
-            padding: '0 12px',
-            border: '1px solid #E5E7EB',
-            transition: 'border-color 0.15s',
-          }}
-        >
-          <i className="fas fa-search" style={{ color: '#9CA3AF', fontSize: '13px' }} />
-          <input
-            ref={searchRef}
-            type="text"
-            value={searchText}
-            onChange={e => setSearchText(e.target.value)}
-            placeholder="거래처명, 사업자번호 검색... (Ctrl+F)"
-            style={{
-              flex: 1,
-              border: 'none',
-              outline: 'none',
-              background: 'transparent',
-              padding: '10px 0',
-              fontSize: '14px',
-              color: '#333',
-            }}
-          />
-          {searchText && (
-            <button
-              onClick={() => setSearchText('')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', fontSize: '12px' }}
-            >
-              <i className="fas fa-times" />
-            </button>
-          )}
+      {/* Filter Card - 공통 구조 */}
+      <div className="card p-5 mb-5">
+        <div className="filter-card-header">
+          <h3><i className="fas fa-filter" /> 검색 필터</h3>
         </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+          <div className="lg:col-span-2">
+            <label className="form-label">거래처명 / 사업자번호</label>
+            <input
+              ref={searchRef}
+              value={searchText}
+              onChange={e => { setSearchText(e.target.value); setCurrentPage(1); }}
+              placeholder="거래처명, 사업자번호 검색... (Ctrl+F)"
+              className="form-input"
+            />
+          </div>
+          <div>
+            <label className="form-label">거래처 유형</label>
+            <select
+              value={selectedType}
+              onChange={e => { setSelectedType(e.target.value); setCurrentPage(1); }}
+              className="form-input"
+            >
+              <option value="전체">전체</option>
+              <option value="고객사">고객사</option>
+              <option value="공급사">공급사</option>
+            </select>
+          </div>
+          <div className="flex items-end justify-end gap-2">
+            <button onClick={handleReset} className="btn-reset">초기화</button>
+            <button className="btn-search"><i className="fas fa-search" /> 검색</button>
+          </div>
+        </div>
+      </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '13px', color: '#6B7280', fontWeight: 500 }}>타입:</span>
-          <select
-            value={selectedType}
-            onChange={e => setSelectedType(e.target.value)}
-            className="form-input"
-            style={{ width: '140px', padding: '8px 12px' }}
-          >
-            <option value="전체">전체</option>
-            <option value="고객사">고객사</option>
-            <option value="공급사">공급사</option>
-          </select>
+      {/* Table Count Bar - 공통 구조 */}
+      <div className="table-count-bar">
+        <div className="count">총 <strong>{filtered.length}</strong>개 거래처</div>
+        <div className="actions">
+          <button className="btn-util"><i className="fas fa-download" /> 엑셀 다운로드</button>
+          <button className="btn-util"><i className="fas fa-print" /> 인쇄</button>
         </div>
       </div>
 
       {/* 거래처 카드 그리드 */}
-      <div style={{ flex: 1, padding: '24px', overflowY: 'auto' }}>
+      <div className="card p-5">
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: '#9CA3AF', fontSize: '14px' }}>
-            <i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }} />
+          <div className="text-center py-16 text-gray-400 text-sm">
+            <i className="fas fa-spinner fa-spin mr-2" />
             거래처 목록을 불러오는 중...
           </div>
-        ) : filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: '#9CA3AF' }}>
-            <i className="fas fa-search" style={{ fontSize: '32px', marginBottom: '12px', display: 'block', opacity: 0.4 }} />
-            <p style={{ fontSize: '14px' }}>검색 조건에 맞는 거래처가 없습니다</p>
+        ) : paginated.length === 0 ? (
+          <div className="text-center py-16 text-gray-400">
+            <i className="fas fa-search text-3xl mb-3 block opacity-40" />
+            <p className="text-sm">검색 조건에 맞는 거래처가 없습니다</p>
           </div>
         ) : (
           <div
@@ -234,7 +199,7 @@ export default function CompanySelection() {
               gap: '16px',
             }}
           >
-            {filtered.map(company => (
+            {paginated.map(company => (
               <CompanyCard
                 key={company.companyId}
                 company={company}
@@ -244,27 +209,40 @@ export default function CompanySelection() {
             ))}
           </div>
         )}
-      </div>
 
-      {/* 하단 바 */}
-      <div
-        style={{
-          padding: '14px 24px',
-          background: '#fff',
-          borderTop: '1px solid #E5E7EB',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="btn-primary" style={{ padding: '8px 20px' }}>
-            <i className="fas fa-plus" /> 새 거래처 등록
-          </button>
-        </div>
-        <span style={{ fontSize: '13px', color: '#6B7280' }}>
-          총 <strong style={{ color: '#2E4A7A' }}>{filtered.length}</strong>개 거래처
-        </span>
+        {/* Pagination - 공통 구조 */}
+        {!loading && filtered.length > 0 && (
+          <div className="pagination" style={{ marginTop: '16px', borderTop: '1px solid #f3f4f6', paddingTop: '12px' }}>
+            <div className="info">
+              {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, filtered.length)} / 총 {filtered.length}개
+            </div>
+            <div className="pages">
+              <button
+                className="page-btn"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                <i className="fas fa-chevron-left" />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).slice(0, 5).map(p => (
+                <button
+                  key={p}
+                  className={`page-btn ${p === currentPage ? 'active' : ''}`}
+                  onClick={() => setCurrentPage(p)}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                className="page-btn"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                <i className="fas fa-chevron-right" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -279,32 +257,26 @@ interface CompanyCardProps {
 }
 
 function CompanyCard({ company, onSelect, onDelete }: CompanyCardProps) {
-  const [hovered, setHovered] = useState(false);
-
   const typeBadge = company.companyType === '공급사'
-    ? { bg: '#FFF3E0', color: '#F39C12', label: '공급사' }
-    : { bg: '#E8F5E9', color: '#27AE60', label: company.companyType || '고객사' };
+    ? { cls: 'pending', label: '공급사' }
+    : { cls: 'approved', label: company.companyType || '고객사' };
 
   return (
     <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className="company-card"
       style={{
-        background: '#fff',
+        background: '#FEFEFE',
         borderRadius: '12px',
         padding: '20px',
-        boxShadow: hovered
-          ? '0 4px 16px rgba(46, 74, 122, 0.12)'
-          : '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
         transition: 'all 0.2s ease',
-        transform: hovered ? 'translateY(-2px)' : 'none',
-        border: hovered ? '1px solid #4A6FA5' : '1px solid transparent',
+        border: '1px solid #F3F4F6',
         cursor: 'pointer',
       }}
       onClick={() => onSelect(company)}
     >
       {/* 거래처명 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+      <div className="flex items-center gap-2 mb-2">
         <div
           style={{
             width: '36px',
@@ -322,124 +294,61 @@ function CompanyCard({ company, onSelect, onDelete }: CompanyCardProps) {
         >
           {company.companyName.charAt(0)}
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontSize: '15px',
-              fontWeight: 700,
-              color: '#111827',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
+        <div className="flex-1 min-w-0">
+          <div className="text-[15px] font-bold text-gray-900 truncate">
             {company.companyName}
           </div>
         </div>
       </div>
 
-      {/* 타입 배지 */}
-      <div style={{ marginBottom: '10px' }}>
-        <span
-          style={{
-            display: 'inline-block',
-            padding: '3px 10px',
-            borderRadius: '4px',
-            background: typeBadge.bg,
-            color: typeBadge.color,
-            fontSize: '11px',
-            fontWeight: 600,
-          }}
-        >
+      {/* 타입 배지 - status-badge 공통 스타일 사용 */}
+      <div className="mb-2.5">
+        <span className={`status-badge ${typeBadge.cls}`}>
+          <span className="w-1.5 h-1.5 rounded-full bg-current" />
           {typeBadge.label}
         </span>
       </div>
 
       {/* 정보 */}
-      <div style={{ fontSize: '12px', color: '#6B7280', lineHeight: 1.8 }}>
+      <div className="text-xs text-gray-500 leading-relaxed">
         <div>
-          <span style={{ color: '#9CA3AF' }}>사업자번호:</span>{' '}
+          <span className="text-gray-400">사업자번호:</span>{' '}
           {company.businessNumber || '-'}
         </div>
-        <div
-          style={{
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          <span style={{ color: '#9CA3AF' }}>주소:</span>{' '}
+        <div className="truncate">
+          <span className="text-gray-400">주소:</span>{' '}
           {company.address || '-'}
         </div>
       </div>
 
       {/* 버튼 영역 */}
       <div
-        style={{
-          display: 'flex',
-          gap: '6px',
-          marginTop: '14px',
-          paddingTop: '14px',
-          borderTop: '1px solid #F3F4F6',
-        }}
+        className="flex gap-1.5 mt-3.5 pt-3.5"
+        style={{ borderTop: '1px solid #F3F4F6' }}
         onClick={e => e.stopPropagation()}
       >
         <button
           onClick={() => onSelect(company)}
-          style={{
-            flex: 1,
-            padding: '8px 0',
-            borderRadius: '8px',
-            background: 'linear-gradient(135deg, #2E4A7A, #4A6FA5)',
-            color: '#fff',
-            fontSize: '13px',
-            fontWeight: 600,
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'all 0.15s ease',
-          }}
+          className="btn-primary"
+          style={{ flex: 1, justifyContent: 'center', padding: '7px 0', fontSize: '12.5px' }}
         >
           선택
         </button>
         <button
           onClick={() => {/* TODO: edit */}}
-          style={{
-            width: '34px',
-            height: '34px',
-            borderRadius: '8px',
-            border: '1px solid #E5E7EB',
-            background: '#fff',
-            color: '#6B7280',
-            fontSize: '13px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.15s ease',
-          }}
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-blue-50 hover:text-primary transition-colors"
+          style={{ border: '1px solid #E5E7EB', background: '#fff' }}
           title="수정"
         >
-          <i className="fas fa-edit" />
+          <i className="fas fa-edit text-xs" />
         </button>
         <button
           onClick={() => onDelete(company)}
-          style={{
-            width: '34px',
-            height: '34px',
-            borderRadius: '8px',
-            border: '1px solid #E5E7EB',
-            background: '#fff',
-            color: '#E74C3C',
-            fontSize: '13px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.15s ease',
-          }}
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-danger hover:bg-red-50 transition-colors"
+          style={{ border: '1px solid #E5E7EB', background: '#fff' }}
           title="삭제(비활성화)"
         >
-          <i className="fas fa-trash" />
+          <i className="fas fa-trash text-xs" />
         </button>
       </div>
     </div>

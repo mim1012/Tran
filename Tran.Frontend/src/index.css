@@ -361,6 +361,17 @@ tbody tr:hover {
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
+/* ─── Company Tab Bar Hover ─── */
+.company-tab-btn:hover {
+  background: #EBF0F7 !important;
+  color: #2E4A7A !important;
+  border-color: #D1D5DB !important;
+}
+.company-tab-item:hover {
+  background: #EBF0F7 !important;
+  border-color: #D1D5DB !important;
+}
+
 /* ─── Company Chip Hover ─── */
 .company-chip:hover {
   background: #EBF0F7 !important;

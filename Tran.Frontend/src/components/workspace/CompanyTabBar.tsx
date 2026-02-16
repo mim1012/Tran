@@ -12,42 +12,34 @@ export default function CompanyTabBar() {
 
   return (
     <div
+      className="flex items-center overflow-x-auto flex-shrink-0"
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        background: '#1E3A5F',
-        minHeight: '40px',
-        padding: '0 4px',
-        gap: '2px',
-        overflowX: 'auto',
-        flexShrink: 0,
+        background: '#F9FAFB',
+        borderBottom: '1px solid #E5E7EB',
+        padding: '0 16px',
+        minHeight: '42px',
+        gap: '4px',
       }}
     >
       {/* 거래처 선택 버튼 */}
       <button
         onClick={() => setShowCompanySelection(true)}
+        className="company-tab-btn"
         style={{
           display: 'flex',
           alignItems: 'center',
           gap: '6px',
           padding: '6px 14px',
-          margin: '3px 2px',
-          borderRadius: '6px 6px 0 0',
-          border: 'none',
-          background: showCompanySelection ? '#3B5998' : 'transparent',
-          color: showCompanySelection ? '#fff' : 'rgba(255,255,255,0.6)',
+          borderRadius: '6px',
+          border: showCompanySelection ? '1px solid #2E4A7A' : '1px solid transparent',
+          background: showCompanySelection ? '#EBF0F7' : 'transparent',
+          color: showCompanySelection ? '#2E4A7A' : '#6B7280',
           fontSize: '12.5px',
-          fontWeight: 500,
+          fontWeight: showCompanySelection ? 600 : 500,
           cursor: 'pointer',
           transition: 'all 0.15s ease',
           whiteSpace: 'nowrap',
           flexShrink: 0,
-        }}
-        onMouseEnter={e => {
-          if (!showCompanySelection) e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-        }}
-        onMouseLeave={e => {
-          if (!showCompanySelection) e.currentTarget.style.background = 'transparent';
         }}
       >
         <i className="fas fa-th-large" style={{ fontSize: '11px' }} />
@@ -60,8 +52,8 @@ export default function CompanyTabBar() {
           style={{
             width: '1px',
             height: '20px',
-            background: 'rgba(255,255,255,0.15)',
-            margin: '0 4px',
+            background: '#D1D5DB',
+            margin: '0 6px',
             flexShrink: 0,
           }}
         />
@@ -73,36 +65,31 @@ export default function CompanyTabBar() {
         return (
           <div
             key={ws.company.companyId}
+            className="company-tab-item"
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '4px',
-              padding: '6px 10px',
-              margin: '3px 1px',
-              borderRadius: '6px 6px 0 0',
-              background: isActive ? '#3B5998' : 'transparent',
+              gap: '6px',
+              padding: '6px 12px',
+              borderRadius: '6px',
+              border: isActive ? '1px solid #2E4A7A' : '1px solid transparent',
+              background: isActive ? '#EBF0F7' : 'transparent',
               cursor: 'pointer',
               transition: 'all 0.15s ease',
               whiteSpace: 'nowrap',
               flexShrink: 0,
             }}
-            onClick={() => {
-              setActiveCompany(ws.company.companyId);
-            }}
-            onMouseEnter={e => {
-              if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-            }}
-            onMouseLeave={e => {
-              if (!isActive) e.currentTarget.style.background = 'transparent';
-            }}
+            onClick={() => setActiveCompany(ws.company.companyId)}
           >
             {/* 거래처 아이콘 */}
             <div
               style={{
-                width: '20px',
-                height: '20px',
-                borderRadius: '4px',
-                background: isActive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)',
+                width: '22px',
+                height: '22px',
+                borderRadius: '6px',
+                background: isActive
+                  ? 'linear-gradient(135deg, #2E4A7A, #4A6FA5)'
+                  : '#D1D5DB',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -119,7 +106,7 @@ export default function CompanyTabBar() {
               style={{
                 fontSize: '12.5px',
                 fontWeight: isActive ? 600 : 400,
-                color: isActive ? '#fff' : 'rgba(255,255,255,0.7)',
+                color: isActive ? '#2E4A7A' : '#6B7280',
                 maxWidth: '120px',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -140,8 +127,8 @@ export default function CompanyTabBar() {
                 borderRadius: '4px',
                 border: 'none',
                 background: 'transparent',
-                color: 'rgba(255,255,255,0.4)',
-                fontSize: '12px',
+                color: '#9CA3AF',
+                fontSize: '10px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -149,14 +136,6 @@ export default function CompanyTabBar() {
                 transition: 'all 0.1s ease',
                 padding: 0,
                 marginLeft: '2px',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
-                e.currentTarget.style.color = '#fff';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = 'rgba(255,255,255,0.4)';
               }}
               title={`${ws.company.companyName} 닫기`}
             >
@@ -173,29 +152,20 @@ export default function CompanyTabBar() {
           display: 'flex',
           alignItems: 'center',
           gap: '4px',
-          padding: '6px 12px',
-          margin: '3px 2px',
+          padding: '6px 10px',
           borderRadius: '6px',
-          border: 'none',
+          border: '1px dashed #D1D5DB',
           background: 'transparent',
-          color: 'rgba(255,255,255,0.5)',
+          color: '#9CA3AF',
           fontSize: '12px',
           cursor: 'pointer',
           transition: 'all 0.15s ease',
           whiteSpace: 'nowrap',
           flexShrink: 0,
         }}
-        onMouseEnter={e => {
-          e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-          e.currentTarget.style.color = 'rgba(255,255,255,0.8)';
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.background = 'transparent';
-          e.currentTarget.style.color = 'rgba(255,255,255,0.5)';
-        }}
       >
         <i className="fas fa-plus" style={{ fontSize: '10px' }} />
-        거래처
+        추가
       </button>
     </div>
   );

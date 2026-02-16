@@ -10,15 +10,12 @@ export default function FunctionTabBar({ companyId, activeFunctionTab }: Functio
 
   return (
     <div
+      className="flex items-center overflow-x-auto flex-shrink-0"
       style={{
-        display: 'flex',
-        alignItems: 'center',
         background: '#fff',
         borderBottom: '2px solid #E5E7EB',
-        padding: '0 16px',
+        padding: '0 24px',
         gap: '0',
-        overflowX: 'auto',
-        flexShrink: 0,
       }}
     >
       {FUNCTION_TABS.map(tab => {
@@ -27,6 +24,7 @@ export default function FunctionTabBar({ companyId, activeFunctionTab }: Functio
           <button
             key={tab.id}
             onClick={() => setFunctionTab(companyId, tab.id)}
+            className={isActive ? 'function-tab-active' : ''}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -43,18 +41,6 @@ export default function FunctionTabBar({ companyId, activeFunctionTab }: Functio
               marginBottom: '-2px',
               whiteSpace: 'nowrap',
               position: 'relative',
-            }}
-            onMouseEnter={e => {
-              if (!isActive) {
-                e.currentTarget.style.color = '#374151';
-                e.currentTarget.style.background = '#F9FAFB';
-              }
-            }}
-            onMouseLeave={e => {
-              if (!isActive) {
-                e.currentTarget.style.color = '#6B7280';
-                e.currentTarget.style.background = 'transparent';
-              }
             }}
           >
             <i className={`fas ${tab.icon}`} style={{ fontSize: '12px' }} />
