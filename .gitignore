@@ -33,3 +33,16 @@ publish/
 
 ## Misc
 nul
+
+## Node / React
+Tran.Frontend/node_modules/
+Tran.Frontend/dist/
+Tran.Frontend/.env
+Tran.Frontend/.env.local
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Secrets
+appsettings.Development.json
