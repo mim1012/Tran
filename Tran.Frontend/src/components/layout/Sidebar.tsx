@@ -1,10 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 
-interface NavItem {
-  path: string;
-  icon: string;
-  label: string;
-  badge?: number;
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const navSections = [
@@ -51,63 +49,88 @@ const navSections = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const location = useLocation();
 
   return (
-    <aside className="w-64 min-h-screen bg-gradient-to-b from-[#2E4A7A] via-[#3B5998] to-[#4A6FA5] text-white flex flex-col shadow-2xl">
-      {/* Logo */}
-      <div className="p-7 pb-5 border-b border-white/10 flex items-center gap-3">
-        <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center text-xl font-extrabold">
-          T
-        </div>
-        <div>
-          <div className="text-[22px] font-bold tracking-tight">Tran ERP</div>
-          <div className="text-[11px] opacity-65 mt-0.5">Enterprise Resource Planning</div>
-        </div>
-      </div>
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
 
-      {/* Navigation */}
-      <nav className="flex-1 p-4 py-4">
-        {navSections.map((section, idx) => (
-          <div key={idx} className="mb-6">
-            <div className="text-[10px] font-semibold uppercase tracking-wider opacity-50 px-3 mb-2">
-              {section.title}
-            </div>
-            {section.items.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all mb-0.5 ${
-                  location.pathname === item.path
-                    ? 'bg-white/20 text-white font-semibold shadow-md'
-                    : 'text-white/75 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                <i className={`fas ${item.icon} w-5 text-center text-[15px]`}></i>
-                <span className="flex-1">{item.label}</span>
-                {item.badge && (
-                  <span className="bg-red-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full min-w-[22px] text-center">
-                    {item.badge}
-                  </span>
-                )}
-              </Link>
-            ))}
+      <aside
+        className={`
+          fixed lg:static inset-y-0 left-0 z-50
+          w-60 min-h-screen
+          bg-gradient-to-b from-[#2E4A7A] via-[#3B5998] to-[#4A6FA5]
+          text-white flex flex-col shadow-xl
+          transform transition-transform duration-200 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
+        {/* Logo */}
+        <div className="px-5 py-5 border-b border-white/10 flex items-center gap-3">
+          <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-base font-extrabold flex-shrink-0">
+            T
           </div>
-        ))}
-      </nav>
+          <div className="min-w-0">
+            <div className="text-lg font-bold tracking-tight leading-tight">Tran ERP</div>
+            <div className="text-[10px] opacity-60 leading-tight">Enterprise Resource Planning</div>
+          </div>
+        </div>
 
-      {/* User Footer */}
-      <div className="p-4 border-t border-white/10 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold text-[15px]">
-          김
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+          {navSections.map((section, idx) => (
+            <div key={idx} className="mb-5">
+              <div className="text-[11px] font-semibold uppercase tracking-wider opacity-45 px-3 mb-1.5">
+                {section.title}
+              </div>
+              <div className="space-y-0.5">
+                {section.items.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={onClose}
+                    className={`
+                      flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium
+                      transition-all duration-150
+                      ${location.pathname === item.path
+                        ? 'bg-white/20 text-white font-semibold shadow-sm'
+                        : 'text-white/70 hover:bg-white/10 hover:text-white'
+                      }
+                    `}
+                  >
+                    <i className={`fas ${item.icon} w-4 text-center text-[13px]`}></i>
+                    <span className="flex-1 truncate">{item.label}</span>
+                    {item.badge && (
+                      <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* User Footer */}
+        <div className="px-4 py-3.5 border-t border-white/10 flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-[13px] flex-shrink-0">
+            김
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[12px] font-semibold leading-tight truncate">김관리</div>
+            <div className="text-[10px] opacity-55 leading-tight">시스템 관리자</div>
+          </div>
+          <i className="fas fa-ellipsis-v opacity-40 cursor-pointer hover:opacity-100 text-xs"></i>
         </div>
-        <div className="flex-1">
-          <div className="text-[13px] font-semibold">김관리</div>
-          <div className="text-[11px] opacity-60">시스템 관리자</div>
-        </div>
-        <i className="fas fa-ellipsis-v opacity-50 cursor-pointer hover:opacity-100"></i>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }

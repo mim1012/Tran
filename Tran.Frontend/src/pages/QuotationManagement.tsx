@@ -33,20 +33,20 @@ export default function QuotationManagement() {
   return (
     <div className="flex-1 flex flex-col">
       <Topbar title="견적 관리" breadcrumb="견적 관리" />
-      <div className="flex-1 p-7 overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
           <div>
-            <h2 className="text-[22px] font-bold text-gray-900 mb-1">견적 관리</h2>
-            <p className="text-sm text-gray-500">견적서 작성, 발송 및 상태 관리</p>
+            <h2 className="text-lg font-bold text-gray-900 mb-0.5">견적 관리</h2>
+            <p className="text-[13px] text-gray-500">견적서 작성, 발송 및 상태 관리</p>
           </div>
-          <button className="btn-primary"><i className="fas fa-plus"></i> 견적서 작성</button>
+          <button className="btn-primary self-start"><i className="fas fa-plus"></i> 견적서 작성</button>
         </div>
 
-        <div className="card p-6 mb-5">
-          <div className="grid grid-cols-4 gap-4">
+        <div className="card p-4 sm:p-5 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">상태</label>
-              <select className="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 text-sm bg-gray-50 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none">
+              <label className="form-label">상태</label>
+              <select className="form-input">
                 <option value="">전체</option>
                 <option value="0">작성중</option>
                 <option value="1">발송완료</option>
@@ -55,55 +55,57 @@ export default function QuotationManagement() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">거래처</label>
-              <input placeholder="거래처명 검색" className="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 text-sm bg-gray-50 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none" />
+              <label className="form-label">거래처</label>
+              <input placeholder="거래처명 검색" className="form-input" />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">견적일</label>
-              <input type="date" className="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 text-sm bg-gray-50 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none" />
+              <label className="form-label">견적일</label>
+              <input type="date" className="form-input" />
             </div>
             <div className="flex items-end">
-              <button className="w-full px-5 py-2.5 rounded-lg bg-primary text-white text-sm font-semibold shadow hover:bg-primary-light transition-colors">검색</button>
+              <button className="w-full px-4 py-2 rounded-lg bg-primary text-white text-[13px] font-semibold shadow-sm hover:bg-primary-light transition-colors">검색</button>
             </div>
           </div>
         </div>
 
         <div className="card overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-200">견적번호</th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-200">거래처</th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-200">견적일</th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-200">유효기간</th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-200">금액</th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-200">상태</th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-200">관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={7} className="px-5 py-10 text-center text-gray-400">로딩 중...</td></tr>
-              ) : quotations.length === 0 ? (
-                <tr><td colSpan={7} className="px-5 py-10 text-center text-gray-400">견적 데이터가 없습니다.</td></tr>
-              ) : quotations.map(q => (
-                <tr key={q.quotationId} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-5 py-3.5 text-sm font-semibold text-primary border-b border-gray-100">QT-{q.quotationId.toString().padStart(6, '0')}</td>
-                  <td className="px-5 py-3.5 text-sm text-gray-700 border-b border-gray-100">{q.company?.companyName || q.companyId}</td>
-                  <td className="px-5 py-3.5 text-sm text-gray-700 border-b border-gray-100">{new Date(q.quotationDate).toLocaleDateString('ko-KR')}</td>
-                  <td className="px-5 py-3.5 text-sm text-gray-700 border-b border-gray-100">{q.validUntil ? new Date(q.validUntil).toLocaleDateString('ko-KR') : '-'}</td>
-                  <td className="px-5 py-3.5 text-sm font-semibold text-gray-900 border-b border-gray-100">₩{q.totalAmount.toLocaleString()}</td>
-                  <td className="px-5 py-3.5 text-sm border-b border-gray-100">{badge(q.state)}</td>
-                  <td className="px-5 py-3.5 text-sm border-b border-gray-100">
-                    <div className="flex gap-1">
-                      <button className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-blue-50 hover:text-primary transition-colors"><i className="fas fa-eye text-xs"></i></button>
-                      <button className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-blue-50 hover:text-primary transition-colors"><i className="fas fa-edit text-xs"></i></button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="table-header">견적번호</th>
+                  <th className="table-header">거래처</th>
+                  <th className="table-header">견적일</th>
+                  <th className="table-header">유효기간</th>
+                  <th className="table-header">금액</th>
+                  <th className="table-header">상태</th>
+                  <th className="table-header">관리</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr><td colSpan={7} className="px-5 py-10 text-center text-gray-400 text-[13px]">로딩 중...</td></tr>
+                ) : quotations.length === 0 ? (
+                  <tr><td colSpan={7} className="px-5 py-10 text-center text-gray-400 text-[13px]">견적 데이터가 없습니다.</td></tr>
+                ) : quotations.map(q => (
+                  <tr key={q.quotationId} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="table-cell font-semibold text-primary">QT-{q.quotationId.toString().padStart(6, '0')}</td>
+                    <td className="table-cell">{q.company?.companyName || q.companyId}</td>
+                    <td className="table-cell">{new Date(q.quotationDate).toLocaleDateString('ko-KR')}</td>
+                    <td className="table-cell">{q.validUntil ? new Date(q.validUntil).toLocaleDateString('ko-KR') : '-'}</td>
+                    <td className="table-cell font-semibold text-gray-900">₩{q.totalAmount.toLocaleString()}</td>
+                    <td className="table-cell">{badge(q.state)}</td>
+                    <td className="table-cell">
+                      <div className="flex gap-1">
+                        <button className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:bg-blue-50 hover:text-primary transition-colors"><i className="fas fa-eye text-xs"></i></button>
+                        <button className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:bg-blue-50 hover:text-primary transition-colors"><i className="fas fa-edit text-xs"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
