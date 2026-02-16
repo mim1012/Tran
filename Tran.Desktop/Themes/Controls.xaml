@@ -144,8 +144,8 @@
         <Setter Property="Foreground" Value="White"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#403294"/>
-                <Setter Property="BorderBrush" Value="#403294"/>
+                <Setter Property="Background" Value="#362880"/>
+                <Setter Property="BorderBrush" Value="#362880"/>
             </Trigger>
         </Style.Triggers>
     </Style>
