@@ -73,11 +73,12 @@ export interface OrderItem {
   note?: string;
 }
 
-export enum OrderState {
-  Draft = 0,
-  Completed = 1,
-  Cancelled = 2,
-}
+export const OrderState = {
+  Draft: 0,
+  Completed: 1,
+  Cancelled: 2,
+} as const;
+export type OrderState = (typeof OrderState)[keyof typeof OrderState];
 
 export interface Purchase {
   purchaseId: number;
@@ -107,12 +108,13 @@ export interface PurchaseItem {
   note?: string;
 }
 
-export enum PurchaseState {
-  PendingDelivery = 0,
-  PartiallyDelivered = 1,
-  Delivered = 2,
-  Cancelled = 3,
-}
+export const PurchaseState = {
+  PendingDelivery: 0,
+  PartiallyDelivered: 1,
+  Delivered: 2,
+  Cancelled: 3,
+} as const;
+export type PurchaseState = (typeof PurchaseState)[keyof typeof PurchaseState];
 
 export interface Sale {
   saleId: number;
@@ -139,11 +141,12 @@ export interface SaleItem {
   note?: string;
 }
 
-export enum SaleState {
-  Draft = 0,
-  Confirmed = 1,
-  Cancelled = 2,
-}
+export const SaleState = {
+  Draft: 0,
+  Confirmed: 1,
+  Cancelled: 2,
+} as const;
+export type SaleState = (typeof SaleState)[keyof typeof SaleState];
 
 export interface Quotation {
   quotationId: number;
@@ -172,14 +175,15 @@ export interface QuotationItem {
   note?: string;
 }
 
-export enum QuotationState {
-  Draft = 0,
-  Sent = 1,
-  UnderReview = 2,
-  Confirmed = 3,
-  RevisionRequested = 4,
-  Expired = 5,
-}
+export const QuotationState = {
+  Draft: 0,
+  Sent: 1,
+  UnderReview: 2,
+  Confirmed: 3,
+  RevisionRequested: 4,
+  Expired: 5,
+} as const;
+export type QuotationState = (typeof QuotationState)[keyof typeof QuotationState];
 
 export interface Inventory {
   inventoryId: number;
@@ -196,15 +200,16 @@ export interface Inventory {
 // 거래명세표 (Document)
 // ═══════════════════════════════════════
 
-export enum DocumentState {
-  Draft = 0,
-  Sent = 1,
-  Received = 2,
-  RevisionRequested = 3,
-  Confirmed = 4,
-  Superseded = 5,
-  Cancelled = 6,
-}
+export const DocumentState = {
+  Draft: 0,
+  Sent: 1,
+  Received: 2,
+  RevisionRequested: 3,
+  Confirmed: 4,
+  Superseded: 5,
+  Cancelled: 6,
+} as const;
+export type DocumentState = (typeof DocumentState)[keyof typeof DocumentState];
 
 export interface Document {
   documentId: string;

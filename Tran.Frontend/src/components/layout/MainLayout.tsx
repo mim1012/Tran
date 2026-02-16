@@ -6,18 +6,41 @@ export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen">
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex-1 flex flex-col min-w-0">
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {/* Mobile header bar */}
-        <div className="lg:hidden flex items-center h-14 px-4 bg-white border-b border-gray-200">
+        <div
+          className="lg:hidden"
+          style={{
+            display: 'none',
+            alignItems: 'center',
+            height: '56px',
+            padding: '0 16px',
+            background: '#fff',
+            borderBottom: '1px solid #E5E7EB',
+          }}
+        >
           <button
             onClick={() => setSidebarOpen(true)}
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#4B5563',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+            }}
           >
-            <i className="fas fa-bars text-lg"></i>
+            <i className="fas fa-bars" style={{ fontSize: '18px' }} />
           </button>
-          <div className="ml-3 text-base font-bold text-gray-900">Tran ERP</div>
+          <div style={{ marginLeft: '12px', fontSize: '16px', fontWeight: 700, color: '#111827' }}>
+            Tran ERP
+          </div>
         </div>
         <Outlet />
       </div>

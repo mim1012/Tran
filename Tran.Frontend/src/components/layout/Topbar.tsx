@@ -5,44 +5,114 @@ interface TopbarProps {
 
 export default function Topbar({ title, breadcrumb }: TopbarProps) {
   return (
-    <header className="h-14 bg-white px-4 sm:px-6 flex items-center justify-between border-b border-gray-100 flex-shrink-0">
-      <div className="flex items-center gap-3">
+    <header
+      style={{
+        height: '56px',
+        background: '#fff',
+        padding: '0 24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderBottom: '1px solid #F3F4F6',
+        flexShrink: 0,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <div>
-          <h1 className="text-base font-bold text-gray-900 leading-tight">{title}</h1>
+          <h1 style={{ fontSize: '16px', fontWeight: 700, color: '#111827', lineHeight: 1.2, margin: 0 }}>
+            {title}
+          </h1>
           {breadcrumb && (
-            <div className="flex items-center gap-1.5 text-[11px] text-gray-400 mt-0.5">
-              홈 <i className="fas fa-chevron-right text-[7px]"></i>{' '}
-              <span className="text-primary font-medium">{breadcrumb}</span>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '11px',
+                color: '#9CA3AF',
+                marginTop: '2px',
+              }}
+            >
+              홈 <i className="fas fa-chevron-right" style={{ fontSize: '7px' }} />{' '}
+              <span style={{ color: '#2E4A7A', fontWeight: 500 }}>{breadcrumb}</span>
             </div>
           )}
         </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         {/* Search Box */}
-        <div className="hidden sm:flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-1.5 border border-gray-100">
-          <i className="fas fa-search text-gray-400 text-xs"></i>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: '#F9FAFB',
+            borderRadius: '8px',
+            padding: '7px 12px',
+            border: '1px solid #F3F4F6',
+          }}
+        >
+          <i className="fas fa-search" style={{ color: '#9CA3AF', fontSize: '12px' }} />
           <input
             type="text"
             placeholder="검색..."
-            className="bg-transparent border-none outline-none text-[13px] w-36 lg:w-48 text-gray-700 placeholder:text-gray-400"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+              fontSize: '13px',
+              width: '160px',
+              color: '#374151',
+            }}
           />
         </div>
 
-        {/* Mobile Search */}
-        <button className="sm:hidden w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">
-          <i className="fas fa-search text-sm"></i>
-        </button>
-
         {/* Notification Icon */}
-        <div className="relative w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer text-gray-500 hover:bg-gray-100 transition-colors">
-          <i className="far fa-bell text-sm"></i>
-          <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></div>
+        <div
+          style={{
+            position: 'relative',
+            width: '34px',
+            height: '34px',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            color: '#6B7280',
+            transition: 'background 0.15s',
+          }}
+        >
+          <i className="far fa-bell" style={{ fontSize: '15px' }} />
+          <div
+            style={{
+              position: 'absolute',
+              top: '5px',
+              right: '5px',
+              width: '8px',
+              height: '8px',
+              background: '#EF4444',
+              borderRadius: '50%',
+              border: '2px solid #fff',
+            }}
+          />
         </div>
 
         {/* Help Icon */}
-        <div className="hidden sm:flex w-8 h-8 rounded-lg items-center justify-center cursor-pointer text-gray-500 hover:bg-gray-100 transition-colors">
-          <i className="far fa-question-circle text-sm"></i>
+        <div
+          style={{
+            width: '34px',
+            height: '34px',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            color: '#6B7280',
+            transition: 'background 0.15s',
+          }}
+        >
+          <i className="far fa-question-circle" style={{ fontSize: '15px' }} />
         </div>
       </div>
     </header>

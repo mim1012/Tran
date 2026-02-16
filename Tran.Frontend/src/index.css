@@ -31,6 +31,19 @@ body {
   letter-spacing: -0.01em;
 }
 
+/* ─── Sidebar Nav Hover ─── */
+.sidebar-nav-item:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+/* ─── Quick Action Hover ─── */
+.quick-action-item:hover {
+  border-color: #D1D5DB !important;
+  background: #FAFBFC !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
 /* ─── Buttons ─── */
 .btn-primary {
   display: inline-flex;
@@ -170,4 +183,11 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1023px) {
+  .lg\:hidden {
+    display: flex !important;
+  }
 }

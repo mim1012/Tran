@@ -5,7 +5,19 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-const navSections = [
+interface NavItem {
+  path: string;
+  icon: string;
+  label: string;
+  badge?: number;
+}
+
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const navSections: NavSection[] = [
   {
     title: '메인',
     items: [
@@ -57,7 +69,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          className="fixed inset-0 z-40 lg:hidden"
+          style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
           onClick={onClose}
         />
       )}
@@ -65,70 +78,154 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50
-          w-60 min-h-screen
-          bg-gradient-to-b from-[#2E4A7A] via-[#3B5998] to-[#4A6FA5]
-          text-white flex flex-col shadow-xl
+          w-[240px] min-h-screen
+          text-white flex flex-col
           transform transition-transform duration-200 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
+        style={{
+          background: 'linear-gradient(to bottom, #2E4A7A 0%, #3B5998 50%, #4A6FA5 100%)',
+          boxShadow: '2px 0 12px rgba(46, 74, 122, 0.3)',
+        }}
       >
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-white/10 flex items-center gap-3">
-          <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center text-base font-extrabold flex-shrink-0">
+        <div
+          className="flex items-center gap-3"
+          style={{
+            padding: '20px 20px',
+            borderBottom: '1px solid rgba(255,255,255,0.12)',
+          }}
+        >
+          <div
+            className="flex items-center justify-center flex-shrink-0"
+            style={{
+              width: '36px',
+              height: '36px',
+              background: 'rgba(255,255,255,0.2)',
+              borderRadius: '10px',
+              fontSize: '15px',
+              fontWeight: 800,
+            }}
+          >
             T
           </div>
           <div className="min-w-0">
-            <div className="text-lg font-bold tracking-tight leading-tight">Tran ERP</div>
-            <div className="text-[10px] opacity-60 leading-tight">Enterprise Resource Planning</div>
+            <div style={{ fontSize: '17px', fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+              Tran ERP
+            </div>
+            <div style={{ fontSize: '10px', opacity: 0.55, lineHeight: 1.2 }}>
+              Enterprise Resource Planning
+            </div>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+        <nav
+          className="flex-1 overflow-y-auto"
+          style={{ padding: '16px 12px' }}
+        >
           {navSections.map((section, idx) => (
-            <div key={idx} className="mb-5">
-              <div className="text-[11px] font-semibold uppercase tracking-wider opacity-45 px-3 mb-1.5">
+            <div key={idx} style={{ marginBottom: '20px' }}>
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  opacity: 0.45,
+                  padding: '0 12px',
+                  marginBottom: '6px',
+                }}
+              >
                 {section.title}
               </div>
-              <div className="space-y-0.5">
-                {section.items.map((item) => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={onClose}
-                    className={`
-                      flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium
-                      transition-all duration-150
-                      ${location.pathname === item.path
-                        ? 'bg-white/20 text-white font-semibold shadow-sm'
-                        : 'text-white/70 hover:bg-white/10 hover:text-white'
-                      }
-                    `}
-                  >
-                    <i className={`fas ${item.icon} w-4 text-center text-[13px]`}></i>
-                    <span className="flex-1 truncate">{item.label}</span>
-                    {item.badge && (
-                      <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
-                        {item.badge}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                {section.items.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={onClose}
+                      className="sidebar-nav-item"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '9px 12px',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        fontWeight: isActive ? 600 : 500,
+                        color: isActive ? '#ffffff' : 'rgba(255,255,255,0.7)',
+                        background: isActive ? 'rgba(255,255,255,0.18)' : 'transparent',
+                        boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                        transition: 'all 0.15s ease',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      <i
+                        className={`fas ${item.icon}`}
+                        style={{ width: '16px', textAlign: 'center', fontSize: '13px' }}
+                      />
+                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {item.label}
                       </span>
-                    )}
-                  </Link>
-                ))}
+                      {item.badge && (
+                        <span
+                          style={{
+                            background: '#EF4444',
+                            color: '#fff',
+                            fontSize: '10px',
+                            fontWeight: 700,
+                            padding: '2px 6px',
+                            borderRadius: '9999px',
+                            minWidth: '18px',
+                            textAlign: 'center',
+                            lineHeight: 1,
+                          }}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           ))}
         </nav>
 
         {/* User Footer */}
-        <div className="px-4 py-3.5 border-t border-white/10 flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-[13px] flex-shrink-0">
+        <div
+          className="flex items-center"
+          style={{
+            padding: '14px 16px',
+            borderTop: '1px solid rgba(255,255,255,0.12)',
+            gap: '10px',
+          }}
+        >
+          <div
+            className="flex items-center justify-center flex-shrink-0"
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.2)',
+              fontWeight: 700,
+              fontSize: '13px',
+            }}
+          >
             김
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-[12px] font-semibold leading-tight truncate">김관리</div>
-            <div className="text-[10px] opacity-55 leading-tight">시스템 관리자</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: '12px', fontWeight: 600, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              김관리
+            </div>
+            <div style={{ fontSize: '10px', opacity: 0.55, lineHeight: 1.2 }}>
+              시스템 관리자
+            </div>
           </div>
-          <i className="fas fa-ellipsis-v opacity-40 cursor-pointer hover:opacity-100 text-xs"></i>
+          <i className="fas fa-ellipsis-v" style={{ opacity: 0.4, cursor: 'pointer', fontSize: '12px' }} />
         </div>
       </aside>
     </>
