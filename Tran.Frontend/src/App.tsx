@@ -12,6 +12,7 @@ import DocumentManagement from './pages/DocumentManagement';
 import Login from './pages/Login';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import WorkspacePage from './pages/WorkspacePage';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/workspace" element={<WorkspacePage />} />
           <Route path="/documents" element={<DocumentManagement />} />
           <Route path="/orders" element={<OrderManagement />} />
           <Route path="/products" element={<ProductManagement />} />

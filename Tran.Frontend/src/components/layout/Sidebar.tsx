@@ -22,6 +22,7 @@ const navSections: NavSection[] = [
     title: '메인',
     items: [
       { path: '/', icon: 'fa-th-large', label: '대시보드' },
+      { path: '/workspace', icon: 'fa-briefcase', label: '작업 공간', badge: 0 },
     ],
   },
   {
@@ -142,6 +143,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                 {section.items.map((item) => {
                   const isActive = location.pathname === item.path;
+                  const isWorkspace = item.path === '/workspace';
                   return (
                     <Link
                       key={item.path}
@@ -157,7 +159,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                         fontSize: '13px',
                         fontWeight: isActive ? 600 : 500,
                         color: isActive ? '#ffffff' : 'rgba(255,255,255,0.7)',
-                        background: isActive ? 'rgba(255,255,255,0.18)' : 'transparent',
+                        background: isActive
+                          ? isWorkspace
+                            ? 'rgba(255,255,255,0.25)'
+                            : 'rgba(255,255,255,0.18)'
+                          : 'transparent',
                         boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                         transition: 'all 0.15s ease',
                         textDecoration: 'none',
@@ -170,7 +176,22 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                       <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {item.label}
                       </span>
-                      {item.badge && (
+                      {isWorkspace && (
+                        <span
+                          style={{
+                            background: 'rgba(255,255,255,0.2)',
+                            color: '#fff',
+                            fontSize: '9px',
+                            fontWeight: 700,
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            letterSpacing: '0.02em',
+                          }}
+                        >
+                          NEW
+                        </span>
+                      )}
+                      {item.badge !== undefined && item.badge > 0 && !isWorkspace && (
                         <span
                           style={{
                             background: '#EF4444',

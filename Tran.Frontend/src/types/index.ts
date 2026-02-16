@@ -28,6 +28,7 @@ export interface User {
 export interface Company {
   companyId: string;
   companyName: string;
+  companyType?: '고객사' | '공급사';
   businessNumber?: string;
   representative?: string;
   address?: string;
@@ -276,4 +277,26 @@ export interface RecentOrderDto {
   orderDate: string;
   totalAmount: number;
   state: string;
+}
+
+// ═══════════════════════════════════════
+// 워크스페이스 (3중 분할탭)
+// ═══════════════════════════════════════
+
+/** 기능별 탭 정의 */
+export interface FunctionTab {
+  id: string;
+  label: string;
+  icon: string;
+}
+
+/** 3단계 상세 뷰 타입 */
+export type DetailViewType = 'list' | 'create' | 'detail';
+
+/** 거래처별 워크스페이스 상태 */
+export interface CompanyWorkspace {
+  company: Company;
+  activeFunctionTab: string;
+  detailView: DetailViewType;
+  detailId?: string | number;
 }

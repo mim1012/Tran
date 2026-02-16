@@ -343,6 +343,37 @@ tbody tr:hover {
   background: #9ca3af;
 }
 
+/* ─── Company Card ─── */
+.company-card:hover {
+  box-shadow: 0 4px 16px rgba(46, 74, 122, 0.12);
+  transform: translateY(-2px);
+  border-color: #4A6FA5 !important;
+}
+
+/* ─── Workspace Tab Transitions ─── */
+.workspace-tab-enter {
+  opacity: 0;
+  transform: translateY(4px);
+}
+.workspace-tab-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* ─── Company Chip Hover ─── */
+.company-chip:hover {
+  background: #EBF0F7 !important;
+  border-color: #2E4A7A !important;
+}
+
+/* ─── Function Tab Active Indicator ─── */
+.function-tab-active {
+  color: #2E4A7A !important;
+  font-weight: 700 !important;
+  border-bottom: 2px solid #2E4A7A !important;
+}
+
 /* ─── Responsive ─── */
 @media (max-width: 1023px) {
   .lg\:hidden {
