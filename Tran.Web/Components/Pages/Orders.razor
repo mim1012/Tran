@@ -222,6 +222,7 @@
             isLoading = true;
             using var context = await DbFactory.CreateDbContextAsync();
             orders = await context.Orders
+                .Where(o => o.OwnerCompanyId == AppState.CurrentCompanyId)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
         }
@@ -260,11 +261,16 @@
 
     private async Task CreateOrder()
     {
-        if (string.IsNullOrEmpty(newOrder.CompanyId)) return;
+        if (string.IsNullOrEmpty(newOrder.CompanyId))
+        {
+            ShowAlert("거래처를 선택해주세요.", "alert-warning");
+            return;
+        }
         isSaving = true;
         try
         {
             using var context = await DbFactory.CreateDbContextAsync();
+            newOrder.OwnerCompanyId = AppState.CurrentCompanyId;
             newOrder.State = OrderState.Draft;
             newOrder.CreatedAt = DateTime.UtcNow;
             context.Orders.Add(newOrder);

@@ -149,6 +149,9 @@ public class TranDbContext : DbContext
             entity.HasKey(e => e.SettlementId);
             entity.Property(e => e.CompanyId).IsRequired();
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)");
+
+            entity.HasIndex(e => e.OwnerCompanyId)
+                .HasDatabaseName("idx_settlements_owner_company");
         });
 
         // DocumentTemplate 설정
@@ -215,6 +218,9 @@ public class TranDbContext : DbContext
             entity.HasIndex(e => e.CompanyId)
                 .HasDatabaseName("idx_orders_company");
 
+            entity.HasIndex(e => e.OwnerCompanyId)
+                .HasDatabaseName("idx_orders_owner_company");
+
             entity.Property(e => e.State)
                 .HasConversion<int>();
         });
@@ -254,6 +260,9 @@ public class TranDbContext : DbContext
             entity.HasIndex(e => e.CompanyId)
                 .HasDatabaseName("idx_purchases_company");
 
+            entity.HasIndex(e => e.OwnerCompanyId)
+                .HasDatabaseName("idx_purchases_owner_company");
+
             entity.Property(e => e.State)
                 .HasConversion<int>();
         });
@@ -288,6 +297,9 @@ public class TranDbContext : DbContext
             entity.HasIndex(e => e.CompanyId)
                 .HasDatabaseName("idx_sales_company");
 
+            entity.HasIndex(e => e.OwnerCompanyId)
+                .HasDatabaseName("idx_sales_owner_company");
+
             entity.Property(e => e.State)
                 .HasConversion<int>();
         });
@@ -321,6 +333,9 @@ public class TranDbContext : DbContext
 
             entity.HasIndex(e => e.CompanyId)
                 .HasDatabaseName("idx_quotations_company");
+
+            entity.HasIndex(e => e.OwnerCompanyId)
+                .HasDatabaseName("idx_quotations_owner_company");
 
             entity.Property(e => e.State)
                 .HasConversion<int>();

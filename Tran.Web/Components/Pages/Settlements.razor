@@ -1,5 +1,6 @@
 @page "/settlements"
 @inject IDbContextFactory<TranDbContext> DbFactory
+@inject AppStateService AppState
 
 <PageTitle>정산 관리 - Tran ERP</PageTitle>
 
@@ -135,7 +136,10 @@
             using var context = await DbFactory.CreateDbContextAsync();
             companies = await context.Companies.Where(c => c.IsActive).ToListAsync();
             companyNames = companies.ToDictionary(c => c.CompanyId, c => c.CompanyName);
-            settlements = await context.Settlements.OrderByDescending(s => s.PeriodEnd).ToListAsync();
+            settlements = await context.Settlements
+                .Where(s => s.OwnerCompanyId == AppState.CurrentCompanyId)
+                .OrderByDescending(s => s.PeriodEnd)
+                .ToListAsync();
             isLoading = false;
         }
         catch (Exception ex)
@@ -158,12 +162,19 @@
     private async Task LoadSettlements()
     {
         using var context = await DbFactory.CreateDbContextAsync();
-        settlements = await context.Settlements.OrderByDescending(s => s.PeriodEnd).ToListAsync();
+        settlements = await context.Settlements
+            .Where(s => s.OwnerCompanyId == AppState.CurrentCompanyId)
+            .OrderByDescending(s => s.PeriodEnd)
+            .ToListAsync();
     }
 
     private async Task CreateSettlement()
     {
-        if (string.IsNullOrEmpty(newSettlement.CompanyId)) return;
+        if (string.IsNullOrEmpty(newSettlement.CompanyId))
+        {
+            ShowAlert("거래처를 선택해주세요.", "alert-warning");
+            return;
+        }
         if (isSaving) return;
 
         try
@@ -171,6 +182,7 @@
             isSaving = true;
             using var context = await DbFactory.CreateDbContextAsync();
             newSettlement.SettlementId = $"STL-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString()[..4].ToUpper()}";
+            newSettlement.OwnerCompanyId = AppState.CurrentCompanyId;
             context.Settlements.Add(newSettlement);
             await context.SaveChangesAsync();
             await LoadSettlements();

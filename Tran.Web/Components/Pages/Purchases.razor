@@ -1,5 +1,6 @@
 @page "/purchases"
 @inject IDbContextFactory<TranDbContext> DbFactory
+@inject AppStateService AppState
 
 <PageTitle>구매 관리 - Tran ERP</PageTitle>
 
@@ -203,7 +204,10 @@
         {
             isLoading = true;
             using var context = await DbFactory.CreateDbContextAsync();
-            purchases = await context.Purchases.OrderByDescending(p => p.PurchaseDate).ToListAsync();
+            purchases = await context.Purchases
+                .Where(p => p.OwnerCompanyId == AppState.CurrentCompanyId)
+                .OrderByDescending(p => p.PurchaseDate)
+                .ToListAsync();
         }
         catch (Exception ex)
         {
@@ -238,11 +242,16 @@
 
     private async Task CreatePurchase()
     {
-        if (string.IsNullOrEmpty(newPurchase.CompanyId)) return;
+        if (string.IsNullOrEmpty(newPurchase.CompanyId))
+        {
+            ShowAlert("거래처를 선택해주세요.", "alert-warning");
+            return;
+        }
         isSaving = true;
         try
         {
             using var context = await DbFactory.CreateDbContextAsync();
+            newPurchase.OwnerCompanyId = AppState.CurrentCompanyId;
             newPurchase.State = PurchaseState.PendingDelivery;
             newPurchase.CreatedAt = DateTime.UtcNow;
             context.Purchases.Add(newPurchase);

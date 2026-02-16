@@ -1,5 +1,6 @@
 @page "/sales"
 @inject IDbContextFactory<TranDbContext> DbFactory
+@inject AppStateService AppState
 
 <PageTitle>판매 관리 - Tran ERP</PageTitle>
 
@@ -201,7 +202,10 @@
         {
             isLoading = true;
             using var context = await DbFactory.CreateDbContextAsync();
-            sales = await context.Sales.OrderByDescending(s => s.SaleDate).ToListAsync();
+            sales = await context.Sales
+                .Where(s => s.OwnerCompanyId == AppState.CurrentCompanyId)
+                .OrderByDescending(s => s.SaleDate)
+                .ToListAsync();
         }
         catch (Exception ex)
         {
@@ -236,11 +240,16 @@
 
     private async Task CreateSale()
     {
-        if (string.IsNullOrEmpty(newSale.CompanyId)) return;
+        if (string.IsNullOrEmpty(newSale.CompanyId))
+        {
+            ShowAlert("거래처를 선택해주세요.", "alert-warning");
+            return;
+        }
         isSaving = true;
         try
         {
             using var context = await DbFactory.CreateDbContextAsync();
+            newSale.OwnerCompanyId = AppState.CurrentCompanyId;
             newSale.State = SaleState.Draft;
             newSale.CreatedAt = DateTime.UtcNow;
             context.Sales.Add(newSale);

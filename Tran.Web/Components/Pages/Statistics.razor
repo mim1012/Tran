@@ -1,5 +1,6 @@
 @page "/statistics"
 @inject IDbContextFactory<TranDbContext> DbFactory
+@inject AppStateService AppState
 
 <PageTitle>매출 통계 - Tran ERP</PageTitle>
 
@@ -172,11 +173,11 @@ else
             using var context = await DbFactory.CreateDbContextAsync();
 
             var confirmedSales = await context.Sales
-                .Where(s => s.SaleDate >= startDate && s.SaleDate <= endDate && s.State == SaleState.Confirmed)
+                .Where(s => s.SaleDate >= startDate && s.SaleDate <= endDate && s.State == SaleState.Confirmed && s.OwnerCompanyId == AppState.CurrentCompanyId)
                 .ToListAsync();
 
             var deliveredPurchases = await context.Purchases
-                .Where(p => p.PurchaseDate >= startDate && p.PurchaseDate <= endDate && p.State == PurchaseState.Delivered)
+                .Where(p => p.PurchaseDate >= startDate && p.PurchaseDate <= endDate && p.State == PurchaseState.Delivered && p.OwnerCompanyId == AppState.CurrentCompanyId)
                 .ToListAsync();
 
             totalSales = confirmedSales.Sum(s => s.TotalAmount);

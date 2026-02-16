@@ -254,6 +254,7 @@
         {
             using var context = await DbFactory.CreateDbContextAsync();
             documents = await context.Documents
+                .Where(d => d.FromCompanyId == AppState.CurrentCompanyId || d.ToCompanyId == AppState.CurrentCompanyId)
                 .OrderByDescending(d => d.CreatedAt)
                 .ToListAsync();
         }
@@ -271,6 +272,12 @@
     {
         try
         {
+            if (doc.FromCompanyId != AppState.CurrentCompanyId && doc.ToCompanyId != AppState.CurrentCompanyId)
+            {
+                ShowAlert("접근 권한이 없습니다.", "alert-error");
+                return;
+            }
+
             selectedDocument = doc;
             using var context = await DbFactory.CreateDbContextAsync();
             documentItems = await context.DocumentItems

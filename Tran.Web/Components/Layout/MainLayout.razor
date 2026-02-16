@@ -82,6 +82,7 @@ else
                     <div class="user-name">@AppState.CurrentUserName</div>
                     <div class="user-role">@AppState.CurrentCompanyId</div>
                 </div>
+                <button class="btn btn-sm btn-secondary" style="margin-left:auto;" @onclick="Logout">로그아웃</button>
             </div>
         </div>
     </nav>
@@ -109,5 +110,11 @@ else
         {
             Navigation.NavigateTo("/login", forceLoad: false);
         }
+    }
+
+    private void Logout()
+    {
+        AppState.Clear();
+        Navigation.NavigateTo("/login", forceLoad: true);
     }
 }

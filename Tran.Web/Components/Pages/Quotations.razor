@@ -1,5 +1,6 @@
 @page "/quotations"
 @inject IDbContextFactory<TranDbContext> DbFactory
+@inject AppStateService AppState
 
 <PageTitle>견적 관리 - Tran ERP</PageTitle>
 
@@ -213,7 +214,10 @@
         {
             isLoading = true;
             using var context = await DbFactory.CreateDbContextAsync();
-            quotations = await context.Quotations.OrderByDescending(q => q.QuotationDate).ToListAsync();
+            quotations = await context.Quotations
+                .Where(q => q.OwnerCompanyId == AppState.CurrentCompanyId)
+                .OrderByDescending(q => q.QuotationDate)
+                .ToListAsync();
         }
         catch (Exception ex)
         {
@@ -251,13 +255,18 @@
 
     private async Task CreateQuotation()
     {
-        if (string.IsNullOrEmpty(newCompanyId)) return;
+        if (string.IsNullOrEmpty(newCompanyId))
+        {
+            ShowAlert("거래처를 선택해주세요.", "alert-warning");
+            return;
+        }
         isSaving = true;
         try
         {
             using var context = await DbFactory.CreateDbContextAsync();
             var quotation = new Quotation
             {
+                OwnerCompanyId = AppState.CurrentCompanyId,
                 CompanyId = newCompanyId,
                 QuotationDate = newQuotationDate,
                 ValidUntil = newValidUntil,

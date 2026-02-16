@@ -3,6 +3,7 @@ namespace Tran.Core.Models;
 public class Sale
 {
     public int SaleId { get; set; }
+    public string OwnerCompanyId { get; set; } = string.Empty;
     public string CompanyId { get; set; } = string.Empty;
     public DateTime SaleDate { get; set; } = DateTime.Today;
     public SaleState State { get; set; } = SaleState.Draft;

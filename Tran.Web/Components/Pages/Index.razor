@@ -225,29 +225,35 @@ else
             productCount = await context.Products.CountAsync(p => p.IsActive);
 
             monthlySalesAmount = await context.Sales
+                .Where(s => s.OwnerCompanyId == AppState.CurrentCompanyId)
                 .Where(s => s.SaleDate >= monthStart && s.State == SaleState.Confirmed)
                 .SumAsync(s => s.TotalAmount);
 
             monthlyPurchaseAmount = await context.Purchases
+                .Where(p => p.OwnerCompanyId == AppState.CurrentCompanyId)
                 .Where(p => p.PurchaseDate >= monthStart && p.State == PurchaseState.Delivered)
                 .SumAsync(p => p.TotalAmount);
 
             recentDocuments = await context.Documents
+                .Where(d => d.FromCompanyId == AppState.CurrentCompanyId || d.ToCompanyId == AppState.CurrentCompanyId)
                 .OrderByDescending(d => d.CreatedAt)
                 .Take(5)
                 .ToListAsync();
 
             recentOrders = await context.Orders
+                .Where(o => o.OwnerCompanyId == AppState.CurrentCompanyId)
                 .OrderByDescending(o => o.OrderDate)
                 .Take(5)
                 .ToListAsync();
 
             recentSales = await context.Sales
+                .Where(s => s.OwnerCompanyId == AppState.CurrentCompanyId)
                 .OrderByDescending(s => s.SaleDate)
                 .Take(5)
                 .ToListAsync();
 
             recentPurchases = await context.Purchases
+                .Where(p => p.OwnerCompanyId == AppState.CurrentCompanyId)
                 .OrderByDescending(p => p.PurchaseDate)
                 .Take(5)
                 .ToListAsync();
