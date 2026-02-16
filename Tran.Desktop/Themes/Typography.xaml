@@ -2,79 +2,55 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ============================================ -->
-    <!-- 글로벌 서체                                   -->
-    <!-- Pretendard: 피플카 ERP 스타일 유지             -->
-    <!-- Fallback: Noto Sans KR → 맑은 고딕            -->
+    <!-- Premium Hospital ERP Typography              -->
+    <!-- Pretendard: Compact, professional sizing      -->
     <!-- ============================================ -->
     <FontFamily x:Key="Tran.FontFamily">pack://application:,,,/Fonts/#Pretendard</FontFamily>
 
-    <!-- ============================================ -->
-    <!-- L1: 헤더 / 합계 / 핵심 금액                   -->
-    <!-- 피플카 스타일: Bold 제목, 다크 네이비 강조     -->
-    <!-- ============================================ -->
-
-    <!-- 페이지 제목 (20px Bold) -->
+    <!-- L1: Page Title (18px SemiBold) -->
     <Style x:Key="Tran.Heading1" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="20"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
-    </Style>
-
-    <!-- 합계 금액 (18px Bold, 다크 네이비) -->
-    <Style x:Key="Tran.Amount" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
         <Setter Property="FontSize" Value="18"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Primary.900}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.900}"/>
     </Style>
 
-    <!-- 대시보드 큰 숫자 (28px Bold) -->
-    <Style x:Key="Tran.Dashboard.Number" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="28"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
-    </Style>
-
-    <!-- ============================================ -->
-    <!-- L2: 섹션 제목                                 -->
-    <!-- 피플카 스타일: SemiBold, 명확한 계층 구조      -->
-    <!-- ============================================ -->
-
-    <!-- 주요 섹션 제목 (16px SemiBold) -->
-    <Style x:Key="Tran.Heading2" TargetType="TextBlock">
+    <!-- L1: Amount (16px SemiBold) -->
+    <Style x:Key="Tran.Amount" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Primary.600}"/>
     </Style>
 
-    <!-- 하위 섹션 제목 (14px SemiBold) -->
-    <Style x:Key="Tran.Heading3" TargetType="TextBlock">
+    <!-- L2: Section Title (14px SemiBold) -->
+    <Style x:Key="Tran.Heading2" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.800}"/>
     </Style>
 
-    <!-- 보조 제목 (13px Medium) -->
-    <Style x:Key="Tran.Heading4" TargetType="TextBlock">
+    <!-- L2: Sub-section Title (13px SemiBold) -->
+    <Style x:Key="Tran.Heading3" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
         <Setter Property="FontSize" Value="13"/>
-        <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Secondary}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.800}"/>
     </Style>
 
-    <!-- ============================================ -->
-    <!-- L3: 테이블 본문                               -->
-    <!-- 피플카 스타일: 깔끔한 가독성 중심              -->
-    <!-- ============================================ -->
+    <!-- L2: Auxiliary Title (12px SemiBold) -->
+    <Style x:Key="Tran.Heading4" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.700}"/>
+    </Style>
 
-    <!-- 기본 본문 (14px Normal) -->
+    <!-- L3: Body Text (13px Normal) -->
     <Style x:Key="Tran.Body" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontSize" Value="13"/>
         <Setter Property="FontWeight" Value="Normal"/>
         <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
     </Style>
@@ -86,67 +62,26 @@
         <Setter Property="Foreground" Value="{StaticResource Tran.Text.Secondary}"/>
     </Style>
 
-    <!-- Caption / Label -->
+    <!-- Caption (11px Medium) -->
     <Style x:Key="Tran.Typography.Caption" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="11"/>
         <Setter Property="FontWeight" Value="Medium"/>
         <Setter Property="Foreground" Value="{StaticResource Tran.Text.Secondary}"/>
     </Style>
 
+    <!-- Label (12px SemiBold) -->
     <Style x:Key="Tran.Typography.Label" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{StaticResource Tran.Text.Secondary}"/>
     </Style>
 
-    <!-- Sidebar Typography (다크 네이비 배경 위) -->
-    <Style x:Key="Tran.Sidebar.Title" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="18"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="White"/>
-    </Style>
-
-    <Style x:Key="Tran.Sidebar.Subtitle" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="12"/>
-        <Setter Property="FontWeight" Value="Normal"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Sidebar.Text.Secondary}"/>
-    </Style>
-
-    <Style x:Key="Tran.Sidebar.MenuLabel" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="11"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Sidebar.Text.Muted}"/>
-        <Setter Property="TextTransform" Value="None"/>
-    </Style>
-
-    <!-- Link Text (블루 강조) -->
-    <Style x:Key="Tran.Link" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Accent.Blue}"/>
-        <Setter Property="Cursor" Value="Hand"/>
-    </Style>
-
-    <!-- ============================================ -->
-    <!-- Aliases (호환성)                             -->
-    <!-- ============================================ -->
-
-    <!-- Tran.Caption → Tran.Typography.Caption alias -->
+    <!-- Aliases -->
     <Style x:Key="Tran.Caption" TargetType="TextBlock" BasedOn="{StaticResource Tran.Typography.Caption}"/>
-
-    <!-- Tran.Label → Tran.Typography.Label alias -->
     <Style x:Key="Tran.Label" TargetType="TextBlock" BasedOn="{StaticResource Tran.Typography.Label}"/>
-
-    <!-- Tran.Typography.H1 → Tran.Heading1 alias -->
     <Style x:Key="Tran.Typography.H1" TargetType="TextBlock" BasedOn="{StaticResource Tran.Heading1}"/>
-
-    <!-- Tran.Typography.H2 → Tran.Heading2 alias -->
     <Style x:Key="Tran.Typography.H2" TargetType="TextBlock" BasedOn="{StaticResource Tran.Heading2}"/>
 
 </ResourceDictionary>

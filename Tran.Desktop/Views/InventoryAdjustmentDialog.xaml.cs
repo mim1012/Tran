@@ -1,4 +1,5 @@
 using System.Windows;
+using MahApps.Metro.Controls;
 
 namespace Tran.Desktop.Views;
 
@@ -6,7 +7,7 @@ namespace Tran.Desktop.Views;
 /// 재고 조정 다이얼로그
 /// 품목의 재고를 수동으로 증가/감소 조정
 /// </summary>
-public partial class InventoryAdjustmentDialog : Window
+public partial class InventoryAdjustmentDialog : MetroWindow
 {
     public decimal AdjustmentQuantity { get; private set; }
     public string Reason { get; private set; } = string.Empty;

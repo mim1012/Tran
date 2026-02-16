@@ -1,4 +1,5 @@
 using System.Windows;
+using MahApps.Metro.Controls;
 using Microsoft.EntityFrameworkCore;
 using Tran.Core.Models;
 using Tran.Data;
@@ -10,7 +11,7 @@ namespace Tran.Desktop.Views;
 /// 생성 모드: CompanyAddDialog()
 /// 수정 모드: CompanyAddDialog(existingCompany)
 /// </summary>
-public partial class CompanyAddDialog : Window
+public partial class CompanyAddDialog : MetroWindow
 {
     private readonly Company? _editingCompany;
     private bool IsEditMode => _editingCompany != null;

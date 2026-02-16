@@ -1,17 +1,21 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using MahApps.Metro.Controls;
 using Tran.Core.Models;
 using Tran.Desktop.ViewModels;
 
 namespace Tran.Desktop.Views;
 
 /// <summary>
-/// 메인 작업 화면
-/// 상단: 품목관리 고정 탭 + 거래처 탭 바
-/// 콘텐츠: 거래처 워크스페이스(발주/견적/구매/판매/재고/통계) 또는 글로벌 품목관리
+/// 메인 작업 화면 (반응형 사이드바)
+/// 창 너비 1000px 미만: 사이드바 아이콘만 표시 (52px)
+/// 창 너비 1000px 이상: 사이드바 전체 표시 (200px)
 /// </summary>
-public partial class MainWorkspaceWindow : Window
+public partial class MainWorkspaceWindow : MetroWindow
 {
+    private bool _userOverrideSidebar;
+
     public MainWorkspaceWindow(object? selectedCompany = null, bool productManagementMode = false)
     {
         InitializeComponent();
@@ -34,6 +38,40 @@ public partial class MainWorkspaceWindow : Window
         if (productManagementMode)
         {
             viewModel.IsProductManagementMode = true;
+        }
+
+        SizeChanged += OnWindowSizeChanged;
+    }
+
+    private void OnWindowSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (DataContext is MainWorkspaceViewModel vm)
+        {
+            bool shouldCollapse = ActualWidth < 1000;
+
+            if (!_userOverrideSidebar)
+            {
+                vm.IsSidebarCollapsed = shouldCollapse;
+            }
+            else
+            {
+                // 창이 임계값을 넘으면 수동 오버라이드 해제
+                bool crossed = (e.PreviousSize.Width >= 1000) != (e.NewSize.Width >= 1000);
+                if (crossed)
+                {
+                    _userOverrideSidebar = false;
+                    vm.IsSidebarCollapsed = shouldCollapse;
+                }
+            }
+        }
+    }
+
+    private void ToggleSidebar_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainWorkspaceViewModel vm)
+        {
+            vm.IsSidebarCollapsed = !vm.IsSidebarCollapsed;
+            _userOverrideSidebar = true;
         }
     }
 
@@ -58,32 +96,33 @@ public partial class MainWorkspaceWindow : Window
         importWindow.ShowDialog();
     }
 
-    /// <summary>
-    /// 거래처 추가 버튼 클릭 핸들러
-    /// </summary>
-    private void AddCompany_Click(object sender, RoutedEventArgs e)
-    {
-        OpenCompanySelector();
-    }
-
-    /// <summary>
-    /// 거래처 탭 클릭 핸들러
-    /// </summary>
     private void CompanyTab_Click(object sender, MouseButtonEventArgs e)
     {
-        if (sender is System.Windows.Controls.Border border && border.DataContext is CompanyWorkspace workspace)
+        if (sender is Border border && border.DataContext is CompanyWorkspace workspace)
         {
             var vm = (MainWorkspaceViewModel)DataContext;
             vm.ActiveWorkspace = workspace;
         }
     }
 
-    /// <summary>
-    /// 품목관리 탭 클릭 핸들러
-    /// </summary>
     private void ProductManagementTab_Click(object sender, MouseButtonEventArgs e)
     {
         var vm = (MainWorkspaceViewModel)DataContext;
         vm.IsProductManagementMode = true;
+    }
+
+    /// <summary>
+    /// 사이드바 항목 클릭 핸들러 - Tag 값으로 탭 인덱스 제어
+    /// </summary>
+    private void SidebarItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.Tag is string tagStr && int.TryParse(tagStr, out int tabIndex))
+        {
+            var vm = (MainWorkspaceViewModel)DataContext;
+            if (tabIndex <= 5)
+            {
+                vm.SelectedTabIndex = tabIndex;
+            }
+        }
     }
 }

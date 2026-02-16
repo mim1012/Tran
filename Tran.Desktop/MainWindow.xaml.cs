@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using MahApps.Metro.Controls;
 using Microsoft.EntityFrameworkCore;
 using Tran.Data;
 using Tran.Desktop.ViewModels;
@@ -18,7 +19,7 @@ namespace Tran.Desktop;
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class MainWindow : Window
+public partial class MainWindow : MetroWindow
 {
     private ObservableCollection<DocumentViewModel> _documents = new();
 

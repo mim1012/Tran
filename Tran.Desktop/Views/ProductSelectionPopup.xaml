@@ -1,16 +1,21 @@
-<Window x:Class="Tran.Desktop.Views.ProductSelectionPopup"
+<mah:MetroWindow x:Class="Tran.Desktop.Views.ProductSelectionPopup"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tran.Desktop.Views"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="품목 선택"
         Width="600" Height="700"
-        WindowStyle="ToolWindow"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource Tran.Surface.Background}"
         ResizeMode="CanResizeWithGrip"
+        TitleCharacterCasing="Normal"
+        GlowBrush="{StaticResource Tran.Primary.500}"
+        BorderThickness="1"
+        WindowTransitionsEnabled="False"
         FontFamily="{StaticResource Tran.FontFamily}">
 
     <Window.Resources>
@@ -35,9 +40,9 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- 헤더 (피플카 스타일: 다크 네이비 배경) -->
-        <Border Grid.Row="0" Background="{StaticResource Tran.Primary.900}" Padding="15,12"
-                BorderBrush="{StaticResource Tran.Primary.800}" BorderThickness="0,0,0,1">
+        <!-- 헤더 -->
+        <Border Grid.Row="0" Background="{StaticResource Tran.Neutral.50}" Padding="15,12"
+                BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -46,7 +51,7 @@
 
                 <TextBlock Grid.Column="0" Text="품목 선택"
                            FontSize="16" FontWeight="Bold"
-                           Foreground="White" VerticalAlignment="Center"/>
+                           Foreground="{StaticResource Tran.Neutral.800}" VerticalAlignment="Center"/>
 
                 <Button Grid.Column="1" Content="X 닫기"
                         Command="{Binding CancelCommand}"
@@ -67,9 +72,10 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="&#x1F50D;"
-                               VerticalAlignment="Center"
-                               Margin="10,0,5,0" FontSize="14" Foreground="{StaticResource Tran.Neutral.400}"/>
+                    <materialDesign:PackIcon Grid.Column="0" Kind="Magnify"
+                          Foreground="{StaticResource Tran.Neutral.400}"
+                          Width="14" Height="14"
+                          VerticalAlignment="Center" Margin="10,0,5,0"/>
                     <TextBox Grid.Column="1" Name="SearchTextBox"
                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                              BorderThickness="0" Padding="5,8"
@@ -258,4 +264,4 @@
             </Grid>
         </Border>
     </Grid>
-</Window>
+</mah:MetroWindow>

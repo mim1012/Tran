@@ -1,13 +1,23 @@
-<Window x:Class="Tran.Desktop.Views.CompanySelectionWindow"
+<mah:MetroWindow x:Class="Tran.Desktop.Views.CompanySelectionWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tran.Desktop.Views"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="Tran - 거래처 선택"
-        Width="900" Height="700"
+        Width="960" Height="700"
         WindowStartupLocation="CenterScreen"
+        TitleCharacterCasing="Normal"
+        TitleBarHeight="38"
+        WindowTitleBrush="{StaticResource Tran.Surface.Header}"
+        NonActiveWindowTitleBrush="{StaticResource Tran.Surface.Header}"
+        TitleForeground="White"
+        GlowBrush="{StaticResource Tran.Primary.500}"
+        BorderThickness="1"
+        WindowTransitionsEnabled="False"
         Background="{StaticResource Tran.Surface.Background}"
         FontFamily="{StaticResource Tran.FontFamily}">
 
@@ -24,26 +34,26 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- 헤더 영역 (피플카 스타일: 다크 네이비 배경) -->
-        <Border Grid.Row="0" Background="{StaticResource Tran.Primary.900}" Padding="20,28">
+        <!-- Header (Dark Navy) -->
+        <Border Grid.Row="0" Background="{StaticResource Tran.Surface.Header}" Padding="24,20">
             <StackPanel HorizontalAlignment="Center">
                 <TextBlock Text="작업할 거래처를 선택하세요"
-                           FontSize="20" FontWeight="Bold"
+                           FontSize="18" FontWeight="SemiBold"
                            Foreground="White"
                            HorizontalAlignment="Center"/>
                 <TextBlock Text="거래처를 선택하면 해당 거래처와의 작업 화면으로 이동합니다"
-                           FontSize="13" Foreground="{StaticResource Tran.Sidebar.Text.Secondary}"
-                           HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                           FontSize="12" Foreground="{StaticResource Tran.Sidebar.Text}"
+                           HorizontalAlignment="Center" Margin="0,6,0,0"/>
             </StackPanel>
         </Border>
 
-        <!-- 최근 거래처 칩 영역 -->
-        <Border Grid.Row="1" Background="{StaticResource Tran.Neutral.50}" Padding="15,12"
+        <!-- Recent Companies Chips -->
+        <Border Grid.Row="1" Background="{StaticResource Tran.Neutral.50}" Padding="15,10"
                 BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,0,0,1"
                 Visibility="{Binding HasRecentCompanies, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel>
                 <TextBlock Text="최근 거래처" Style="{StaticResource Tran.Typography.Caption}"
-                           Margin="0,0,0,8"/>
+                           Margin="0,0,0,6"/>
                 <ItemsControl ItemsSource="{Binding RecentCompanies}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -60,7 +70,7 @@
                                         <Border Style="{StaticResource Tran.Chip}" Cursor="Hand">
                                             <TextBlock Text="{Binding CompanyName}"
                                                        Foreground="{StaticResource Tran.Primary.600}"
-                                                       FontSize="13"/>
+                                                       FontSize="12"/>
                                         </Border>
                                     </ControlTemplate>
                                 </Button.Template>
@@ -71,14 +81,14 @@
             </StackPanel>
         </Border>
 
-        <!-- 검색 및 필터 영역 -->
-        <Border Grid.Row="2" Padding="20,15" Background="White"
+        <!-- Search & Filter Bar -->
+        <Border Grid.Row="2" Padding="20,12" Background="White"
                 BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="150"/>
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0" Style="{StaticResource Tran.SearchBox}" Margin="0,0,15,0">
@@ -87,13 +97,14 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="&#x1F50D;"
-                                   VerticalAlignment="Center"
-                                   Margin="10,0,5,0" FontSize="14" Foreground="{StaticResource Tran.Neutral.400}"/>
+                        <materialDesign:PackIcon Grid.Column="0" Kind="Magnify"
+                              Foreground="{StaticResource Tran.Neutral.400}"
+                              Width="14" Height="14"
+                              VerticalAlignment="Center" Margin="10,0,5,0"/>
                         <TextBox Grid.Column="1" Name="SearchTextBox"
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                  BorderThickness="0" Padding="5,8"
-                                 FontSize="14" VerticalContentAlignment="Center"
+                                 FontSize="13" VerticalContentAlignment="Center"
                                  Background="Transparent" Height="Auto">
                             <TextBox.Style>
                                 <Style TargetType="TextBox">
@@ -108,129 +119,134 @@
                     </Grid>
                 </Border>
 
-                <TextBlock Grid.Column="1" Text="타입:" FontSize="13" Foreground="{StaticResource Tran.Neutral.600}"
+                <TextBlock Grid.Column="1" Text="타입:" FontSize="12" Foreground="{StaticResource Tran.Neutral.600}"
                            VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <ComboBox Grid.Column="2"
                           ItemsSource="{Binding CompanyTypes}"
                           SelectedItem="{Binding SelectedType}"
                           Padding="10,5"
-                          FontSize="13" VerticalContentAlignment="Center"/>
+                          FontSize="12" VerticalContentAlignment="Center"/>
             </Grid>
         </Border>
 
-        <!-- 거래처 카드 영역 (스크롤 가능) -->
-        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled"
-                      Padding="15">
+        <!-- Company DataGrid Table (replaces card grid) -->
+        <Border Grid.Row="3" Margin="16,12" Background="White"
+                BorderBrush="{StaticResource Tran.Border.Light}" BorderThickness="1" CornerRadius="4">
             <Grid>
-                <!-- 거래처가 없을 때 -->
+                <!-- Empty State -->
                 <TextBlock Text="검색 조건에 맞는 거래처가 없습니다"
-                           FontSize="14" Foreground="{StaticResource Tran.Neutral.400}"
+                           FontSize="13" Foreground="{StaticResource Tran.Neutral.400}"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                <!-- 거래처 카드 목록 -->
-                <ItemsControl ItemsSource="{Binding FilteredCompanies}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Width="250" Margin="5" Style="{StaticResource Tran.Card}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-
-                                    <!-- 거래처명 -->
-                                    <TextBlock Grid.Row="0"
-                                               Text="{Binding CompanyName}"
-                                               Style="{StaticResource Tran.Heading3}"
-                                               Margin="0,0,0,5"
-                                               TextTrimming="CharacterEllipsis"/>
-
-                                    <!-- 타입 배지 -->
-                                    <Border Grid.Row="1" HorizontalAlignment="Left"
-                                            CornerRadius="4" Padding="8,3"
-                                            Margin="0,0,0,8"
-                                            Background="{Binding TypeBadgeBackground}">
-                                        <TextBlock Text="{Binding CompanyTypeDisplay}"
-                                                   FontSize="11" Foreground="{Binding TypeBadgeForeground}"/>
+                <!-- Company DataGrid -->
+                <DataGrid ItemsSource="{Binding FilteredCompanies}"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          Background="White"
+                          BorderThickness="0"
+                          RowHeight="40"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling"
+                          ScrollViewer.CanContentScroll="True"
+                          MouseDoubleClick="CompanyGrid_MouseDoubleClick">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="거래처명" Binding="{Binding CompanyName}" Width="2*">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontWeight" Value="Medium"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="사업자번호" Binding="{Binding BusinessNumber}" Width="*">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{StaticResource Tran.Text.Secondary}"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTemplateColumn Header="상태" Width="80">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border CornerRadius="3" Padding="6,2"
+                                            HorizontalAlignment="Left">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{StaticResource Tran.Badge.Active.Bg}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                        <Setter Property="Background" Value="{StaticResource Tran.Badge.Inactive.Bg}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock FontSize="11">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="활성"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource Tran.Badge.Active.Fg}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                            <Setter Property="Text" Value="비활성"/>
+                                                            <Setter Property="Foreground" Value="{StaticResource Tran.Badge.Inactive.Fg}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                     </Border>
-
-                                    <!-- 사업자번호 -->
-                                    <TextBlock Grid.Row="2"
-                                               Style="{StaticResource Tran.Typography.Caption}"
-                                               Margin="0,0,0,3">
-                                        <Run Text="사업자번호: "/>
-                                        <Run Text="{Binding BusinessNumber, Mode=OneWay}"/>
-                                    </TextBlock>
-
-                                    <!-- 주소 -->
-                                    <TextBlock Grid.Row="3"
-                                               Text="{Binding Address}"
-                                               Style="{StaticResource Tran.Typography.Caption}"
-                                               TextTrimming="CharacterEllipsis"
-                                               Margin="0,0,0,12"/>
-
-                                    <!-- 버튼 영역 -->
-                                    <Grid Grid.Row="4">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <!-- 선택 버튼 -->
-                                        <Button Grid.Column="0"
-                                                Content="선택"
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="주소" Binding="{Binding Address}" Width="2*">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{StaticResource Tran.Text.Secondary}"/>
+                                    <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTemplateColumn Header="" Width="160">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Button Content="선택"
                                                 Style="{StaticResource Tran.PrimaryButton}"
                                                 Command="{Binding DataContext.SelectCompanyCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                 CommandParameter="{Binding}"
-                                                HorizontalAlignment="Stretch"
-                                                Height="32"/>
-
-                                        <!-- 수정 버튼 -->
-                                        <Button Grid.Column="1"
-                                                Content="&#x270F;"
+                                                Height="28" Padding="12,0"
+                                                FontSize="12"/>
+                                        <Button Content="수정"
                                                 ToolTip="수정"
                                                 Command="{Binding DataContext.EditCompanyCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource Tran.SecondaryButton}"
-                                                Width="32" Height="32"
-                                                Padding="0"
-                                                Margin="5,0,0,0"
-                                                FontSize="14"/>
-
-                                        <!-- 삭제 버튼 -->
-                                        <Button Grid.Column="2"
-                                                Content="&#x2716;"
+                                                Height="28" Padding="8,0"
+                                                Margin="4,0,0,0"
+                                                FontSize="12"/>
+                                        <Button Content="삭제"
                                                 ToolTip="삭제(비활성화)"
                                                 Command="{Binding DataContext.DeactivateCompanyCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                 CommandParameter="{Binding}"
-                                                Style="{StaticResource Tran.SecondaryButton}"
-                                                Width="32" Height="32"
-                                                Padding="0"
-                                                Margin="5,0,0,0"
+                                                Style="{StaticResource Tran.GhostButton}"
+                                                Height="28" Padding="8,0"
+                                                Margin="4,0,0,0"
                                                 FontSize="12"
-                                                Foreground="Red"/>
-                                    </Grid>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                                                Foreground="{StaticResource Tran.Danger}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
             </Grid>
-        </ScrollViewer>
+        </Border>
 
-        <!-- 하단 버튼 영역 -->
-        <Border Grid.Row="4" Background="{StaticResource Tran.Surface.Footer}" Padding="20,15"
+        <!-- Footer -->
+        <Border Grid.Row="4" Background="{StaticResource Tran.Surface.Footer}" Padding="20,12"
                 BorderBrush="{StaticResource Tran.Neutral.200}" BorderThickness="0,1,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -245,14 +261,14 @@
                         Style="{StaticResource Tran.SuccessButton}"
                         Command="{Binding AddNewCompanyCommand}"
                         HorizontalAlignment="Left"
-                        Padding="20,8"/>
+                        Padding="16,0"/>
 
                 <Button Grid.Column="1"
-                        Content="&#x1F3F7; 품목관리"
+                        Content="품목관리"
                         Style="{StaticResource Tran.SecondaryButton}"
                         Command="{Binding OpenProductManagementCommand}"
                         HorizontalAlignment="Left"
-                        Padding="20,8"
+                        Padding="16,0"
                         Margin="10,0,0,0"/>
 
                 <TextBlock Grid.Column="3"
@@ -265,4 +281,4 @@
             </Grid>
         </Border>
     </Grid>
-</Window>
+</mah:MetroWindow>

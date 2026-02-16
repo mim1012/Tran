@@ -1,11 +1,16 @@
-<Window x:Class="Tran.Desktop.DocumentDetailWindow"
+<mah:MetroWindow x:Class="Tran.Desktop.DocumentDetailWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         mc:Ignorable="d"
         Title="거래명세표 상세" Height="600" Width="900"
         WindowStartupLocation="CenterOwner"
+        TitleCharacterCasing="Normal"
+        GlowBrush="{StaticResource Tran.Primary.500}"
+        BorderThickness="1"
+        WindowTransitionsEnabled="False"
         Background="{StaticResource Tran.Surface.Background}"
         FontFamily="{StaticResource Tran.FontFamily}">
     <Grid>
@@ -200,4 +205,4 @@
             </StackPanel>
         </Border>
     </Grid>
-</Window>
+</mah:MetroWindow>

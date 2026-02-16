@@ -16,6 +16,7 @@ public class MainWorkspaceViewModel : ViewModelBase
 {
     private int _selectedTabIndex;
     private bool _isProductManagementMode;
+    private bool _isSidebarCollapsed;
     private ProductManagementViewModel? _globalProductVM;
 
     public MainWorkspaceViewModel()
@@ -25,6 +26,7 @@ public class MainWorkspaceViewModel : ViewModelBase
         AddCompanyCommand = new RelayCommand(ExecuteAddCompany);
         CloseCompanyCommand = new RelayCommand<CompanyWorkspace>(ExecuteCloseCompany);
         OpenProductManagementCommand = new RelayCommand(ExecuteOpenProductManagement);
+        ToggleSidebarCommand = new RelayCommand(() => IsSidebarCollapsed = !IsSidebarCollapsed);
 
         // 거래명세표/정산/양식/거래처 관리 창 열기 Commands
         OpenDocumentManagementCommand = new RelayCommand(ExecuteOpenDocumentManagement);
@@ -164,6 +166,15 @@ public class MainWorkspaceViewModel : ViewModelBase
     public bool IsCompanyWorkspaceMode => !IsProductManagementMode;
 
     /// <summary>
+    /// 사이드바 접힘 여부 (true: 아이콘만, false: 전체 표시)
+    /// </summary>
+    public bool IsSidebarCollapsed
+    {
+        get => _isSidebarCollapsed;
+        set => SetProperty(ref _isSidebarCollapsed, value);
+    }
+
+    /// <summary>
     /// 글로벌 품목관리 ViewModel (단일 인스턴스, lazy 초기화)
     /// </summary>
     public ProductManagementViewModel GlobalProductVM
@@ -199,6 +210,7 @@ public class MainWorkspaceViewModel : ViewModelBase
     public ICommand AddCompanyCommand { get; }
     public ICommand CloseCompanyCommand { get; }
     public ICommand OpenProductManagementCommand { get; }
+    public ICommand ToggleSidebarCommand { get; }
     public ICommand OpenDocumentManagementCommand { get; }
     public ICommand OpenPartnerManagementCommand { get; }
     public ICommand OpenSettlementManagementCommand { get; }

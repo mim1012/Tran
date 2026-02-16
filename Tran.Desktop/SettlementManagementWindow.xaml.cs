@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Input;
+using MahApps.Metro.Controls;
 using Tran.Core.Models;
 using Tran.Desktop.ViewModels;
 
@@ -9,7 +10,7 @@ namespace Tran.Desktop;
 /// 정산 관리 화면 (읽기 전용)
 /// Confirmed 상태 문서의 집계 및 조회만 수행
 /// </summary>
-public partial class SettlementManagementWindow : Window
+public partial class SettlementManagementWindow : MetroWindow
 {
     public SettlementManagementWindow(SettlementManagementViewModel viewModel)
     {

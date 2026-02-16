@@ -1,4 +1,5 @@
 using System.Windows;
+using MahApps.Metro.Controls;
 
 namespace Tran.Desktop.Views;
 
@@ -6,7 +7,7 @@ namespace Tran.Desktop.Views;
 /// 품목 선택 팝업 (모달 Window)
 /// 품목 검색 + 체크 선택 + 수량 입력 후 일괄 추가
 /// </summary>
-public partial class ProductSelectionPopup : Window
+public partial class ProductSelectionPopup : MetroWindow
 {
     public ProductSelectionPopup()
     {

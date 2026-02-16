@@ -1,4 +1,5 @@
 using System.Windows;
+using MahApps.Metro.Controls;
 using Tran.Data;
 using Tran.Desktop.ViewModels;
 
@@ -10,7 +11,7 @@ namespace Tran.Desktop;
 /// - ICommand 없음
 /// - "관찰 전용 레이어"
 /// </summary>
-public partial class TemplateManagementWindow : Window
+public partial class TemplateManagementWindow : MetroWindow
 {
     private readonly TemplateManagementViewModel _viewModel;
 

@@ -20,4 +20,11 @@
     <Resource Include="Fonts\Pretendard-Bold.otf" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MaterialDesignThemes" Version="5.*" />
+    <PackageReference Include="MaterialDesignColors" Version="5.*" />
+    <PackageReference Include="MahApps.Metro" Version="2.*" />
+    <PackageReference Include="MahApps.Metro.IconPacks.Material" Version="5.*" />
+  </ItemGroup>
+
 </Project>

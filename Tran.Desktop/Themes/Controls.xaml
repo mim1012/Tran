@@ -2,30 +2,24 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ============================================ -->
-    <!-- 피플카 ERP 스타일 컨트롤                       -->
-    <!-- 플랫 디자인, 둥근 모서리, 상태별 명도 변화     -->
-    <!-- ============================================ -->
-
-    <!-- ============================================ -->
     <!-- SHADOWS & EFFECTS                            -->
     <!-- ============================================ -->
-    <DropShadowEffect x:Key="Tran.Effect.Shadow.Sm" BlurRadius="4" ShadowDepth="1" Direction="270" Opacity="0.08" Color="{StaticResource Tran.Shadow.Color}"/>
-    <DropShadowEffect x:Key="Tran.Effect.Shadow.Md" BlurRadius="8" ShadowDepth="2" Direction="270" Opacity="0.08" Color="{StaticResource Tran.Shadow.Color}"/>
-    <DropShadowEffect x:Key="Tran.Effect.Shadow.Lg" BlurRadius="16" ShadowDepth="4" Direction="270" Opacity="0.10" Color="{StaticResource Tran.Shadow.Color}"/>
+    <DropShadowEffect x:Key="Tran.Effect.Shadow.Sm" BlurRadius="2" ShadowDepth="1" Direction="270" Opacity="0.1" Color="{StaticResource Tran.Shadow.Color}"/>
+    <DropShadowEffect x:Key="Tran.Effect.Shadow.Md" BlurRadius="4" ShadowDepth="2" Direction="270" Opacity="0.1" Color="{StaticResource Tran.Shadow.Color}"/>
+    <DropShadowEffect x:Key="Tran.Effect.Shadow.Lg" BlurRadius="8" ShadowDepth="3" Direction="270" Opacity="0.1" Color="{StaticResource Tran.Shadow.Color}"/>
 
     <!-- ============================================ -->
     <!-- BUTTONS                                      -->
-    <!-- 피플카 스타일: 둥근 모서리, 플랫 디자인        -->
     <!-- ============================================ -->
-    
+
     <!-- Base Button Style -->
     <Style x:Key="Tran.ButtonStyle.Base" TargetType="Button">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontSize" Value="13"/>
         <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="Height" Value="40"/>
+        <Setter Property="Height" Value="36"/>
         <Setter Property="Padding" Value="20,0"/>
-        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -36,7 +30,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8"
+                            CornerRadius="4"
                             SnapsToDevicePixels="True">
                         <ContentPresenter x:Name="contentPresenter"
                                           Focusable="False"
@@ -49,6 +43,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.5"/>
+                            <Setter TargetName="border" Property="Effect" Value="{x:Null}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter Property="RenderTransform">
@@ -64,40 +59,23 @@
         </Setter>
     </Style>
 
-    <!-- Primary Button (Accent Blue - 피플카 핵심 버튼) -->
+    <!-- Primary Button (Business Blue) -->
     <Style x:Key="Tran.PrimaryButton" TargetType="Button" BasedOn="{StaticResource Tran.ButtonStyle.Base}">
-        <Setter Property="Background" Value="{StaticResource Tran.Accent.Blue}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Tran.Accent.Blue}"/>
+        <Setter Property="Background" Value="{StaticResource Tran.Primary.600}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Primary.600}"/>
         <Setter Property="Foreground" Value="White"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{StaticResource Tran.Accent.Blue.Dark}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource Tran.Accent.Blue.Dark}"/>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="{StaticResource Tran.Accent.Blue.Darker}"/>
+                <Setter Property="Background" Value="{StaticResource Tran.Primary.700}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource Tran.Primary.700}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
 
-    <!-- Navy Primary Button (다크 네이비 배경 버튼) -->
-    <Style x:Key="Tran.NavyButton" TargetType="Button" BasedOn="{StaticResource Tran.ButtonStyle.Base}">
-        <Setter Property="Background" Value="{StaticResource Tran.Primary.900}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Tran.Primary.900}"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{StaticResource Tran.Primary.800}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource Tran.Primary.800}"/>
-            </Trigger>
-        </Style.Triggers>
-    </Style>
-
-    <!-- Secondary Button (White with border) -->
+    <!-- Secondary Button (White) -->
     <Style x:Key="Tran.SecondaryButton" TargetType="Button" BasedOn="{StaticResource Tran.ButtonStyle.Base}">
         <Setter Property="Background" Value="White"/>
         <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Medium}"/>
-        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
@@ -159,44 +137,23 @@
         </Style.Triggers>
     </Style>
 
-    <!-- Sidebar Ghost Button (다크 네이비 배경 위 투명 버튼) -->
-    <Style x:Key="Tran.SidebarButton" TargetType="Button" BasedOn="{StaticResource Tran.ButtonStyle.Base}">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderBrush" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Sidebar.Text.Secondary}"/>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{StaticResource Tran.Sidebar.Hover}"/>
-                <Setter Property="Foreground" Value="{StaticResource Tran.Sidebar.Text}"/>
-            </Trigger>
-        </Style.Triggers>
-    </Style>
-
-    <!-- Sidebar Active Button (활성 메뉴 아이템) -->
-    <Style x:Key="Tran.SidebarButton.Active" TargetType="Button" BasedOn="{StaticResource Tran.ButtonStyle.Base}">
-        <Setter Property="Background" Value="{StaticResource Tran.Sidebar.ActiveBg}"/>
-        <Setter Property="BorderBrush" Value="Transparent"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
-    </Style>
-
-    <!-- Purchase Button (Purple/Accent) -->
+    <!-- Purchase Button (Deep Purple) -->
     <Style x:Key="Tran.PurchaseButton" TargetType="Button" BasedOn="{StaticResource Tran.ButtonStyle.Base}">
         <Setter Property="Background" Value="{StaticResource Tran.Accent.Purchase}"/>
         <Setter Property="BorderBrush" Value="{StaticResource Tran.Accent.Purchase}"/>
         <Setter Property="Foreground" Value="White"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#7C3AED"/>
-                <Setter Property="BorderBrush" Value="#7C3AED"/>
+                <Setter Property="Background" Value="#403294"/>
+                <Setter Property="BorderBrush" Value="#403294"/>
             </Trigger>
         </Style.Triggers>
     </Style>
 
     <!-- Icon Button (Round) -->
     <Style x:Key="Tran.IconButton" TargetType="Button">
-        <Setter Property="Width" Value="36"/>
-        <Setter Property="Height" Value="36"/>
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -205,7 +162,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="border"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="18"
+                            CornerRadius="4"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
@@ -221,8 +178,8 @@
 
     <!-- Icon Button Danger (Round, Red) -->
     <Style x:Key="Tran.IconButton.Danger" TargetType="Button">
-        <Setter Property="Width" Value="36"/>
-        <Setter Property="Height" Value="36"/>
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{StaticResource Tran.Danger}"/>
         <Setter Property="BorderThickness" Value="0"/>
@@ -232,7 +189,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="border"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="18"
+                            CornerRadius="4"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
@@ -248,20 +205,19 @@
 
     <!-- ============================================ -->
     <!-- INPUTS (TextBox, ComboBox)                   -->
-    <!-- 피플카 스타일: 연한 회색 테두리, 충분한 패딩   -->
     <!-- ============================================ -->
-    
+
     <Style TargetType="TextBox">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Height" Value="42"/>
-        <Setter Property="Padding" Value="14,0"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Padding" Value="12,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Background" Value="{StaticResource Tran.Surface.Card}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Light}"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Medium}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
-        <Setter Property="CaretBrush" Value="{StaticResource Tran.Accent.Blue}"/>
+        <Setter Property="CaretBrush" Value="{StaticResource Tran.Primary.600}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
@@ -269,7 +225,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8"
+                            CornerRadius="4"
                             SnapsToDevicePixels="True">
                         <ScrollViewer x:Name="PART_ContentHost"
                                       Focusable="False"
@@ -281,9 +237,9 @@
                             <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Tran.Neutral.400}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Tran.Accent.Blue}"/>
+                            <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Tran.Primary.500}"/>
                             <Setter TargetName="border" Property="BorderThickness" Value="1.5"/>
-                            <Setter TargetName="border" Property="Background" Value="White"/>
+                            <Setter TargetName="border" Property="Background" Value="{StaticResource Tran.Primary.50}"/>
                         </Trigger>
                          <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.6"/>
@@ -297,39 +253,25 @@
 
     <Style TargetType="ComboBox">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Height" Value="42"/>
-        <Setter Property="Padding" Value="14,0"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Padding" Value="12,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Background" Value="{StaticResource Tran.Surface.Card}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Light}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
-    </Style>
-
-    <!-- DatePicker Style -->
-    <Style TargetType="DatePicker">
-        <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Height" Value="42"/>
-        <Setter Property="Padding" Value="14,0"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Background" Value="{StaticResource Tran.Surface.Card}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Light}"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Medium}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Foreground" Value="{StaticResource Tran.Text.Primary}"/>
     </Style>
 
     <!-- ============================================ -->
     <!-- DATAGRID                                     -->
-    <!-- 피플카 스타일: Zebra Striping, 얇은 회색 구분선 -->
     <!-- ============================================ -->
-    
+
     <Style TargetType="DataGrid">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="RowHeight" Value="52"/>
-        <Setter Property="ColumnHeaderHeight" Value="48"/>
+        <Setter Property="RowHeight" Value="36"/>
+        <Setter Property="ColumnHeaderHeight" Value="36"/>
         <Setter Property="GridLinesVisibility" Value="Horizontal"/>
         <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource Tran.Border.Light}"/>
         <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
@@ -338,17 +280,18 @@
         <Setter Property="CanUserAddRows" Value="False"/>
         <Setter Property="SelectionMode" Value="Single"/>
         <Setter Property="SelectionUnit" Value="FullRow"/>
-        <Setter Property="AlternatingRowBackground" Value="{StaticResource Tran.Surface.Section}"/>
-        <Setter Property="RowBackground" Value="White"/>
+        <Setter Property="EnableRowVirtualization" Value="True"/>
+        <Setter Property="EnableColumnVirtualization" Value="True"/>
+        <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="True"/>
     </Style>
 
     <Style TargetType="DataGridColumnHeader">
-        <Setter Property="Background" Value="{StaticResource Tran.Neutral.50}"/>
+        <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{StaticResource Tran.Text.Secondary}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="Padding" Value="16,0"/>
-        <Setter Property="Height" Value="48"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="Height" Value="36"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="BorderBrush" Value="{StaticResource Tran.Border.Medium}"/>
         <Setter Property="Template">
@@ -369,22 +312,22 @@
     <Style TargetType="DataGridRow">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontSize" Value="13"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{StaticResource Tran.Accent.Blue.Light}"/>
+                <Setter Property="Background" Value="{StaticResource Tran.Neutral.50}"/>
                 <Setter Property="Cursor" Value="Hand"/>
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{StaticResource Tran.Accent.Blue.Light}"/>
-                <Setter Property="Foreground" Value="{StaticResource Tran.Accent.Blue.Dark}"/>
+                <Setter Property="Background" Value="{StaticResource Tran.Primary.50}"/>
+                <Setter Property="Foreground" Value="{StaticResource Tran.Primary.900}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
 
     <Style TargetType="DataGridCell">
         <Setter Property="OverridesDefaultStyle" Value="True"/>
-        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="Padding" Value="12,0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="DataGridCell">
@@ -398,7 +341,6 @@
 
     <!-- ============================================ -->
     <!-- TAB CONTROL                                  -->
-    <!-- 피플카 스타일: 하단 액센트 바, 블루 강조       -->
     <!-- ============================================ -->
 
     <Style TargetType="TabControl">
@@ -408,11 +350,11 @@
 
     <Style TargetType="TabItem">
         <Setter Property="FontFamily" Value="{StaticResource Tran.FontFamily}"/>
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontSize" Value="13"/>
         <Setter Property="FontWeight" Value="Medium"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{StaticResource Tran.Text.Secondary}"/>
-        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="Padding" Value="16,10"/>
         <Setter Property="Margin" Value="0,0,0,0"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -421,7 +363,7 @@
                         <Border x:Name="Border"
                                 Background="Transparent"
                                 BorderBrush="Transparent"
-                                BorderThickness="0,0,0,3"
+                                BorderThickness="0,0,0,2"
                                 Margin="0,0,0,-1"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter x:Name="ContentSite"
@@ -433,9 +375,8 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource Tran.Accent.Blue}"/>
-                            <Setter Property="Foreground" Value="{StaticResource Tran.Accent.Blue}"/>
-                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource Tran.Primary.600}"/>
+                            <Setter Property="Foreground" Value="{StaticResource Tran.Primary.600}"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Border" Property="Background" Value="{StaticResource Tran.Neutral.50}"/>
@@ -445,14 +386,6 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
-
-    <!-- ============================================ -->
-    <!-- SCROLLBAR (피플카 스타일: 얇은 미니멀 스크롤바) -->
-    <!-- ============================================ -->
-    <Style TargetType="ScrollBar">
-        <Setter Property="Width" Value="6"/>
-        <Setter Property="Background" Value="Transparent"/>
     </Style>
 
 </ResourceDictionary>

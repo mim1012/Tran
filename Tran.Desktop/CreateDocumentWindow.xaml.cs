@@ -1,4 +1,5 @@
 using System.Windows;
+using MahApps.Metro.Controls;
 using Tran.Desktop.ViewModels;
 
 namespace Tran.Desktop;
@@ -6,7 +7,7 @@ namespace Tran.Desktop;
 /// <summary>
 /// CreateDocumentWindow.xaml에 대한 상호 작용 논리
 /// </summary>
-public partial class CreateDocumentWindow : Window
+public partial class CreateDocumentWindow : MetroWindow
 {
     public CreateDocumentWindow()
     {

@@ -1,4 +1,5 @@
 using System.Windows;
+using MahApps.Metro.Controls;
 using Tran.Data;
 using Tran.Desktop.ViewModels;
 using Tran.Desktop.Views;
@@ -9,7 +10,7 @@ namespace Tran.Desktop;
 /// 거래처 관리 화면
 /// MVVM 패턴: ViewModel에 비즈니스 로직 위임
 /// </summary>
-public partial class PartnerManagementWindow : Window
+public partial class PartnerManagementWindow : MetroWindow
 {
     private readonly PartnerManagementViewModel _viewModel;
 

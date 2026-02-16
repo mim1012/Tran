@@ -52,9 +52,10 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="&#x1F50D;"
-                                   VerticalAlignment="Center"
-                                   Margin="10,0,5,0" FontSize="14" Foreground="{StaticResource Tran.Neutral.400}"/>
+                        <Path Grid.Column="0" Data="{StaticResource Tran.Icon.Search}"
+                              Fill="{StaticResource Tran.Neutral.400}"
+                              Width="14" Height="14" Stretch="Uniform"
+                              VerticalAlignment="Center" Margin="10,0,5,0"/>
                         <TextBox Grid.Column="1" Name="ProductSearchBox"
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                  BorderThickness="0" Padding="5,8" Height="Auto"
@@ -103,18 +104,20 @@
                 <Button Command="{Binding AddToFrequentCommand}"
                         Width="36" Height="36" Margin="0,0,0,8"
                         ToolTip="자주거래 품목에 추가"
-                        Background="White" BorderBrush="#CCCCCC" BorderThickness="1"
+                        Background="White" BorderBrush="{StaticResource Tran.Border.Medium}" BorderThickness="1"
                         Cursor="Hand">
-                    <TextBlock Text="&#x25B6;" FontSize="16" Foreground="#222222"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Path Data="{StaticResource Tran.Icon.ArrowRight}"
+                          Fill="{StaticResource Tran.Text.Primary}"
+                          Width="14" Height="14" Stretch="Uniform"/>
                 </Button>
                 <Button Command="{Binding RemoveFromFrequentCommand}"
                         Width="36" Height="36"
                         ToolTip="자주거래 품목에서 제거"
-                        Background="White" BorderBrush="#CCCCCC" BorderThickness="1"
+                        Background="White" BorderBrush="{StaticResource Tran.Border.Medium}" BorderThickness="1"
                         Cursor="Hand">
-                    <TextBlock Text="&#x25C0;" FontSize="16" Foreground="#222222"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Path Data="{StaticResource Tran.Icon.ArrowLeft}"
+                          Fill="{StaticResource Tran.Text.Primary}"
+                          Width="14" Height="14" Stretch="Uniform"/>
                 </Button>
             </StackPanel>
 
@@ -322,38 +325,36 @@
                             <DataGridTemplateColumn Header="재고" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <TextBlock FontSize="12" Margin="0,0,3,0">
+                                        <Border CornerRadius="3" Padding="6,2" HorizontalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{StaticResource Tran.State.Confirmed.Bg}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding StockStatus}" Value="부족">
+                                                            <Setter Property="Background" Value="{StaticResource Tran.State.RevisionRequested.Bg}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding StockStatus}" Value="품절">
+                                                            <Setter Property="Background" Value="{StaticResource Tran.State.Cancelled.Bg}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="{Binding StockDisplayText}" FontSize="11">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
-                                                        <Setter Property="Text" Value="&#x2705;"/>
+                                                        <Setter Property="Foreground" Value="{StaticResource Tran.State.Confirmed.Fg}"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding StockStatus}" Value="부족">
-                                                                <Setter Property="Text" Value="&#x26A0;&#xFE0F;"/>
+                                                                <Setter Property="Foreground" Value="{StaticResource Tran.State.RevisionRequested.Fg}"/>
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding StockStatus}" Value="품절">
-                                                                <Setter Property="Text" Value="&#x274C;"/>
+                                                                <Setter Property="Foreground" Value="{StaticResource Tran.State.Cancelled.Fg}"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
                                                 </TextBlock.Style>
                                             </TextBlock>
-                                            <TextBlock Text="{Binding StockDisplayText}" FontSize="12">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Foreground" Value="{StaticResource Tran.Success}"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding StockStatus}" Value="부족">
-                                                                <Setter Property="Foreground" Value="{StaticResource Tran.Warning}"/>
-                                                            </DataTrigger>
-                                                            <DataTrigger Binding="{Binding StockStatus}" Value="품절">
-                                                                <Setter Property="Foreground" Value="{StaticResource Tran.Danger}"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                        </StackPanel>
+                                        </Border>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -532,7 +533,7 @@
                             <DataGridTemplateColumn Header="상태" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Border CornerRadius="6" Padding="8,4"
+                                        <Border CornerRadius="3" Padding="8,4"
                                                 HorizontalAlignment="Center">
                                             <Border.Style>
                                                 <Style TargetType="Border">

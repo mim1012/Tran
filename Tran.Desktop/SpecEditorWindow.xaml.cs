@@ -1,4 +1,5 @@
 using System.Windows;
+using MahApps.Metro.Controls;
 using Tran.Desktop.ViewModels;
 
 namespace Tran.Desktop;
@@ -7,7 +8,7 @@ namespace Tran.Desktop;
 /// 규격 입력 다이얼로그
 /// DocumentItemViewModel.Specs 컬렉션을 편집
 /// </summary>
-public partial class SpecEditorWindow : Window
+public partial class SpecEditorWindow : MetroWindow
 {
     private readonly SpecEditorViewModel _viewModel;
 

@@ -1,11 +1,12 @@
 using System.Windows;
 using System.Windows.Controls;
+using MahApps.Metro.Controls;
 using Tran.Core.Services;
 using Tran.Desktop.ViewModels;
 
 namespace Tran.Desktop;
 
-public partial class DataImportWindow : Window
+public partial class DataImportWindow : MetroWindow
 {
     public DataImportWindow()
     {

@@ -47,8 +47,10 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="200"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="&#x1F50D;" FontSize="14"
-                                   VerticalAlignment="Center" Margin="8,0,5,0"/>
+                        <Path Grid.Column="0" Data="{StaticResource Tran.Icon.Search}"
+                              Fill="{StaticResource Tran.Neutral.400}"
+                              Width="14" Height="14" Stretch="Uniform"
+                              VerticalAlignment="Center" Margin="8,0,5,0"/>
                         <TextBox Grid.Column="1"
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                  Background="Transparent"
@@ -62,7 +64,7 @@
 
                 <!-- 재고 조정 버튼 -->
                 <Button Grid.Column="3"
-                        Content="&#x1F4CB; F5 재고 조정"
+                        Content="F5 재고 조정"
                         Click="AdjustButton_Click"
                         Style="{StaticResource Tran.WarningButton}"/>
             </Grid>
@@ -70,14 +72,17 @@
 
         <!-- 부족 재고 알림 배너 -->
         <Border Grid.Row="2" VerticalAlignment="Top" Panel.ZIndex="1"
-                Background="#FFF4E5" BorderBrush="#E67700" BorderThickness="0,0,0,1"
+                Background="{StaticResource Tran.Warning.Light}" BorderBrush="{StaticResource Tran.Warning.Dark}" BorderThickness="0,0,0,1"
                 Padding="15,8" Margin="15,0"
                 Visibility="{Binding HasLowStockAlert, Converter={x:Static local:BoolToVisibilityConverter.Instance}}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#x26A0;&#xFE0F;" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <Path Data="{StaticResource Tran.Icon.Warning}"
+                      Fill="#E67700"
+                      Width="14" Height="14" Stretch="Uniform"
+                      VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <TextBlock Text="{Binding LowStockAlertMessage}"
                            FontSize="13" FontWeight="SemiBold"
-                           Foreground="#E67700" VerticalAlignment="Center"
+                           Foreground="{StaticResource Tran.Warning.Dark}" VerticalAlignment="Center"
                            TextTrimming="CharacterEllipsis"/>
             </StackPanel>
         </Border>
@@ -149,29 +154,46 @@
                 <DataGridTemplateColumn Header="상태" Width="100" SortMemberPath="StockStatusOrder">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock HorizontalAlignment="Center"
-                                       FontSize="13" FontWeight="SemiBold">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Text" Value="--"/>
-                                        <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.400}"/>
+                            <Border CornerRadius="3" Padding="6,2" HorizontalAlignment="Center">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{StaticResource Tran.Neutral.50}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding StockStatus}" Value="정상">
-                                                <Setter Property="Text" Value="&#x2705; 정상"/>
-                                                <Setter Property="Foreground" Value="{StaticResource Tran.Success}"/>
+                                                <Setter Property="Background" Value="{StaticResource Tran.State.Confirmed.Bg}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding StockStatus}" Value="부족">
-                                                <Setter Property="Text" Value="&#x26A0;&#xFE0F; 부족"/>
-                                                <Setter Property="Foreground" Value="{StaticResource Tran.Warning}"/>
+                                                <Setter Property="Background" Value="{StaticResource Tran.State.RevisionRequested.Bg}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding StockStatus}" Value="품절">
-                                                <Setter Property="Text" Value="&#x274C; 품절"/>
-                                                <Setter Property="Foreground" Value="{StaticResource Tran.Danger}"/>
+                                                <Setter Property="Background" Value="{StaticResource Tran.State.Cancelled.Bg}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
+                                </Border.Style>
+                                <TextBlock FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="--"/>
+                                            <Setter Property="Foreground" Value="{StaticResource Tran.Neutral.400}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding StockStatus}" Value="정상">
+                                                    <Setter Property="Text" Value="정상"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource Tran.State.Confirmed.Fg}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding StockStatus}" Value="부족">
+                                                    <Setter Property="Text" Value="부족"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource Tran.State.RevisionRequested.Fg}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding StockStatus}" Value="품절">
+                                                    <Setter Property="Text" Value="품절"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource Tran.State.Cancelled.Fg}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

@@ -18,8 +18,8 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        // 전역 폰트 설정
-        var fontFamily = new FontFamily("Segoe UI Variable, Segoe UI, sans-serif");
+        // 전역 폰트 설정 (Pretendard → Segoe UI 폴백)
+        var fontFamily = new FontFamily("pack://application:,,,/Fonts/#Pretendard, Segoe UI, sans-serif");
         TextElement.FontFamilyProperty.OverrideMetadata(
             typeof(TextElement),
             new FrameworkPropertyMetadata(fontFamily));

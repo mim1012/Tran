@@ -129,15 +129,15 @@
             <!-- 이번달 매입 -->
             <Border Grid.Column="2" Style="{StaticResource Tran.SummaryCard}"
                     Background="#F3EEFA"
-                    BorderBrush="#8B5CF6"
+                    BorderBrush="{StaticResource Tran.Accent.Purchase}"
                     Margin="4,0">
                 <StackPanel HorizontalAlignment="Center">
                     <TextBlock Text="이번달 매입" FontSize="11"
-                               Foreground="#8B5CF6"
+                               Foreground="{StaticResource Tran.Accent.Purchase}"
                                HorizontalAlignment="Center" Margin="0,0,0,4"/>
                     <TextBlock Text="{Binding MonthPurchases, StringFormat={}{0:N0}원}"
                                FontSize="18" FontWeight="Bold"
-                               Foreground="#8B5CF6"
+                               Foreground="{StaticResource Tran.Accent.Purchase}"
                                HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
@@ -292,7 +292,7 @@
                                 <Style TargetType="TextBlock">
                                     <Setter Property="TextAlignment" Value="Right"/>
                                     <Setter Property="Padding" Value="0,0,8,0"/>
-                                    <Setter Property="Foreground" Value="#8B5CF6"/>
+                                    <Setter Property="Foreground" Value="{StaticResource Tran.Accent.Purchase}"/>
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
@@ -374,7 +374,7 @@
                                     <Style TargetType="TextBlock">
                                         <Setter Property="TextAlignment" Value="Right"/>
                                         <Setter Property="Padding" Value="0,0,6,0"/>
-                                        <Setter Property="Foreground" Value="#8B5CF6"/>
+                                        <Setter Property="Foreground" Value="{StaticResource Tran.Accent.Purchase}"/>
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
@@ -509,7 +509,7 @@
                                             </TextBlock>
 
                                             <TextBlock Grid.Row="1" Grid.Column="0" FontSize="11" Foreground="{StaticResource Tran.Neutral.500}" Text="매입액" Margin="0,2"/>
-                                            <TextBlock Grid.Row="1" Grid.Column="1" FontSize="13" FontWeight="Bold" Foreground="#8B5CF6" HorizontalAlignment="Right">
+                                            <TextBlock Grid.Row="1" Grid.Column="1" FontSize="13" FontWeight="Bold" Foreground="{StaticResource Tran.Accent.Purchase}" HorizontalAlignment="Right">
                                                 <Run Text="{Binding SelectedProduct.TotalPurchaseAmount, StringFormat={}{0:N0}, Mode=OneWay}"/>
                                             </TextBlock>
 
@@ -749,7 +749,7 @@
                                     <Style TargetType="TextBlock">
                                         <Setter Property="TextAlignment" Value="Right"/>
                                         <Setter Property="Padding" Value="0,0,6,0"/>
-                                        <Setter Property="Foreground" Value="#8B5CF6"/>
+                                        <Setter Property="Foreground" Value="{StaticResource Tran.Accent.Purchase}"/>
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
@@ -853,7 +853,7 @@
                                         <TextBlock Grid.Column="3"
                                                    Text="{Binding PurchaseAmount, StringFormat={}{0:N0}}"
                                                    FontSize="12"
-                                                   Foreground="#8B5CF6"
+                                                   Foreground="{StaticResource Tran.Accent.Purchase}"
                                                    TextAlignment="Right"
                                                    VerticalAlignment="Center"
                                                    Padding="0,0,8,0"/>
@@ -902,7 +902,7 @@
 
                             <StackPanel Grid.Column="1" HorizontalAlignment="Center">
                                 <TextBlock Text="합계 매입" FontSize="10" Foreground="{StaticResource Tran.Neutral.400}" HorizontalAlignment="Center"/>
-                                <TextBlock FontSize="14" FontWeight="Bold" Foreground="#8B5CF6" HorizontalAlignment="Center"
+                                <TextBlock FontSize="14" FontWeight="Bold" Foreground="{StaticResource Tran.Accent.Purchase}" HorizontalAlignment="Center"
                                            Text="{Binding TrendTotalPurchases, StringFormat={}{0:N0}}"/>
                             </StackPanel>
 
