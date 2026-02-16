@@ -1,0 +1,675 @@
+@page "/documents"
+@inject IDbContextFactory<TranDbContext> DbFactory
+@inject IStateTransitionService StateTransitionService
+@inject AppStateService AppState
+
+<PageTitle>거래명세표 - Tran ERP</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">거래명세표 관리</h1>
+        <p class="page-description">거래명세표를 작성하고 관리합니다</p>
+    </div>
+    <div class="btn-group">
+        <button class="btn btn-primary" @onclick="ShowCreateDialog">+ 새 거래명세표</button>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card" style="margin-bottom:16px;">
+    <div class="card-body">
+        <div class="filter-bar">
+            <select class="form-control form-select" @bind="filterState">
+                <option value="">전체 상태</option>
+                <option value="Draft">작성중</option>
+                <option value="Sent">발송됨</option>
+                <option value="Received">수신됨</option>
+                <option value="Confirmed">확정</option>
+                <option value="RevisionRequested">수정요청</option>
+                <option value="Superseded">대체됨</option>
+                <option value="Cancelled">취소</option>
+            </select>
+            <input type="text" class="form-control" placeholder="문서번호 또는 거래처 검색..." @bind="searchText" @bind:event="oninput" />
+            <button class="btn btn-secondary" @onclick="LoadDocuments">검색</button>
+        </div>
+    </div>
+</div>
+
+<!-- Documents Table -->
+<div class="card">
+    <div class="card-body" style="padding:0;">
+        @if (isLoading)
+        {
+            <div class="loading-spinner"><div class="spinner"></div></div>
+        }
+        else
+        {
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>상태</th>
+                        <th>문서번호</th>
+                        <th>발신 거래처</th>
+                        <th>수신 거래처</th>
+                        <th class="text-right">총금액</th>
+                        <th>거래일</th>
+                        <th>버전</th>
+                        <th>작업</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var doc in filteredDocuments)
+                    {
+                        <tr>
+                            <td><span class="pill @GetStatePillClass(doc.State)">@GetStateDisplayName(doc.State)</span></td>
+                            <td><strong>@doc.DocumentId</strong></td>
+                            <td>@doc.FromCompanyId</td>
+                            <td>@doc.ToCompanyId</td>
+                            <td class="text-right amount">@doc.TotalAmount.ToString("N0")원</td>
+                            <td>@doc.TransactionDate.ToString("yyyy-MM-dd")</td>
+                            <td class="text-center">V@doc.VersionNumber</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-secondary" @onclick="() => ViewDocument(doc)">상세</button>
+                                    @if (doc.State == DocumentState.Draft && doc.FromCompanyId == AppState.CurrentCompanyId)
+                                    {
+                                        <button class="btn btn-sm btn-primary" @onclick="() => SendDocument(doc)" disabled="@isSending">발송</button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!filteredDocuments.Any())
+                    {
+                        <tr>
+                            <td colspan="8">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">📄</div>
+                                    <div class="empty-state-text">거래명세표가 없습니다</div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<!-- Detail Modal -->
+@if (showDetailModal && selectedDocument != null)
+{
+    <div class="modal-backdrop" @onclick="CloseDetailModal">
+        <div class="modal-dialog" @onclick:stopPropagation="true" style="max-width:720px;">
+            <div class="modal-header">
+                <h3 class="modal-title">거래명세표 상세 - @selectedDocument.DocumentId</h3>
+                <button class="modal-close" @onclick="CloseDetailModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid">
+                    <span class="detail-label">상태</span>
+                    <span class="detail-value"><span class="pill @GetStatePillClass(selectedDocument.State)">@GetStateDisplayName(selectedDocument.State)</span></span>
+                    <span class="detail-label">발신 거래처</span>
+                    <span class="detail-value">@selectedDocument.FromCompanyId</span>
+                    <span class="detail-label">수신 거래처</span>
+                    <span class="detail-value">@selectedDocument.ToCompanyId</span>
+                    <span class="detail-label">거래일</span>
+                    <span class="detail-value">@selectedDocument.TransactionDate.ToString("yyyy-MM-dd")</span>
+                    <span class="detail-label">총금액</span>
+                    <span class="detail-value amount">@selectedDocument.TotalAmount.ToString("N0")원</span>
+                    <span class="detail-label">버전</span>
+                    <span class="detail-value">V@selectedDocument.VersionNumber</span>
+                    <span class="detail-label">작성자</span>
+                    <span class="detail-value">@selectedDocument.CreatedBy</span>
+                    <span class="detail-label">메모</span>
+                    <span class="detail-value">@(selectedDocument.Memo ?? "-")</span>
+                </div>
+
+                <div style="margin-top:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <h4 style="font-size:15px;font-weight:600;margin:0;">품목 목록</h4>
+                        @if (IsDetailEditable)
+                        {
+                            <button class="btn btn-sm btn-secondary" @onclick="AddDetailItem">+ 품목 추가</button>
+                        }
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width:30%">품목명</th>
+                                <th class="text-right" style="width:15%">수량</th>
+                                <th class="text-right" style="width:20%">단가</th>
+                                <th class="text-right" style="width:20%">금액</th>
+                                @if (IsDetailEditable)
+                                {
+                                    <th style="width:15%"></th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in documentItems)
+                            {
+                                @if (IsDetailEditable)
+                                {
+                                    <tr>
+                                        <td><input type="text" class="form-control" @bind="item.ItemName" /></td>
+                                        <td><input type="number" class="form-control text-right" min="1" @bind="item.Quantity"
+                                                   @bind:event="oninput" @bind:after="() => RecalculateDetailItem(item)" /></td>
+                                        <td><input type="number" class="form-control text-right" min="0" @bind="item.UnitPrice"
+                                                   @bind:event="oninput" @bind:after="() => RecalculateDetailItem(item)" /></td>
+                                        <td class="text-right amount">@item.LineAmount.ToString("N0")원</td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-secondary" style="color:#e74c3c;" @onclick="() => RemoveDetailItem(item)">삭제</button>
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td>@item.ItemName</td>
+                                        <td class="text-right">@item.Quantity.ToString("N0")</td>
+                                        <td class="text-right">@item.UnitPrice.ToString("N0")원</td>
+                                        <td class="text-right amount">@item.LineAmount.ToString("N0")원</td>
+                                    </tr>
+                                }
+                            }
+                            @if (!documentItems.Any())
+                            {
+                                <tr><td colspan="@(IsDetailEditable ? 5 : 4)" style="text-align:center;color:#999;padding:16px;">품목이 없습니다</td></tr>
+                            }
+                        </tbody>
+                        @if (documentItems.Any())
+                        {
+                            <tfoot>
+                                <tr style="font-weight:600;background:#f8f9fa;">
+                                    <td colspan="3" class="text-right">합계</td>
+                                    <td class="text-right amount">@documentItems.Sum(i => i.LineAmount).ToString("N0")원</td>
+                                    @if (IsDetailEditable)
+                                    {
+                                        <td></td>
+                                    }
+                                </tr>
+                            </tfoot>
+                        }
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @if (IsDetailEditable)
+                {
+                    <button class="btn btn-primary" @onclick="SaveDetailItems" disabled="@isSaving">@(isSaving ? "저장 중..." : "품목 저장")</button>
+                }
+                <button class="btn btn-secondary" @onclick="CloseDetailModal">닫기</button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Create Modal -->
+@if (showCreateModal)
+{
+    <div class="modal-backdrop" @onclick="CloseCreateModal">
+        <div class="modal-dialog" @onclick:stopPropagation="true" style="max-width:800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">새 거래명세표 작성</h3>
+                <button class="modal-close" @onclick="CloseCreateModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">수신 거래처</label>
+                    <select class="form-control form-select" @bind="newToCompanyId">
+                        <option value="">거래처 선택</option>
+                        @foreach (var company in companies)
+                        {
+                            <option value="@company.CompanyId">@company.CompanyName</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">거래일</label>
+                    <input type="date" class="form-control" @bind="newTransactionDate" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">메모</label>
+                    <textarea class="form-control" rows="2" @bind="newMemo"></textarea>
+                </div>
+
+                <!-- 품목 목록 -->
+                <div style="margin-top:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <h4 style="font-size:15px;font-weight:600;margin:0;">품목 목록</h4>
+                        <button class="btn btn-sm btn-secondary" @onclick="AddNewItem">+ 품목 추가</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width:30%">품목명</th>
+                                <th class="text-right" style="width:15%">수량</th>
+                                <th class="text-right" style="width:20%">단가</th>
+                                <th class="text-right" style="width:20%">금액</th>
+                                <th style="width:15%"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in newDocumentItems)
+                            {
+                                <tr>
+                                    <td>
+                                        <select class="form-control form-select" value="@item.ItemName"
+                                                @onchange="e => OnProductSelected(item, e)">
+                                            <option value="">직접 입력</option>
+                                            @foreach (var p in products)
+                                            {
+                                                <option value="@p.ProductName">@p.ProductName (@p.Unit)</option>
+                                            }
+                                        </select>
+                                        @if (string.IsNullOrEmpty(item.ItemName) || !products.Any(p => p.ProductName == item.ItemName))
+                                        {
+                                            <input type="text" class="form-control" style="margin-top:4px;" placeholder="품목명 입력"
+                                                   @bind="item.ItemName" />
+                                        }
+                                    </td>
+                                    <td><input type="number" class="form-control text-right" min="1" @bind="item.Quantity"
+                                               @bind:event="oninput" @bind:after="RecalculateNewTotal" /></td>
+                                    <td><input type="number" class="form-control text-right" min="0" @bind="item.UnitPrice"
+                                               @bind:event="oninput" @bind:after="RecalculateNewTotal" /></td>
+                                    <td class="text-right amount">@((item.Quantity * item.UnitPrice).ToString("N0"))원</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-secondary" style="color:#e74c3c;" @onclick="() => RemoveNewItem(item)">삭제</button>
+                                    </td>
+                                </tr>
+                            }
+                            @if (!newDocumentItems.Any())
+                            {
+                                <tr><td colspan="5" style="text-align:center;color:#999;padding:16px;">품목을 추가해주세요</td></tr>
+                            }
+                        </tbody>
+                        @if (newDocumentItems.Any())
+                        {
+                            <tfoot>
+                                <tr style="font-weight:600;background:#f8f9fa;">
+                                    <td colspan="3" class="text-right">합계</td>
+                                    <td class="text-right amount">@newDocumentItems.Sum(i => i.Quantity * i.UnitPrice).ToString("N0")원</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        }
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" @onclick="CloseCreateModal">취소</button>
+                <button class="btn btn-primary" @onclick="CreateDocument" disabled="@isSaving">@(isSaving ? "저장 중..." : "저장")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(alertMessage))
+{
+    <div class="toast-container">
+        <div class="toast @alertClass">
+            @alertMessage
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private bool isSaving;
+    private bool isSending;
+    private List<Document> documents = new();
+    private List<Company> companies = new();
+    private string filterState = "";
+    private string searchText = "";
+    private string alertMessage = "";
+    private string alertClass = "";
+
+    // Detail modal
+    private bool showDetailModal;
+    private Document? selectedDocument;
+    private List<DocumentItem> documentItems = new();
+
+    // Create modal
+    private bool showCreateModal;
+    private string newToCompanyId = "";
+    private DateTime newTransactionDate = DateTime.Today;
+    private string newMemo = "";
+    private List<DocumentItem> newDocumentItems = new();
+    private List<Product> products = new();
+
+    private IEnumerable<Document> filteredDocuments => documents
+        .Where(d => string.IsNullOrEmpty(filterState) || d.State.ToString() == filterState)
+        .Where(d => string.IsNullOrEmpty(searchText) ||
+            d.DocumentId.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+            d.FromCompanyId.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+            d.ToCompanyId.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadDocuments();
+            using var context = await DbFactory.CreateDbContextAsync();
+            companies = await context.Companies.Where(c => c.IsActive).ToListAsync();
+            products = await context.Products.Where(p => p.IsActive).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"데이터 로드 실패: {ex.Message}", "alert-error");
+        }
+    }
+
+    private async Task LoadDocuments()
+    {
+        isLoading = true;
+        try
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            documents = await context.Documents
+                .Where(d => d.FromCompanyId == AppState.CurrentCompanyId || d.ToCompanyId == AppState.CurrentCompanyId)
+                .OrderByDescending(d => d.CreatedAt)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"문서 로드 실패: {ex.Message}", "alert-error");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task ViewDocument(Document doc)
+    {
+        try
+        {
+            if (doc.FromCompanyId != AppState.CurrentCompanyId && doc.ToCompanyId != AppState.CurrentCompanyId)
+            {
+                ShowAlert("접근 권한이 없습니다.", "alert-error");
+                return;
+            }
+
+            selectedDocument = doc;
+            using var context = await DbFactory.CreateDbContextAsync();
+            documentItems = await context.DocumentItems
+                .Where(i => i.DocumentId == doc.DocumentId)
+                .ToListAsync();
+            deletedItemIds.Clear();
+            showDetailModal = true;
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"상세 조회 실패: {ex.Message}", "alert-error");
+        }
+    }
+
+    private void CloseDetailModal()
+    {
+        showDetailModal = false;
+        selectedDocument = null;
+    }
+
+    // Detail editable check
+    private bool IsDetailEditable => selectedDocument != null
+        && selectedDocument.State == DocumentState.Draft
+        && selectedDocument.FromCompanyId == AppState.CurrentCompanyId;
+
+    // Detail item tracking
+    private List<string> deletedItemIds = new();
+
+    private void ShowCreateDialog()
+    {
+        newToCompanyId = "";
+        newTransactionDate = DateTime.Today;
+        newMemo = "";
+        newDocumentItems = new();
+        showCreateModal = true;
+    }
+
+    private void AddNewItem()
+    {
+        newDocumentItems.Add(new DocumentItem { Quantity = 1, UnitPrice = 0 });
+    }
+
+    private void RemoveNewItem(DocumentItem item)
+    {
+        newDocumentItems.Remove(item);
+    }
+
+    private void OnProductSelected(DocumentItem item, ChangeEventArgs e)
+    {
+        var name = e.Value?.ToString() ?? "";
+        var product = products.FirstOrDefault(p => p.ProductName == name);
+        if (product != null)
+        {
+            item.ItemName = product.ProductName;
+            item.UnitPrice = product.DefaultPrice;
+        }
+        else
+        {
+            item.ItemName = "";
+        }
+    }
+
+    private void RecalculateNewTotal() { /* binding triggers re-render */ }
+
+    private void AddDetailItem()
+    {
+        documentItems.Add(new DocumentItem
+        {
+            ItemId = Guid.NewGuid().ToString("N"),
+            DocumentId = selectedDocument!.DocumentId,
+            Quantity = 1,
+            UnitPrice = 0
+        });
+    }
+
+    private void RemoveDetailItem(DocumentItem item)
+    {
+        if (!string.IsNullOrEmpty(item.ItemId))
+            deletedItemIds.Add(item.ItemId);
+        documentItems.Remove(item);
+    }
+
+    private void RecalculateDetailItem(DocumentItem item)
+    {
+        item.CalculateLineAmount();
+    }
+
+    private async Task SaveDetailItems()
+    {
+        if (selectedDocument == null) return;
+        isSaving = true;
+        try
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+
+            // Delete removed items
+            if (deletedItemIds.Any())
+            {
+                var toDelete = await context.DocumentItems
+                    .Where(i => deletedItemIds.Contains(i.ItemId))
+                    .ToListAsync();
+                context.DocumentItems.RemoveRange(toDelete);
+            }
+
+            foreach (var item in documentItems)
+            {
+                item.CalculateLineAmount();
+                var existing = await context.DocumentItems.FindAsync(item.ItemId);
+                if (existing != null)
+                {
+                    existing.ItemName = item.ItemName;
+                    existing.Quantity = item.Quantity;
+                    existing.UnitPrice = item.UnitPrice;
+                    existing.LineAmount = item.LineAmount;
+                }
+                else
+                {
+                    item.DocumentId = selectedDocument.DocumentId;
+                    context.DocumentItems.Add(item);
+                }
+            }
+
+            // Update document total
+            var doc = await context.Documents.FindAsync(selectedDocument.DocumentId);
+            if (doc != null)
+            {
+                doc.TotalAmount = documentItems.Sum(i => i.LineAmount);
+            }
+
+            await context.SaveChangesAsync();
+            deletedItemIds.Clear();
+            await LoadDocuments();
+            ShowAlert("품목이 저장되었습니다.", "alert-success");
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"품목 저장 실패: {ex.Message}", "alert-error");
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void CloseCreateModal() => showCreateModal = false;
+
+    private async Task CreateDocument()
+    {
+        if (string.IsNullOrEmpty(newToCompanyId))
+        {
+            ShowAlert("수신 거래처를 선택해주세요.", "alert-warning");
+            return;
+        }
+
+        isSaving = true;
+        try
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            var docId = $"DOC-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..6].ToUpper()}";
+            var newDoc = new Document
+            {
+                DocumentId = docId,
+                FromCompanyId = AppState.CurrentCompanyId,
+                ToCompanyId = newToCompanyId,
+                TransactionDate = newTransactionDate,
+                Memo = string.IsNullOrEmpty(newMemo) ? null : newMemo,
+                State = DocumentState.Draft,
+                CreatedBy = AppState.CurrentUserId,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            // Add items
+            foreach (var item in newDocumentItems)
+            {
+                item.ItemId = Guid.NewGuid().ToString("N");
+                item.DocumentId = docId;
+                item.CalculateLineAmount();
+                context.DocumentItems.Add(item);
+            }
+            newDoc.TotalAmount = newDocumentItems.Sum(i => i.LineAmount);
+
+            context.Documents.Add(newDoc);
+            await context.SaveChangesAsync();
+
+            showCreateModal = false;
+            await LoadDocuments();
+            ShowAlert("거래명세표가 생성되었습니다.", "alert-success");
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"생성 실패: {ex.Message}", "alert-error");
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task SendDocument(Document doc)
+    {
+        if (doc.FromCompanyId != AppState.CurrentCompanyId)
+        {
+            ShowAlert("본인 회사의 문서만 발송할 수 있습니다.", "alert-error");
+            return;
+        }
+
+        isSending = true;
+        try
+        {
+            // P0 fix: fresh entity load in same DbContext scope to avoid detached entity issues
+            using var context = await DbFactory.CreateDbContextAsync();
+            var freshDoc = await context.Documents.FindAsync(doc.DocumentId);
+            if (freshDoc == null)
+            {
+                ShowAlert("문서를 찾을 수 없습니다.", "alert-error");
+                return;
+            }
+
+            var result = await StateTransitionService.TransitionAsync(
+                freshDoc, DocumentState.Sent, AppState.CurrentUserId, "웹에서 발송");
+
+            if (result.Success)
+            {
+                if (result.StateLogs.Any())
+                    context.DocumentStateLogs.AddRange(result.StateLogs);
+                if (result.NewVersionDocument != null)
+                    context.Documents.Add(result.NewVersionDocument);
+                await context.SaveChangesAsync();
+                await LoadDocuments();
+                ShowAlert("거래명세표가 발송되었습니다.", "alert-success");
+            }
+            else
+            {
+                ShowAlert(result.ErrorMessage ?? "상태 전이에 실패했습니다.", "alert-error");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"발송 실패: {ex.Message}", "alert-error");
+        }
+        finally
+        {
+            isSending = false;
+        }
+    }
+
+    private void ShowAlert(string message, string cssClass)
+    {
+        alertMessage = message;
+        alertClass = cssClass;
+        _ = InvokeAsync(async () =>
+        {
+            await Task.Delay(3000);
+            alertMessage = "";
+            StateHasChanged();
+        });
+    }
+
+    private string GetStatePillClass(DocumentState state) => state switch
+    {
+        DocumentState.Draft => "pill-draft",
+        DocumentState.Sent => "pill-sent",
+        DocumentState.Received => "pill-pending",
+        DocumentState.Confirmed => "pill-confirmed",
+        DocumentState.RevisionRequested => "pill-pending",
+        DocumentState.Superseded => "pill-expired",
+        DocumentState.Cancelled => "pill-cancelled",
+        _ => "pill-draft"
+    };
+
+    private string GetStateDisplayName(DocumentState state) => state switch
+    {
+        DocumentState.Draft => "작성중",
+        DocumentState.Sent => "발송됨",
+        DocumentState.Received => "수신됨",
+        DocumentState.Confirmed => "확정",
+        DocumentState.Cancelled => "취소",
+        DocumentState.Superseded => "대체됨",
+        DocumentState.RevisionRequested => "수정요청",
+        _ => state.ToString()
+    };
+}
