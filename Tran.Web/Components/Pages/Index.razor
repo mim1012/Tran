@@ -181,6 +181,13 @@ else
     </div>
 }
 
+@if (!string.IsNullOrEmpty(alertMessage))
+{
+    <div class="toast-container">
+        <div class="toast @alertClass">@alertMessage</div>
+    </div>
+}
+
 @code {
     private bool isLoading = true;
     private int companyCount;
@@ -192,43 +199,66 @@ else
     private List<Sale> recentSales = new();
     private List<Purchase> recentPurchases = new();
 
+    private string alertMessage = "";
+    private string alertClass = "";
+
+    private void ShowAlert(string message, string cssClass)
+    {
+        alertMessage = message;
+        alertClass = cssClass;
+        _ = InvokeAsync(async () =>
+        {
+            await Task.Delay(3000);
+            alertMessage = "";
+            StateHasChanged();
+        });
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-        var monthStart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        try
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            var monthStart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
 
-        companyCount = await context.Companies.CountAsync(c => c.IsActive);
-        productCount = await context.Products.CountAsync(p => p.IsActive);
+            companyCount = await context.Companies.CountAsync(c => c.IsActive);
+            productCount = await context.Products.CountAsync(p => p.IsActive);
 
-        monthlySalesAmount = await context.Sales
-            .Where(s => s.SaleDate >= monthStart && s.State == SaleState.Confirmed)
-            .SumAsync(s => s.TotalAmount);
+            monthlySalesAmount = await context.Sales
+                .Where(s => s.SaleDate >= monthStart && s.State == SaleState.Confirmed)
+                .SumAsync(s => s.TotalAmount);
 
-        monthlyPurchaseAmount = await context.Purchases
-            .Where(p => p.PurchaseDate >= monthStart && p.State == PurchaseState.Delivered)
-            .SumAsync(p => p.TotalAmount);
+            monthlyPurchaseAmount = await context.Purchases
+                .Where(p => p.PurchaseDate >= monthStart && p.State == PurchaseState.Delivered)
+                .SumAsync(p => p.TotalAmount);
 
-        recentDocuments = await context.Documents
-            .OrderByDescending(d => d.CreatedAt)
-            .Take(5)
-            .ToListAsync();
+            recentDocuments = await context.Documents
+                .OrderByDescending(d => d.CreatedAt)
+                .Take(5)
+                .ToListAsync();
 
-        recentOrders = await context.Orders
-            .OrderByDescending(o => o.OrderDate)
-            .Take(5)
-            .ToListAsync();
+            recentOrders = await context.Orders
+                .OrderByDescending(o => o.OrderDate)
+                .Take(5)
+                .ToListAsync();
 
-        recentSales = await context.Sales
-            .OrderByDescending(s => s.SaleDate)
-            .Take(5)
-            .ToListAsync();
+            recentSales = await context.Sales
+                .OrderByDescending(s => s.SaleDate)
+                .Take(5)
+                .ToListAsync();
 
-        recentPurchases = await context.Purchases
-            .OrderByDescending(p => p.PurchaseDate)
-            .Take(5)
-            .ToListAsync();
+            recentPurchases = await context.Purchases
+                .OrderByDescending(p => p.PurchaseDate)
+                .Take(5)
+                .ToListAsync();
 
-        isLoading = false;
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"대시보드 데이터 로드 실패: {ex.Message}", "toast-error");
+            isLoading = false;
+        }
     }
 
     private string GetDocStatePillClass(DocumentState state) => state switch

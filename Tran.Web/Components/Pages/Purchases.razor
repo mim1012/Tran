@@ -145,9 +145,16 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" @onclick="() => showCreateModal = false">취소</button>
-                <button class="btn btn-primary" @onclick="CreatePurchase">저장</button>
+                <button class="btn btn-primary" @onclick="CreatePurchase" disabled="@isSaving">저장</button>
             </div>
         </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(alertMessage))
+{
+    <div class="toast-container">
+        <div class="toast @alertClass">@alertMessage</div>
     </div>
 }
 
@@ -166,6 +173,10 @@
     private bool showCreateModal;
     private Purchase newPurchase = new() { PurchaseDate = DateTime.Today };
 
+    private bool isSaving;
+    private string alertMessage = "";
+    private string alertClass = "";
+
     private IEnumerable<Purchase> filteredPurchases => purchases
         .Where(p => string.IsNullOrEmpty(filterState) || p.State.ToString() == filterState)
         .Where(p => string.IsNullOrEmpty(searchText) ||
@@ -173,26 +184,50 @@
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-        companies = await context.Companies.Where(c => c.IsActive).ToListAsync();
-        companyNames = companies.ToDictionary(c => c.CompanyId, c => c.CompanyName);
-        await LoadPurchases();
+        try
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            companies = await context.Companies.Where(c => c.IsActive).ToListAsync();
+            companyNames = companies.ToDictionary(c => c.CompanyId, c => c.CompanyName);
+            await LoadPurchases();
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"데이터 로드 실패: {ex.Message}", "alert-error");
+        }
     }
 
     private async Task LoadPurchases()
     {
-        isLoading = true;
-        using var context = await DbFactory.CreateDbContextAsync();
-        purchases = await context.Purchases.OrderByDescending(p => p.PurchaseDate).ToListAsync();
-        isLoading = false;
+        try
+        {
+            isLoading = true;
+            using var context = await DbFactory.CreateDbContextAsync();
+            purchases = await context.Purchases.OrderByDescending(p => p.PurchaseDate).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"구매 목록 로드 실패: {ex.Message}", "alert-error");
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private async Task ViewPurchase(Purchase p)
     {
-        selectedPurchase = p;
-        using var context = await DbFactory.CreateDbContextAsync();
-        purchaseItems = await context.PurchaseItems.Where(i => i.PurchaseId == p.PurchaseId).ToListAsync();
-        showDetailModal = true;
+        try
+        {
+            selectedPurchase = p;
+            using var context = await DbFactory.CreateDbContextAsync();
+            purchaseItems = await context.PurchaseItems.Where(i => i.PurchaseId == p.PurchaseId).ToListAsync();
+            showDetailModal = true;
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"구매 상세 로드 실패: {ex.Message}", "alert-error");
+        }
     }
 
     private void ShowCreateDialog()
@@ -204,13 +239,25 @@
     private async Task CreatePurchase()
     {
         if (string.IsNullOrEmpty(newPurchase.CompanyId)) return;
-        using var context = await DbFactory.CreateDbContextAsync();
-        newPurchase.State = PurchaseState.PendingDelivery;
-        newPurchase.CreatedAt = DateTime.UtcNow;
-        context.Purchases.Add(newPurchase);
-        await context.SaveChangesAsync();
-        showCreateModal = false;
-        await LoadPurchases();
+        isSaving = true;
+        try
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            newPurchase.State = PurchaseState.PendingDelivery;
+            newPurchase.CreatedAt = DateTime.UtcNow;
+            context.Purchases.Add(newPurchase);
+            await context.SaveChangesAsync();
+            showCreateModal = false;
+            await LoadPurchases();
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"저장 실패: {ex.Message}", "alert-error");
+        }
+        finally
+        {
+            isSaving = false;
+        }
     }
 
     private string GetCompanyName(string id) => companyNames.TryGetValue(id, out var n) ? n : id;
@@ -232,4 +279,16 @@
         PurchaseState.Cancelled => "취소",
         _ => s.ToString()
     };
+
+    private void ShowAlert(string message, string cssClass)
+    {
+        alertMessage = message;
+        alertClass = cssClass;
+        _ = InvokeAsync(async () =>
+        {
+            await Task.Delay(3000);
+            alertMessage = "";
+            StateHasChanged();
+        });
+    }
 }

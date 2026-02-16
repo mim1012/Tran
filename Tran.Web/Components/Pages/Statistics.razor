@@ -118,6 +118,13 @@ else
     </div>
 }
 
+@if (!string.IsNullOrEmpty(alertMessage))
+{
+    <div class="toast-container">
+        <div class="toast @alertClass">@alertMessage</div>
+    </div>
+}
+
 @code {
     private bool isLoading = true;
     private DateTime startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
@@ -129,57 +136,91 @@ else
     private List<CompanyStat> salesByCompany = new();
     private List<ProductStat> salesByProduct = new();
 
-    protected override async Task OnInitializedAsync() => await LoadStatistics();
+    private string alertMessage = "";
+    private string alertClass = "";
+
+    private void ShowAlert(string message, string cssClass)
+    {
+        alertMessage = message;
+        alertClass = cssClass;
+        _ = InvokeAsync(async () =>
+        {
+            await Task.Delay(3000);
+            alertMessage = "";
+            StateHasChanged();
+        });
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadStatistics();
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"초기화 실패: {ex.Message}", "toast-error");
+            isLoading = false;
+        }
+    }
 
     private async Task LoadStatistics()
     {
-        isLoading = true;
-        using var context = await DbFactory.CreateDbContextAsync();
+        try
+        {
+            isLoading = true;
+            using var context = await DbFactory.CreateDbContextAsync();
 
-        var confirmedSales = await context.Sales
-            .Where(s => s.SaleDate >= startDate && s.SaleDate <= endDate && s.State == SaleState.Confirmed)
-            .ToListAsync();
+            var confirmedSales = await context.Sales
+                .Where(s => s.SaleDate >= startDate && s.SaleDate <= endDate && s.State == SaleState.Confirmed)
+                .ToListAsync();
 
-        var deliveredPurchases = await context.Purchases
-            .Where(p => p.PurchaseDate >= startDate && p.PurchaseDate <= endDate && p.State == PurchaseState.Delivered)
-            .ToListAsync();
+            var deliveredPurchases = await context.Purchases
+                .Where(p => p.PurchaseDate >= startDate && p.PurchaseDate <= endDate && p.State == PurchaseState.Delivered)
+                .ToListAsync();
 
-        totalSales = confirmedSales.Sum(s => s.TotalAmount);
-        totalPurchases = deliveredPurchases.Sum(p => p.TotalAmount);
-        salesCount = confirmedSales.Count;
+            totalSales = confirmedSales.Sum(s => s.TotalAmount);
+            totalPurchases = deliveredPurchases.Sum(p => p.TotalAmount);
+            salesCount = confirmedSales.Count;
 
-        var companyNames = await context.Companies.ToDictionaryAsync(c => c.CompanyId, c => c.CompanyName);
+            var companyNames = await context.Companies.ToDictionaryAsync(c => c.CompanyId, c => c.CompanyName);
 
-        salesByCompany = confirmedSales
-            .GroupBy(s => s.CompanyId)
-            .Select(g => new CompanyStat
-            {
-                CompanyName = companyNames.TryGetValue(g.Key, out var n) ? n : g.Key,
-                Amount = g.Sum(s => s.TotalAmount),
-                Count = g.Count()
-            })
-            .OrderByDescending(x => x.Amount)
-            .Take(10)
-            .ToList();
+            salesByCompany = confirmedSales
+                .GroupBy(s => s.CompanyId)
+                .Select(g => new CompanyStat
+                {
+                    CompanyName = companyNames.TryGetValue(g.Key, out var n) ? n : g.Key,
+                    Amount = g.Sum(s => s.TotalAmount),
+                    Count = g.Count()
+                })
+                .OrderByDescending(x => x.Amount)
+                .Take(10)
+                .ToList();
 
-        var saleIds = confirmedSales.Select(s => s.SaleId).ToList();
-        var saleItems = await context.SaleItems
-            .Where(i => saleIds.Contains(i.SaleId))
-            .ToListAsync();
+            var saleIds = confirmedSales.Select(s => s.SaleId).ToList();
+            var saleItems = await context.SaleItems
+                .Where(i => saleIds.Contains(i.SaleId))
+                .ToListAsync();
 
-        salesByProduct = saleItems
-            .GroupBy(i => i.ProductName)
-            .Select(g => new ProductStat
-            {
-                ProductName = g.Key,
-                Amount = g.Sum(i => i.LineAmount),
-                Quantity = g.Sum(i => i.Quantity)
-            })
-            .OrderByDescending(x => x.Amount)
-            .Take(10)
-            .ToList();
+            salesByProduct = saleItems
+                .GroupBy(i => i.ProductName)
+                .Select(g => new ProductStat
+                {
+                    ProductName = g.Key,
+                    Amount = g.Sum(i => i.LineAmount),
+                    Quantity = g.Sum(i => i.Quantity)
+                })
+                .OrderByDescending(x => x.Amount)
+                .Take(10)
+                .ToList();
 
-        isLoading = false;
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"통계 로드 실패: {ex.Message}", "toast-error");
+            isLoading = false;
+        }
     }
 
     private class CompanyStat

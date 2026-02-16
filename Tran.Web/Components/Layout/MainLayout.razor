@@ -1,6 +1,13 @@
 @inherits LayoutComponentBase
 @inject AppStateService AppState
+@inject NavigationManager Navigation
 
+@if (!AppState.IsInitialized)
+{
+    <p>리디렉션 중...</p>
+}
+else
+{
 <div class="app-container">
     <nav class="sidebar">
         <div class="sidebar-header">
@@ -73,7 +80,7 @@
                 <span class="user-icon">👤</span>
                 <div>
                     <div class="user-name">@AppState.CurrentUserName</div>
-                    <div class="user-role">관리자</div>
+                    <div class="user-role">@AppState.CurrentCompanyId</div>
                 </div>
             </div>
         </div>
@@ -93,3 +100,14 @@
         </div>
     </main>
 </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        if (!AppState.IsInitialized)
+        {
+            Navigation.NavigateTo("/login", forceLoad: false);
+        }
+    }
+}

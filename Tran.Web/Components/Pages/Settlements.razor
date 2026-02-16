@@ -90,14 +90,22 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" @onclick="() => showCreateModal = false">취소</button>
-                <button class="btn btn-primary" @onclick="CreateSettlement">저장</button>
+                <button class="btn btn-primary" @onclick="CreateSettlement" disabled="@isSaving">저장</button>
             </div>
         </div>
     </div>
 }
 
+@if (!string.IsNullOrEmpty(alertMessage))
+{
+    <div class="toast-container">
+        <div class="toast @alertClass">@alertMessage</div>
+    </div>
+}
+
 @code {
     private bool isLoading = true;
+    private bool isSaving;
     private List<Settlement> settlements = new();
     private List<Company> companies = new();
     private Dictionary<string, string> companyNames = new();
@@ -105,13 +113,36 @@
     private bool showCreateModal;
     private Settlement newSettlement = new();
 
+    private string alertMessage = "";
+    private string alertClass = "";
+
+    private void ShowAlert(string message, string cssClass)
+    {
+        alertMessage = message;
+        alertClass = cssClass;
+        _ = InvokeAsync(async () =>
+        {
+            await Task.Delay(3000);
+            alertMessage = "";
+            StateHasChanged();
+        });
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-        companies = await context.Companies.Where(c => c.IsActive).ToListAsync();
-        companyNames = companies.ToDictionary(c => c.CompanyId, c => c.CompanyName);
-        settlements = await context.Settlements.OrderByDescending(s => s.PeriodEnd).ToListAsync();
-        isLoading = false;
+        try
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            companies = await context.Companies.Where(c => c.IsActive).ToListAsync();
+            companyNames = companies.ToDictionary(c => c.CompanyId, c => c.CompanyName);
+            settlements = await context.Settlements.OrderByDescending(s => s.PeriodEnd).ToListAsync();
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"데이터 로드 실패: {ex.Message}", "toast-error");
+            isLoading = false;
+        }
     }
 
     private void ShowCreateDialog()
@@ -124,15 +155,36 @@
         showCreateModal = true;
     }
 
+    private async Task LoadSettlements()
+    {
+        using var context = await DbFactory.CreateDbContextAsync();
+        settlements = await context.Settlements.OrderByDescending(s => s.PeriodEnd).ToListAsync();
+    }
+
     private async Task CreateSettlement()
     {
         if (string.IsNullOrEmpty(newSettlement.CompanyId)) return;
-        using var context = await DbFactory.CreateDbContextAsync();
-        newSettlement.SettlementId = $"STL-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString()[..4].ToUpper()}";
-        context.Settlements.Add(newSettlement);
-        await context.SaveChangesAsync();
-        settlements.Insert(0, newSettlement);
-        showCreateModal = false;
+        if (isSaving) return;
+
+        try
+        {
+            isSaving = true;
+            using var context = await DbFactory.CreateDbContextAsync();
+            newSettlement.SettlementId = $"STL-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString()[..4].ToUpper()}";
+            context.Settlements.Add(newSettlement);
+            await context.SaveChangesAsync();
+            await LoadSettlements();
+            showCreateModal = false;
+            ShowAlert("정산이 성공적으로 등록되었습니다.", "toast-success");
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"정산 등록 실패: {ex.Message}", "toast-error");
+        }
+        finally
+        {
+            isSaving = false;
+        }
     }
 
     private string GetCompanyName(string id) => companyNames.TryGetValue(id, out var n) ? n : id;

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Tran.Data;
 using Tran.Core.Services;
@@ -9,16 +10,24 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// SQLite + EF Core (DbContextFactory for Blazor Server)
+// Authentication & Authorization
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/login";
+        options.LogoutPath = "/logout";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+    });
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
+
+// SQLite + EF Core (DbContextFactory only - Blazor Server best practice)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Data Source=tran.db";
 
 builder.Services.AddDbContextFactory<TranDbContext>(options =>
     options.UseSqlite(connectionString));
-
-// Also register TranDbContext directly for scoped services
-builder.Services.AddDbContext<TranDbContext>(options =>
-    options.UseSqlite(connectionString), ServiceLifetime.Scoped);
 
 // Register application services (Scoped - one per circuit/session)
 builder.Services.AddScoped<IOrderService, Tran.Data.Services.OrderService>();
@@ -41,7 +50,8 @@ var app = builder.Build();
 // Initialize database
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<TranDbContext>();
+    var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<TranDbContext>>();
+    using var context = await factory.CreateDbContextAsync();
     DatabaseInitializer.Initialize(context);
 }
 
@@ -53,6 +63,19 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// Security headers
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.Append("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    await next();
+});
+
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapRazorComponents<Tran.Web.Components.App>()

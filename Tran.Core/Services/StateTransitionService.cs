@@ -48,13 +48,13 @@ public class StateTransitionService : IStateTransitionService
         string changedBy,
         string? reason = null)
     {
-        // 0. UserContext 초기화 여부 검증
-        if (!UserContext.IsInitialized)
+        // 0. changedBy 검증 (웹 멀티유저 환경 대응: static UserContext 대신 파라미터 사용)
+        if (string.IsNullOrEmpty(changedBy))
         {
             return new StateTransitionResult
             {
                 Success = false,
-                ErrorMessage = "사용자 정보가 설정되지 않았습니다. 거래처를 먼저 선택해주세요."
+                ErrorMessage = "사용자 정보가 필요합니다. 거래처를 먼저 선택해주세요."
             };
         }
 

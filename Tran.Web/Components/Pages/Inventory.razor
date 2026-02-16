@@ -121,6 +121,13 @@ else
     </div>
 }
 
+@if (!string.IsNullOrEmpty(alertMessage))
+{
+    <div class="toast-container">
+        <div class="toast @alertClass">@alertMessage</div>
+    </div>
+}
+
 @code {
     private bool isLoading = true;
     private bool isLoadingTx = false;
@@ -131,34 +138,72 @@ else
     private List<InventoryTransaction> transactions = new();
     private Dictionary<int, Product> productMap = new();
 
+    private string alertMessage = "";
+    private string alertClass = "";
+
+    private void ShowAlert(string message, string cssClass)
+    {
+        alertMessage = message;
+        alertClass = cssClass;
+        _ = InvokeAsync(async () =>
+        {
+            await Task.Delay(3000);
+            alertMessage = "";
+            StateHasChanged();
+        });
+    }
+
     private IEnumerable<Tran.Core.Models.Inventory> filteredInventory => inventories
         .Where(i => string.IsNullOrEmpty(searchText) ||
             GetProductName(i.ProductId).Contains(searchText, StringComparison.OrdinalIgnoreCase));
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = await DbFactory.CreateDbContextAsync();
-        var products = await context.Products.ToListAsync();
-        productMap = products.ToDictionary(p => p.ProductId);
-        inventories = await context.Inventories.ToListAsync();
-        isLoading = false;
+        try
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            var products = await context.Products.ToListAsync();
+            productMap = products.ToDictionary(p => p.ProductId);
+            inventories = await context.Inventories.ToListAsync();
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"재고 데이터 로드 실패: {ex.Message}", "toast-error");
+            isLoading = false;
+        }
     }
 
     private async Task SwitchToHistory()
     {
-        activeTab = "history";
-        await LoadTransactions();
+        try
+        {
+            activeTab = "history";
+            await LoadTransactions();
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"이력 로드 실패: {ex.Message}", "toast-error");
+        }
     }
 
     private async Task LoadTransactions()
     {
-        isLoadingTx = true;
-        using var context = await DbFactory.CreateDbContextAsync();
-        transactions = await context.InventoryTransactions
-            .OrderByDescending(t => t.CreatedAt)
-            .Take(100)
-            .ToListAsync();
-        isLoadingTx = false;
+        try
+        {
+            isLoadingTx = true;
+            using var context = await DbFactory.CreateDbContextAsync();
+            transactions = await context.InventoryTransactions
+                .OrderByDescending(t => t.CreatedAt)
+                .Take(100)
+                .ToListAsync();
+            isLoadingTx = false;
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"입출고 이력 로드 실패: {ex.Message}", "toast-error");
+            isLoadingTx = false;
+        }
     }
 
     private string GetProductName(int id) => productMap.TryGetValue(id, out var p) ? p.ProductName : $"#{id}";

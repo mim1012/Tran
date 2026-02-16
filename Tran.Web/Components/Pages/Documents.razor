@@ -23,7 +23,10 @@
                 <option value="">전체 상태</option>
                 <option value="Draft">작성중</option>
                 <option value="Sent">발송됨</option>
+                <option value="Received">수신됨</option>
                 <option value="Confirmed">확정</option>
+                <option value="RevisionRequested">수정요청</option>
+                <option value="Superseded">대체됨</option>
                 <option value="Cancelled">취소</option>
             </select>
             <input type="text" class="form-control" placeholder="문서번호 또는 거래처 검색..." @bind="searchText" @bind:event="oninput" />
@@ -68,9 +71,9 @@
                             <td>
                                 <div class="btn-group">
                                     <button class="btn btn-sm btn-secondary" @onclick="() => ViewDocument(doc)">상세</button>
-                                    @if (doc.State == DocumentState.Draft)
+                                    @if (doc.State == DocumentState.Draft && doc.FromCompanyId == AppState.CurrentCompanyId)
                                     {
-                                        <button class="btn btn-sm btn-primary" @onclick="() => SendDocument(doc)">발송</button>
+                                        <button class="btn btn-sm btn-primary" @onclick="() => SendDocument(doc)" disabled="@isSending">발송</button>
                                     }
                                 </div>
                             </td>
@@ -167,7 +170,7 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">수신 거래처</label>
-                    <select class="form-control form-select" @bind="newDoc.ToCompanyId">
+                    <select class="form-control form-select" @bind="newToCompanyId">
                         <option value="">거래처 선택</option>
                         @foreach (var company in companies)
                         {
@@ -177,16 +180,16 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">거래일</label>
-                    <input type="date" class="form-control" @bind="newDoc.TransactionDate" />
+                    <input type="date" class="form-control" @bind="newTransactionDate" />
                 </div>
                 <div class="form-group">
                     <label class="form-label">메모</label>
-                    <textarea class="form-control" rows="3" @bind="newDoc.Memo"></textarea>
+                    <textarea class="form-control" rows="3" @bind="newMemo"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" @onclick="CloseCreateModal">취소</button>
-                <button class="btn btn-primary" @onclick="CreateDocument">저장</button>
+                <button class="btn btn-primary" @onclick="CreateDocument" disabled="@isSaving">@(isSaving ? "저장 중..." : "저장")</button>
             </div>
         </div>
     </div>
@@ -195,7 +198,7 @@
 @if (!string.IsNullOrEmpty(alertMessage))
 {
     <div class="toast-container">
-        <div class="toast @alertClass" style="background:var(--tran-bg-primary);border:1px solid var(--tran-border-light);">
+        <div class="toast @alertClass">
             @alertMessage
         </div>
     </div>
@@ -203,6 +206,8 @@
 
 @code {
     private bool isLoading = true;
+    private bool isSaving;
+    private bool isSending;
     private List<Document> documents = new();
     private List<Company> companies = new();
     private string filterState = "";
@@ -217,7 +222,9 @@
 
     // Create modal
     private bool showCreateModal;
-    private Document newDoc = new() { TransactionDate = DateTime.Today };
+    private string newToCompanyId = "";
+    private DateTime newTransactionDate = DateTime.Today;
+    private string newMemo = "";
 
     private IEnumerable<Document> filteredDocuments => documents
         .Where(d => string.IsNullOrEmpty(filterState) || d.State.ToString() == filterState)
@@ -228,29 +235,53 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadDocuments();
-        using var context = await DbFactory.CreateDbContextAsync();
-        companies = await context.Companies.Where(c => c.IsActive).ToListAsync();
+        try
+        {
+            await LoadDocuments();
+            using var context = await DbFactory.CreateDbContextAsync();
+            companies = await context.Companies.Where(c => c.IsActive).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"데이터 로드 실패: {ex.Message}", "alert-error");
+        }
     }
 
     private async Task LoadDocuments()
     {
         isLoading = true;
-        using var context = await DbFactory.CreateDbContextAsync();
-        documents = await context.Documents
-            .OrderByDescending(d => d.CreatedAt)
-            .ToListAsync();
-        isLoading = false;
+        try
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            documents = await context.Documents
+                .OrderByDescending(d => d.CreatedAt)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"문서 로드 실패: {ex.Message}", "alert-error");
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private async Task ViewDocument(Document doc)
     {
-        selectedDocument = doc;
-        using var context = await DbFactory.CreateDbContextAsync();
-        documentItems = await context.DocumentItems
-            .Where(i => i.DocumentId == doc.DocumentId)
-            .ToListAsync();
-        showDetailModal = true;
+        try
+        {
+            selectedDocument = doc;
+            using var context = await DbFactory.CreateDbContextAsync();
+            documentItems = await context.DocumentItems
+                .Where(i => i.DocumentId == doc.DocumentId)
+                .ToListAsync();
+            showDetailModal = true;
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"상세 조회 실패: {ex.Message}", "alert-error");
+        }
     }
 
     private void CloseDetailModal()
@@ -261,11 +292,9 @@
 
     private void ShowCreateDialog()
     {
-        newDoc = new Document
-        {
-            TransactionDate = DateTime.Today,
-            FromCompanyId = AppState.CurrentCompanyId
-        };
+        newToCompanyId = "";
+        newTransactionDate = DateTime.Today;
+        newMemo = "";
         showCreateModal = true;
     }
 
@@ -273,40 +302,91 @@
 
     private async Task CreateDocument()
     {
-        if (string.IsNullOrEmpty(newDoc.ToCompanyId))
+        if (string.IsNullOrEmpty(newToCompanyId))
         {
             ShowAlert("수신 거래처를 선택해주세요.", "alert-warning");
             return;
         }
 
-        using var context = await DbFactory.CreateDbContextAsync();
-        var docCount = await context.Documents.CountAsync() + 1;
-        newDoc.DocumentId = $"DOC-{DateTime.Now:yyyy}-{docCount:D4}";
-        newDoc.FromCompanyId = AppState.CurrentCompanyId;
-        newDoc.State = DocumentState.Draft;
-        newDoc.CreatedBy = AppState.CurrentUserId;
-        newDoc.CreatedAt = DateTime.UtcNow;
+        isSaving = true;
+        try
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            var docId = $"DOC-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..6].ToUpper()}";
+            var newDoc = new Document
+            {
+                DocumentId = docId,
+                FromCompanyId = AppState.CurrentCompanyId,
+                ToCompanyId = newToCompanyId,
+                TransactionDate = newTransactionDate,
+                Memo = string.IsNullOrEmpty(newMemo) ? null : newMemo,
+                State = DocumentState.Draft,
+                CreatedBy = AppState.CurrentUserId,
+                CreatedAt = DateTime.UtcNow
+            };
 
-        context.Documents.Add(newDoc);
-        await context.SaveChangesAsync();
+            context.Documents.Add(newDoc);
+            await context.SaveChangesAsync();
 
-        showCreateModal = false;
-        await LoadDocuments();
-        ShowAlert("거래명세표가 생성되었습니다.", "alert-success");
+            showCreateModal = false;
+            await LoadDocuments();
+            ShowAlert("거래명세표가 생성되었습니다.", "alert-success");
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"생성 실패: {ex.Message}", "alert-error");
+        }
+        finally
+        {
+            isSaving = false;
+        }
     }
 
     private async Task SendDocument(Document doc)
     {
-        var result = await StateTransitionService.TransitionAsync(doc, DocumentState.Sent, AppState.CurrentUserId, "웹에서 발송");
-        if (result.Success)
+        if (doc.FromCompanyId != AppState.CurrentCompanyId)
         {
+            ShowAlert("본인 회사의 문서만 발송할 수 있습니다.", "alert-error");
+            return;
+        }
+
+        isSending = true;
+        try
+        {
+            // P0 fix: fresh entity load in same DbContext scope to avoid detached entity issues
             using var context = await DbFactory.CreateDbContextAsync();
-            context.Documents.Update(doc);
-            if (result.StateLogs.Any())
-                context.DocumentStateLogs.AddRange(result.StateLogs);
-            await context.SaveChangesAsync();
-            await LoadDocuments();
-            ShowAlert("거래명세표가 발송되었습니다.", "alert-success");
+            var freshDoc = await context.Documents.FindAsync(doc.DocumentId);
+            if (freshDoc == null)
+            {
+                ShowAlert("문서를 찾을 수 없습니다.", "alert-error");
+                return;
+            }
+
+            var result = await StateTransitionService.TransitionAsync(
+                freshDoc, DocumentState.Sent, AppState.CurrentUserId, "웹에서 발송");
+
+            if (result.Success)
+            {
+                if (result.StateLogs.Any())
+                    context.DocumentStateLogs.AddRange(result.StateLogs);
+                if (result.NewVersionDocument != null)
+                    context.Documents.Add(result.NewVersionDocument);
+                await context.SaveChangesAsync();
+                await LoadDocuments();
+                ShowAlert("거래명세표가 발송되었습니다.", "alert-success");
+            }
+            else
+            {
+                ShowAlert(result.ErrorMessage ?? "상태 전이에 실패했습니다.", "alert-error");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"발송 실패: {ex.Message}", "alert-error");
+        }
+        finally
+        {
+            isSending = false;
         }
     }
 
@@ -314,10 +394,11 @@
     {
         alertMessage = message;
         alertClass = cssClass;
-        _ = Task.Delay(3000).ContinueWith(_ =>
+        _ = InvokeAsync(async () =>
         {
+            await Task.Delay(3000);
             alertMessage = "";
-            InvokeAsync(StateHasChanged);
+            StateHasChanged();
         });
     }
 
@@ -325,7 +406,10 @@
     {
         DocumentState.Draft => "pill-draft",
         DocumentState.Sent => "pill-sent",
+        DocumentState.Received => "pill-pending",
         DocumentState.Confirmed => "pill-confirmed",
+        DocumentState.RevisionRequested => "pill-pending",
+        DocumentState.Superseded => "pill-expired",
         DocumentState.Cancelled => "pill-cancelled",
         _ => "pill-draft"
     };
@@ -334,6 +418,7 @@
     {
         DocumentState.Draft => "작성중",
         DocumentState.Sent => "발송됨",
+        DocumentState.Received => "수신됨",
         DocumentState.Confirmed => "확정",
         DocumentState.Cancelled => "취소",
         DocumentState.Superseded => "대체됨",

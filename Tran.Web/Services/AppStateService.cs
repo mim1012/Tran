@@ -6,15 +6,35 @@ namespace Tran.Web.Services;
 /// </summary>
 public class AppStateService
 {
-    public string CurrentUserId { get; set; } = "USER001";
-    public string CurrentUserName { get; set; } = "관리자";
-    public string CurrentCompanyId { get; set; } = "COMP001";
-    public bool IsInitialized { get; set; } = true;
+    public string CurrentUserId { get; private set; } = "";
+    public string CurrentUserName { get; private set; } = "";
+    public string CurrentCompanyId { get; private set; } = "";
+    public bool IsInitialized { get; private set; }
 
     public string? SelectedCompanyId { get; set; }
     public string? SelectedCompanyName { get; set; }
 
     public event Action? OnStateChanged;
+
+    public void SetUser(string userId, string userName, string companyId)
+    {
+        CurrentUserId = userId;
+        CurrentUserName = userName;
+        CurrentCompanyId = companyId;
+        IsInitialized = true;
+        NotifyStateChanged();
+    }
+
+    public void Clear()
+    {
+        CurrentUserId = "";
+        CurrentUserName = "";
+        CurrentCompanyId = "";
+        IsInitialized = false;
+        SelectedCompanyId = null;
+        SelectedCompanyName = null;
+        NotifyStateChanged();
+    }
 
     public void NotifyStateChanged() => OnStateChanged?.Invoke();
 
