@@ -1,0 +1,227 @@
+@page "/inventory"
+@inject IDbContextFactory<TranDbContext> DbFactory
+
+<PageTitle>재고 관리 - Tran ERP</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">재고 관리</h1>
+        <p class="page-description">재고 현황과 입출고 이력을 관리합니다</p>
+    </div>
+</div>
+
+<div class="tab-bar">
+    <button class="tab-item @(activeTab == "stock" ? "active" : "")" @onclick='() => activeTab = "stock"'>재고 현황</button>
+    <button class="tab-item @(activeTab == "history" ? "active" : "")" @onclick="SwitchToHistory">입출고 이력</button>
+</div>
+
+@if (activeTab == "stock")
+{
+    <div class="card" style="margin-bottom:16px;">
+        <div class="card-body">
+            <div class="filter-bar">
+                <input type="text" class="form-control" placeholder="품목명 검색..." @bind="searchText" @bind:event="oninput" />
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body" style="padding:0;">
+            @if (isLoading)
+            {
+                <div class="loading-spinner"><div class="spinner"></div></div>
+            }
+            else
+            {
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>품목코드</th>
+                            <th>품목명</th>
+                            <th class="text-right">확정수량</th>
+                            <th class="text-right">입고대기</th>
+                            <th class="text-right">출고대기</th>
+                            <th class="text-right">가용수량</th>
+                            <th class="text-right">안전재고</th>
+                            <th>상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var inv in filteredInventory)
+                        {
+                            <tr>
+                                <td><strong>@GetProductCode(inv.ProductId)</strong></td>
+                                <td>@GetProductName(inv.ProductId)</td>
+                                <td class="text-right">@inv.ConfirmedQuantity.ToString("N0")</td>
+                                <td class="text-right">@inv.PendingInQuantity.ToString("N0")</td>
+                                <td class="text-right">@inv.PendingOutQuantity.ToString("N0")</td>
+                                <td class="text-right amount">@inv.AvailableQuantity.ToString("N0")</td>
+                                <td class="text-right">@inv.SafetyStock.ToString("N0")</td>
+                                <td>
+                                    @if (inv.AvailableQuantity <= inv.SafetyStock)
+                                    {
+                                        <span class="pill pill-cancelled">부족</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="pill pill-confirmed">정상</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        @if (!filteredInventory.Any())
+                        {
+                            <tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">🏭</div><div class="empty-state-text">재고 데이터가 없습니다</div></div></td></tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-body" style="padding:0;">
+            @if (isLoadingTx)
+            {
+                <div class="loading-spinner"><div class="spinner"></div></div>
+            }
+            else
+            {
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>일시</th>
+                            <th>품목</th>
+                            <th>유형</th>
+                            <th class="text-right">수량</th>
+                            <th>비고</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var tx in transactions)
+                        {
+                            <tr>
+                                <td>@tx.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>@GetProductName(tx.ProductId)</td>
+                                <td><span class="pill @GetTxPillClass(tx.Type)">@GetTxDisplayName(tx.Type)</span></td>
+                                <td class="text-right amount">@tx.Quantity.ToString("N0")</td>
+                                <td>@(tx.Note ?? "-")</td>
+                            </tr>
+                        }
+                        @if (!transactions.Any())
+                        {
+                            <tr><td colspan="5"><div class="empty-state"><div class="empty-state-text">입출고 이력이 없습니다</div></div></td></tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(alertMessage))
+{
+    <div class="toast-container">
+        <div class="toast @alertClass">@alertMessage</div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private bool isLoadingTx = false;
+    private string activeTab = "stock";
+    private string searchText = "";
+
+    private List<Tran.Core.Models.Inventory> inventories = new();
+    private List<InventoryTransaction> transactions = new();
+    private Dictionary<int, Product> productMap = new();
+
+    private string alertMessage = "";
+    private string alertClass = "";
+
+    private void ShowAlert(string message, string cssClass)
+    {
+        alertMessage = message;
+        alertClass = cssClass;
+        _ = InvokeAsync(async () =>
+        {
+            await Task.Delay(3000);
+            alertMessage = "";
+            StateHasChanged();
+        });
+    }
+
+    private IEnumerable<Tran.Core.Models.Inventory> filteredInventory => inventories
+        .Where(i => string.IsNullOrEmpty(searchText) ||
+            GetProductName(i.ProductId).Contains(searchText, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            var products = await context.Products.ToListAsync();
+            productMap = products.ToDictionary(p => p.ProductId);
+            inventories = await context.Inventories.ToListAsync();
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"재고 데이터 로드 실패: {ex.Message}", "toast-error");
+            isLoading = false;
+        }
+    }
+
+    private async Task SwitchToHistory()
+    {
+        try
+        {
+            activeTab = "history";
+            await LoadTransactions();
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"이력 로드 실패: {ex.Message}", "toast-error");
+        }
+    }
+
+    private async Task LoadTransactions()
+    {
+        try
+        {
+            isLoadingTx = true;
+            using var context = await DbFactory.CreateDbContextAsync();
+            transactions = await context.InventoryTransactions
+                .OrderByDescending(t => t.CreatedAt)
+                .Take(100)
+                .ToListAsync();
+            isLoadingTx = false;
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"입출고 이력 로드 실패: {ex.Message}", "toast-error");
+            isLoadingTx = false;
+        }
+    }
+
+    private string GetProductName(int id) => productMap.TryGetValue(id, out var p) ? p.ProductName : $"#{id}";
+    private string GetProductCode(int id) => productMap.TryGetValue(id, out var p) ? (p.ProductCode ?? $"#{id}") : $"#{id}";
+
+    private string GetTxPillClass(InventoryTransactionType t) => t switch
+    {
+        InventoryTransactionType.Inbound => "pill-confirmed",
+        InventoryTransactionType.Outbound => "pill-sent",
+        InventoryTransactionType.Adjustment => "pill-pending",
+        _ => "pill-draft"
+    };
+
+    private string GetTxDisplayName(InventoryTransactionType t) => t switch
+    {
+        InventoryTransactionType.Inbound => "입고",
+        InventoryTransactionType.Outbound => "출고",
+        InventoryTransactionType.Adjustment => "조정",
+        _ => t.ToString()
+    };
+}

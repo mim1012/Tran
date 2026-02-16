@@ -8,6 +8,7 @@ namespace Tran.Core.Models;
 public class Settlement
 {
     public string SettlementId { get; set; } = string.Empty;
+    public string OwnerCompanyId { get; set; } = string.Empty;
     public string CompanyId { get; set; } = string.Empty;
     public DateTime PeriodStart { get; set; }
     public DateTime PeriodEnd { get; set; }

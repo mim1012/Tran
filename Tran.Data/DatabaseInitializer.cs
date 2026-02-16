@@ -21,7 +21,7 @@ public static class DatabaseInitializer
     /// 의료기기 업종 ERP 샘플 데이터 생성
     /// 5개 카테고리, 20개 품목, 8개월치 판매/매입 데이터
     /// </summary>
-    public static void CreateErpSampleData(TranDbContext context)
+    public static void CreateErpSampleData(TranDbContext context, string ownerCompanyId = "COMP001")
     {
         if (context.Products.Any())
             return;
@@ -145,6 +145,7 @@ public static class DatabaseInitializer
 
                 var sale = new Sale
                 {
+                    OwnerCompanyId = ownerCompanyId,
                     CompanyId = customerId,
                     SaleDate = saleDate,
                     State = SaleState.Confirmed,
@@ -178,6 +179,7 @@ public static class DatabaseInitializer
             var qty = (decimal)random.Next(10, 30);
             var draftSale = new Sale
             {
+                OwnerCompanyId = ownerCompanyId,
                 CompanyId = saleCustomers[random.Next(saleCustomers.Length)],
                 SaleDate = today,
                 State = SaleState.Draft,
@@ -240,6 +242,7 @@ public static class DatabaseInitializer
 
                 var purchase = new Purchase
                 {
+                    OwnerCompanyId = ownerCompanyId,
                     CompanyId = supplierId,
                     PurchaseDate = purchDate,
                     State = PurchaseState.Delivered,
@@ -277,6 +280,7 @@ public static class DatabaseInitializer
 
             var pendingPurchase = new Purchase
             {
+                OwnerCompanyId = ownerCompanyId,
                 CompanyId = suppliers[random.Next(suppliers.Length)],
                 PurchaseDate = today.AddDays(-random.Next(1, 5)),
                 State = PurchaseState.PendingDelivery,
@@ -315,6 +319,7 @@ public static class DatabaseInitializer
 
             var order = new Order
             {
+                OwnerCompanyId = ownerCompanyId,
                 CompanyId = suppliers[random.Next(suppliers.Length)],
                 OrderDate = today.AddDays(-random.Next(0, 3)),
                 State = OrderState.Draft,
@@ -344,6 +349,7 @@ public static class DatabaseInitializer
 
             var order = new Order
             {
+                OwnerCompanyId = ownerCompanyId,
                 CompanyId = suppliers[random.Next(suppliers.Length)],
                 OrderDate = today.AddDays(-random.Next(10, 30)),
                 State = OrderState.Completed,

@@ -3,6 +3,7 @@ namespace Tran.Core.Models;
 public class Quotation
 {
     public int QuotationId { get; set; }
+    public string OwnerCompanyId { get; set; } = string.Empty;
     public string CompanyId { get; set; } = string.Empty;
     public DateTime QuotationDate { get; set; } = DateTime.Today;
     public DateTime? ValidUntil { get; set; }

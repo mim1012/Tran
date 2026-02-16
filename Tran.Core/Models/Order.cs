@@ -3,6 +3,7 @@ namespace Tran.Core.Models;
 public class Order
 {
     public int OrderId { get; set; }
+    public string OwnerCompanyId { get; set; } = string.Empty;
     public string CompanyId { get; set; } = string.Empty;
     public DateTime OrderDate { get; set; } = DateTime.Today;
     public OrderState State { get; set; } = OrderState.Draft;

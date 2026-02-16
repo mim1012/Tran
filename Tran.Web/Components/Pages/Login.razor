@@ -1,0 +1,132 @@
+@page "/login"
+@layout EmptyLayout
+@inject IDbContextFactory<TranDbContext> DbFactory
+@inject AppStateService AppState
+@inject NavigationManager Navigation
+
+<div class="login-container">
+    <div class="login-card">
+        <h1 class="login-title">Tran ERP</h1>
+        <p class="login-subtitle">거래 관리 시스템에 로그인</p>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-error">@errorMessage</div>
+        }
+
+        <div class="form-group">
+            <label class="form-label">회사 선택</label>
+            <select class="form-control form-select" @bind="selectedCompanyId">
+                <option value="">회사를 선택하세요</option>
+                @foreach (var company in companies)
+                {
+                    <option value="@company.CompanyId">@company.CompanyName (@company.BusinessNumber)</option>
+                }
+            </select>
+        </div>
+
+        <button class="btn btn-primary btn-block" @onclick="HandleLogin" disabled="@isLoading">
+            @(isLoading ? "로그인 중..." : "로그인")
+        </button>
+    </div>
+</div>
+
+<style>
+    .login-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #f5f6fa;
+    }
+    .login-card {
+        background: white;
+        border-radius: 12px;
+        padding: 40px;
+        width: 100%;
+        max-width: 420px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .login-title {
+        font-size: 28px;
+        font-weight: 700;
+        text-align: center;
+        margin: 0 0 4px;
+        color: #1a1a2e;
+    }
+    .login-subtitle {
+        font-size: 14px;
+        color: #6c757d;
+        text-align: center;
+        margin: 0 0 32px;
+    }
+    .btn-block {
+        width: 100%;
+        margin-top: 16px;
+        padding: 12px;
+        font-size: 16px;
+    }
+    .alert-error {
+        background: #fff4f4;
+        color: #dc3545;
+        border: 1px solid #fecdd3;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 16px;
+        font-size: 14px;
+    }
+</style>
+
+@code {
+    private List<Company> companies = new();
+    private string selectedCompanyId = "";
+    private string errorMessage = "";
+    private bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            companies = await context.Companies.Where(c => c.IsActive).OrderBy(c => c.CompanyName).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"데이터 로드 실패: {ex.Message}";
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        if (string.IsNullOrEmpty(selectedCompanyId))
+        {
+            errorMessage = "회사를 선택해주세요.";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = "";
+
+        try
+        {
+            using var context = await DbFactory.CreateDbContextAsync();
+            var company = await context.Companies.FindAsync(selectedCompanyId);
+            if (company == null)
+            {
+                errorMessage = "선택한 회사를 찾을 수 없습니다.";
+                return;
+            }
+
+            AppState.SetUser(company.CompanyId, company.CompanyName, company.CompanyId);
+            Navigation.NavigateTo("/", forceLoad: false);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"로그인 실패: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

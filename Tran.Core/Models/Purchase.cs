@@ -4,6 +4,7 @@ public class Purchase
 {
     public int PurchaseId { get; set; }
     public int? OrderId { get; set; }  // nullable: can exist without order
+    public string OwnerCompanyId { get; set; } = string.Empty;
     public string CompanyId { get; set; } = string.Empty;
     public DateTime PurchaseDate { get; set; } = DateTime.Today;
     public PurchaseState State { get; set; } = PurchaseState.PendingDelivery;
