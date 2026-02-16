@@ -311,7 +311,7 @@ export default function DocumentManagement() {
       <Topbar title="거래명세표" breadcrumb="거래명세표 관리" />
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">
           <div>
             <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-0.5">거래명세표 관리</h2>
             <p className="text-xs sm:text-[13px] text-gray-500">거래명세표 등록, 조회 및 상태 관리</p>
@@ -322,13 +322,13 @@ export default function DocumentManagement() {
         </div>
 
         {/* Filter */}
-        <div className="card p-4 sm:p-5 mb-4">
+        <div className="card p-4 sm:p-5 mb-4 sm:mb-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-[13px] font-bold text-gray-900 flex items-center gap-2">
               <i className="fas fa-filter text-primary text-xs"></i> 검색 필터
             </h3>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
             <div>
               <label className="form-label">상태</label>
               <select
@@ -375,7 +375,7 @@ export default function DocumentManagement() {
         </div>
 
         {/* Table Header */}
-        <div className="flex items-center justify-between mb-2.5">
+        <div className="flex items-center justify-between mb-3">
           <div className="text-[13px] text-gray-600">총 <strong className="text-primary font-bold">{filtered.length}</strong>건</div>
           <div className="flex gap-2">
             <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-[12px] font-semibold text-gray-600 hover:border-primary hover:text-primary hover:bg-blue-50/50 transition-all">

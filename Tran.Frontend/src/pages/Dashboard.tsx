@@ -96,7 +96,7 @@ export default function Dashboard() {
 
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mb-5 sm:mb-7">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-5 sm:mb-6">
           {summaryCards.map((card, idx) => (
             <div
               key={idx}
@@ -159,7 +159,7 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Orders Table */}
-        <div className="mb-5 sm:mb-7">
+        <div className="mb-5 sm:mb-6">
           <div className="flex items-center justify-between mb-3 sm:mb-3.5">
             <h2 className="text-[15px] sm:text-base font-bold text-gray-900">최근 발주 내역</h2>
             <div

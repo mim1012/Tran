@@ -5,12 +5,12 @@ export default function Settings() {
     <div className="flex-1 flex flex-col">
       <Topbar title="설정" breadcrumb="설정" />
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-        <div className="mb-5">
+        <div className="mb-5 sm:mb-6">
           <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-0.5">시스템 설정</h2>
           <p className="text-xs sm:text-[13px] text-gray-500">시스템 환경 및 사용자 설정 관리</p>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="card p-5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+          <div className="card p-4 sm:p-5">
             <h3 className="text-[14px] font-bold text-gray-900 mb-4 flex items-center gap-2"><i className="fas fa-building text-primary text-sm"></i> 회사 정보</h3>
             <div className="space-y-3.5">
               <div>
@@ -28,7 +28,7 @@ export default function Settings() {
             </div>
             <button className="btn-primary mt-4 text-[13px]">저장</button>
           </div>
-          <div className="card p-5">
+          <div className="card p-4 sm:p-5">
             <h3 className="text-[14px] font-bold text-gray-900 mb-4 flex items-center gap-2"><i className="fas fa-user-cog text-primary text-sm"></i> 사용자 설정</h3>
             <div className="space-y-3.5">
               <div>

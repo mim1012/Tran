@@ -180,7 +180,7 @@ export default function CompanySelection() {
       </div>
 
       {/* 거래처 카드 그리드 */}
-      <div className="card p-3 sm:p-5">
+      <div className="card p-4 sm:p-5">
         {loading ? (
           <div className="text-center py-16 text-gray-400 text-sm">
             <i className="fas fa-spinner fa-spin mr-2" />
@@ -212,7 +212,7 @@ export default function CompanySelection() {
 
         {/* Pagination - 공통 구조 */}
         {!loading && filtered.length > 0 && (
-          <div className="pagination flex-col sm:flex-row gap-2" style={{ marginTop: '16px', borderTop: '1px solid #f3f4f6', paddingTop: '12px' }}>
+          <div className="pagination flex-col sm:flex-row gap-2">
             <div className="info">
               {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, filtered.length)} / 총 {filtered.length}개
             </div>

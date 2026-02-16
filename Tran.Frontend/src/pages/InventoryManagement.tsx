@@ -73,7 +73,7 @@ export default function InventoryManagement() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5 sm:mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-5 sm:mb-6">
           {[
             { label: '전체 품목', value: summaryData.total, icon: 'fa-boxes-stacked', iconBg: '#EBF0F7', iconColor: '#2E4A7A', valueColor: '#111827' },
             { label: '정상 재고', value: summaryData.normal, icon: 'fa-check-circle', iconBg: '#E8F5E9', iconColor: '#27AE60', valueColor: '#27AE60' },

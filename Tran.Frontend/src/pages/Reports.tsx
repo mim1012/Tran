@@ -14,13 +14,13 @@ export default function Reports() {
     <div className="flex-1 flex flex-col">
       <Topbar title="리포트" breadcrumb="리포트" />
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-        <div className="mb-5">
+        <div className="mb-5 sm:mb-6">
           <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-0.5">리포트</h2>
           <p className="text-xs sm:text-[13px] text-gray-500">매출, 구매, 재고 분석 리포트</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {reportItems.map((item, idx) => (
-            <div key={idx} className="card p-5 cursor-pointer hover:shadow-lg transition-shadow group">
+            <div key={idx} className="card p-4 sm:p-5 cursor-pointer hover:shadow-lg transition-shadow group">
               <div className={`w-10 h-10 rounded-xl ${item.bgClass} ${item.textClass} flex items-center justify-center text-lg mb-3 group-hover:scale-110 transition-transform`}>
                 <i className={`fas ${item.icon}`}></i>
               </div>
