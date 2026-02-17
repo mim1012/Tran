@@ -26,31 +26,36 @@ const navSections: NavSection[] = [
     ],
   },
   {
-    title: '거래명세표',
+    title: '기준 정보 관리',
     items: [
-      { path: '/documents', icon: 'fa-file-invoice-dollar', label: '거래명세표' },
+      { path: '/companies', icon: 'fa-handshake', label: '거래처 관리' },
+      { path: '/products', icon: 'fa-boxes-stacked', label: '품목 관리' },
     ],
   },
   {
     title: '구매 관리',
     items: [
-      { path: '/orders', icon: 'fa-file-invoice', label: '발주 관리', badge: 5 },
+      { path: '/orders', icon: 'fa-paper-plane', label: '발주 관리', badge: 5 },
       { path: '/purchases', icon: 'fa-truck', label: '입고 관리' },
-      { path: '/companies', icon: 'fa-handshake', label: '거래처 관리' },
     ],
   },
   {
     title: '판매 관리',
     items: [
-      { path: '/quotations', icon: 'fa-file-alt', label: '견적 관리' },
+      { path: '/quotations', icon: 'fa-calculator', label: '견적 관리' },
       { path: '/sales', icon: 'fa-shopping-cart', label: '판매 관리' },
     ],
   },
   {
     title: '재고 관리',
     items: [
-      { path: '/products', icon: 'fa-boxes-stacked', label: '품목 관리' },
       { path: '/inventory', icon: 'fa-warehouse', label: '재고 현황' },
+    ],
+  },
+  {
+    title: '문서 관리',
+    items: [
+      { path: '/documents', icon: 'fa-file-invoice-dollar', label: '통합 문서함' },
     ],
   },
   {
