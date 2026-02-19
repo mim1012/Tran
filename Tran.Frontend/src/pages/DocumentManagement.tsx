@@ -3,24 +3,34 @@ import Topbar from '../components/layout/Topbar';
 import apiClient from '../services/api';
 import type { Document, Company, Product, CreateDocumentRequest, DocumentItemDto } from '../types';
 import { DocumentState } from '../types';
+import { useToastStore } from '../stores/toastStore';
+import ConfirmDialog from '../components/common/ConfirmDialog';
 
-const stateLabels: Record<number, { label: string; bg: string; text: string }> = {
-  [DocumentState.Draft]: { label: '작성중', bg: '#F0F0F0', text: '#555555' },
-  [DocumentState.Sent]: { label: '전송됨', bg: '#E8F1FF', text: '#1E5EFF' },
-  [DocumentState.Received]: { label: '수신됨', bg: '#E0F0FF', text: '#0066CC' },
-  [DocumentState.RevisionRequested]: { label: '수정요청', bg: '#FFF4E5', text: '#E67700' },
-  [DocumentState.Confirmed]: { label: '확정', bg: '#E6F4EA', text: '#1E7F34' },
-  [DocumentState.Superseded]: { label: '대체됨', bg: '#F0F0F0', text: '#999999' },
-  [DocumentState.Cancelled]: { label: '취소', bg: '#FEE', text: '#CC0000' },
+const stateLabels: Record<number, { label: string; cls: string }> = {
+  [DocumentState.Draft]: { label: '작성중', cls: 'draft' },
+  [DocumentState.Sent]: { label: '전송됨', cls: 'processing' },
+  [DocumentState.Received]: { label: '수신됨', cls: 'pending' },
+  [DocumentState.RevisionRequested]: { label: '수정요청', cls: 'pending' },
+  [DocumentState.Confirmed]: { label: '확정', cls: 'approved' },
+  [DocumentState.Superseded]: { label: '대체됨', cls: 'draft' },
+  [DocumentState.Cancelled]: { label: '취소', cls: 'rejected' },
 };
 
-export default function DocumentManagement() {
+const PAGE_SIZE = 10;
+
+interface DocumentManagementProps {
+  embedded?: boolean;
+  companyId?: string;
+}
+
+export default function DocumentManagement({ embedded, companyId }: DocumentManagementProps) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterState, setFilterState] = useState('all');
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Modal state
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -44,31 +54,46 @@ export default function DocumentManagement() {
   // Edit items state
   const [editItems, setEditItems] = useState<DocumentItemDto[]>([]);
 
+  // Confirm dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    docId: string;
+  }>({ open: false, docId: '' });
+
+  const addToast = useToastStore((s) => s.addToast);
+
   useEffect(() => {
     fetchDocuments();
     fetchCompanies();
     fetchProducts();
-  }, []);
+  }, [companyId]);
 
   const fetchDocuments = async () => {
     try {
-      const res = await apiClient.get('/documents');
+      const endpoint = companyId ? `/documents/company/${companyId}` : '/documents';
+      const res = await apiClient.get(endpoint);
       setDocuments(res.data.data || []);
-    } catch { /* fallback */ } finally { setLoading(false); }
+    } catch {
+      addToast({ type: 'error', message: '거래명세표를 불러올 수 없습니다.' });
+    } finally { setLoading(false); }
   };
 
   const fetchCompanies = async () => {
     try {
       const res = await apiClient.get('/companies');
       setCompanies(res.data.data || []);
-    } catch { /* ignore */ }
+    } catch {
+      addToast({ type: 'error', message: '거래처 목록을 불러올 수 없습니다.' });
+    }
   };
 
   const fetchProducts = async () => {
     try {
       const res = await apiClient.get('/products');
       setProducts((res.data.data || []).filter((p: Product) => p.isActive));
-    } catch { /* ignore */ }
+    } catch {
+      addToast({ type: 'error', message: '품목 목록을 불러올 수 없습니다.' });
+    }
   };
 
   const getCompanyName = (companyId: string) => {
@@ -85,17 +110,12 @@ export default function DocumentManagement() {
     return true;
   });
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   const badge = (state: number) => {
-    const s = stateLabels[state] || { label: String(state), bg: '#F0F0F0', text: '#555' };
-    return (
-      <span
-        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold"
-        style={{ backgroundColor: s.bg, color: s.text }}
-      >
-        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: s.text }}></span>
-        {s.label}
-      </span>
-    );
+    const s = stateLabels[state] || { label: String(state), cls: 'draft' };
+    return <span className={`status-badge ${s.cls}`}><span className="w-1.5 h-1.5 rounded-full bg-current" />{s.label}</span>;
   };
 
   // ── Create Document ──
@@ -103,7 +123,7 @@ export default function DocumentManagement() {
     try {
       const validItems = createForm.items.filter(i => i.itemName.trim());
       if (!createForm.toCompanyId || validItems.length === 0) {
-        alert('수신 거래처와 최소 1개 품목을 입력해주세요.');
+        addToast({ type: 'warning', message: '수신 거래처와 최소 1개 품목을 입력해주세요.' });
         return;
       }
       const request: CreateDocumentRequest = {
@@ -116,8 +136,9 @@ export default function DocumentManagement() {
       setShowCreateModal(false);
       resetCreateForm();
       fetchDocuments();
-    } catch (err: any) {
-      alert(err.response?.data?.message || '생성에 실패했습니다.');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || '생성에 실패했습니다.';
+      addToast({ type: 'error', message: msg });
     }
   };
 
@@ -155,7 +176,7 @@ export default function DocumentManagement() {
       setIsEditingItems(false);
       setShowDetailModal(true);
     } catch {
-      alert('문서 조회에 실패했습니다.');
+      addToast({ type: 'error', message: '문서 조회에 실패했습니다.' });
     }
   };
 
@@ -179,8 +200,9 @@ export default function DocumentManagement() {
       setSelectedDocument(res.data.data);
       setIsEditingItems(false);
       fetchDocuments();
-    } catch (err: any) {
-      alert(err.response?.data?.message || '품목 수정에 실패했습니다.');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || '품목 수정에 실패했습니다.';
+      addToast({ type: 'error', message: msg });
     }
   };
 
@@ -197,17 +219,24 @@ export default function DocumentManagement() {
   };
 
   // ── Send Document ──
-  const handleSend = async (docId: string) => {
-    if (!confirm('이 거래명세표를 전송하시겠습니까?')) return;
+  const handleSendClick = (docId: string) => {
+    setConfirmDialog({ open: true, docId });
+  };
+
+  const handleSendConfirm = async () => {
+    const docId = confirmDialog.docId;
+    setConfirmDialog({ open: false, docId: '' });
     try {
       await apiClient.post(`/documents/${docId}/send`);
+      addToast({ type: 'success', message: '거래명세표가 전송되었습니다.' });
       fetchDocuments();
       if (selectedDocument?.documentId === docId) {
         const res = await apiClient.get(`/documents/${docId}`);
         setSelectedDocument(res.data.data);
       }
-    } catch (err: any) {
-      alert(err.response?.data?.message || '전송에 실패했습니다.');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || '전송에 실패했습니다.';
+      addToast({ type: 'error', message: msg });
     }
   };
 
@@ -308,7 +337,7 @@ export default function DocumentManagement() {
 
   return (
     <div className="flex-1 flex flex-col">
-      <Topbar title="거래명세표" breadcrumb="거래명세표 관리" />
+      {!embedded && <Topbar title="거래명세표" breadcrumb="거래명세표 관리" />}
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">
@@ -321,12 +350,10 @@ export default function DocumentManagement() {
           </button>
         </div>
 
-        {/* Filter */}
+        {/* Filter Card */}
         <div className="card p-4 sm:p-5 mb-4 sm:mb-5">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-[13px] font-bold text-gray-900 flex items-center gap-2">
-              <i className="fas fa-filter text-primary text-xs"></i> 검색 필터
-            </h3>
+          <div className="filter-card-header">
+            <h3><i className="fas fa-filter" /> 검색 필터</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
             <div>
@@ -365,25 +392,17 @@ export default function DocumentManagement() {
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <button onClick={() => { setFilterState('all'); setSearchKeyword(''); }} className="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 text-[13px] font-semibold hover:bg-gray-200 transition-colors">
-              초기화
-            </button>
-            <button className="px-4 py-2 rounded-lg bg-primary text-white text-[13px] font-semibold shadow-sm hover:bg-primary-light transition-colors">
-              검색
-            </button>
+            <button onClick={() => { setFilterState('all'); setSearchKeyword(''); setCurrentPage(1); }} className="btn-reset">초기화</button>
+            <button className="btn-search"><i className="fas fa-search" /> 검색</button>
           </div>
         </div>
 
-        {/* Table Header */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-[13px] text-gray-600">총 <strong className="text-primary font-bold">{filtered.length}</strong>건</div>
-          <div className="flex gap-2">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-[12px] font-semibold text-gray-600 hover:border-primary hover:text-primary hover:bg-blue-50/50 transition-all">
-              <i className="fas fa-download"></i> <span className="hidden sm:inline">엑셀 다운로드</span>
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-[12px] font-semibold text-gray-600 hover:border-primary hover:text-primary hover:bg-blue-50/50 transition-all">
-              <i className="fas fa-print"></i> <span className="hidden sm:inline">인쇄</span>
-            </button>
+        {/* Table Count Bar */}
+        <div className="table-count-bar">
+          <div className="count">총 <strong>{filtered.length}</strong>건</div>
+          <div className="actions">
+            <button className="btn-util"><i className="fas fa-download" /> <span className="hidden sm:inline">엑셀 다운로드</span></button>
+            <button className="btn-util"><i className="fas fa-print" /> <span className="hidden sm:inline">인쇄</span></button>
           </div>
         </div>
 
@@ -392,7 +411,7 @@ export default function DocumentManagement() {
           <div className="overflow-x-auto">
             <table className="w-full" style={{ minWidth: '700px' }}>
               <thead>
-                <tr className="bg-gray-50">
+                <tr>
                   <th className="table-header">상태</th>
                   <th className="table-header">문서번호</th>
                   <th className="table-header">발신</th>
@@ -406,9 +425,9 @@ export default function DocumentManagement() {
               <tbody>
                 {loading ? (
                   <tr><td colSpan={8} className="px-5 py-10 text-center text-gray-400 text-[13px]">로딩 중...</td></tr>
-                ) : filtered.length === 0 ? (
+                ) : paginated.length === 0 ? (
                   <tr><td colSpan={8} className="px-5 py-10 text-center text-gray-400 text-[13px]">거래명세표가 없습니다.</td></tr>
-                ) : filtered.map(doc => (
+                ) : paginated.map(doc => (
                   <tr key={doc.documentId} className="hover:bg-gray-50/50 transition-colors">
                     <td className="table-cell">{badge(doc.state)}</td>
                     <td
@@ -426,7 +445,7 @@ export default function DocumentManagement() {
                       <div className="flex items-center gap-1">
                         {doc.state === DocumentState.Draft && (
                           <button
-                            onClick={() => handleSend(doc.documentId)}
+                            onClick={() => handleSendClick(doc.documentId)}
                             className="px-2.5 py-1 rounded text-[11px] font-semibold text-white bg-primary hover:bg-primary-light transition-colors"
                           >
                             전송
@@ -445,16 +464,15 @@ export default function DocumentManagement() {
               </tbody>
             </table>
           </div>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-4 sm:px-5 py-3 border-t border-gray-100">
-            <div className="text-[12px] text-gray-500">1-{filtered.length} / 총 {filtered.length}건</div>
-            <div className="flex gap-1">
-              <button className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 hover:border-primary hover:text-primary transition-colors">
-                <i className="fas fa-chevron-left text-[10px]"></i>
-              </button>
-              <button className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-[13px] font-semibold">1</button>
-              <button className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 hover:border-primary hover:text-primary transition-colors">
-                <i className="fas fa-chevron-right text-[10px]"></i>
-              </button>
+          {/* Pagination */}
+          <div className="pagination flex-col sm:flex-row gap-2">
+            <div className="info">{(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, filtered.length)} / 총 {filtered.length}건</div>
+            <div className="pages">
+              <button className="page-btn" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}><i className="fas fa-chevron-left" /></button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).slice(0, 5).map(p => (
+                <button key={p} className={`page-btn ${p === currentPage ? 'active' : ''}`} onClick={() => setCurrentPage(p)}>{p}</button>
+              ))}
+              <button className="page-btn" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}><i className="fas fa-chevron-right" /></button>
             </div>
           </div>
         </div>
@@ -530,6 +548,16 @@ export default function DocumentManagement() {
           </div>
         </div>
       )}
+
+      {/* ═══════ Confirm Dialog ═══════ */}
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title="거래명세표 전송"
+        message="이 거래명세표를 전송하시겠습니까?"
+        confirmLabel="전송"
+        onConfirm={handleSendConfirm}
+        onCancel={() => setConfirmDialog({ open: false, docId: '' })}
+      />
 
       {/* ═══════ Detail Modal ═══════ */}
       {showDetailModal && selectedDocument && (
@@ -622,7 +650,7 @@ export default function DocumentManagement() {
             <div className="flex justify-between px-4 sm:px-6 py-4 border-t border-gray-100">
               <div>
                 {selectedDocument.state === DocumentState.Draft && (
-                  <button onClick={() => handleSend(selectedDocument.documentId)} className="px-4 py-2 rounded-lg bg-primary text-white text-[13px] font-semibold shadow-sm hover:bg-primary-light transition-colors">
+                  <button onClick={() => handleSendClick(selectedDocument.documentId)} className="px-4 py-2 rounded-lg bg-primary text-white text-[13px] font-semibold shadow-sm hover:bg-primary-light transition-colors">
                     <i className="fas fa-paper-plane mr-1.5"></i>전송
                   </button>
                 )}

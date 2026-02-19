@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Topbar from '../components/layout/Topbar';
 import apiClient from '../services/api';
 import type { Order } from '../types';
+import { useToastStore } from '../stores/toastStore';
 
 const stateLabels: Record<string, { label: string; cls: string }> = {
   '0': { label: '작성중', cls: 'draft' },
@@ -14,7 +15,13 @@ const stateLabels: Record<string, { label: string; cls: string }> = {
 
 const PAGE_SIZE = 10;
 
-export default function OrderManagement() {
+interface OrderManagementProps {
+  embedded?: boolean;
+  companyId?: string;
+}
+
+export default function OrderManagement({ embedded, companyId }: OrderManagementProps) {
+  const addToast = useToastStore((s) => s.addToast);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterState, setFilterState] = useState('all');
@@ -23,13 +30,14 @@ export default function OrderManagement() {
   const [dateTo, setDateTo] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => { fetchOrders(); }, [companyId]);
 
   const fetchOrders = async () => {
     try {
-      const res = await apiClient.get('/orders/company/OWNER');
+      const endpoint = companyId ? `/orders/company/${companyId}` : '/orders/company/OWNER';
+      const res = await apiClient.get(endpoint);
       setOrders(res.data.data || []);
-    } catch { /* fallback */ } finally { setLoading(false); }
+    } catch { addToast({ type: 'error', message: '발주 데이터를 불러올 수 없습니다.' }); } finally { setLoading(false); }
   };
 
   const filtered = orders.filter(o => {
@@ -56,7 +64,7 @@ export default function OrderManagement() {
 
   return (
     <div className="flex-1 flex flex-col">
-      <Topbar title="발주 관리" breadcrumb="발주 관리" />
+      {!embedded && <Topbar title="발주 관리" breadcrumb="발주 관리" />}
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">

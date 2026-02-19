@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Topbar from '../components/layout/Topbar';
 import apiClient from '../services/api';
 import type { Quotation } from '../types';
+import { useToastStore } from '../stores/toastStore';
 
 const stateLabels: Record<string, { label: string; cls: string }> = {
   '0': { label: '작성중', cls: 'draft' },
@@ -14,7 +15,13 @@ const stateLabels: Record<string, { label: string; cls: string }> = {
 
 const PAGE_SIZE = 10;
 
-export default function QuotationManagement() {
+interface QuotationManagementProps {
+  embedded?: boolean;
+  companyId?: string;
+}
+
+export default function QuotationManagement({ embedded, companyId }: QuotationManagementProps) {
+  const addToast = useToastStore((s) => s.addToast);
   const [quotations, setQuotations] = useState<Quotation[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterState, setFilterState] = useState('all');
@@ -23,13 +30,14 @@ export default function QuotationManagement() {
   const [dateTo, setDateTo] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => { fetchQuotations(); }, []);
+  useEffect(() => { fetchQuotations(); }, [companyId]);
 
   const fetchQuotations = async () => {
     try {
-      const res = await apiClient.get('/quotations/company/OWNER');
+      const endpoint = companyId ? `/quotations/company/${companyId}` : '/quotations/company/OWNER';
+      const res = await apiClient.get(endpoint);
       setQuotations(res.data.data || []);
-    } catch { /* fallback */ } finally { setLoading(false); }
+    } catch { addToast({ type: 'error', message: '견적 데이터를 불러올 수 없습니다.' }); } finally { setLoading(false); }
   };
 
   const filtered = quotations.filter(q => {
@@ -56,7 +64,7 @@ export default function QuotationManagement() {
 
   return (
     <div className="flex-1 flex flex-col">
-      <Topbar title="견적 관리" breadcrumb="견적 관리" />
+      {!embedded && <Topbar title="견적 관리" breadcrumb="견적 관리" />}
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">

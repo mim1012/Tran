@@ -22,7 +22,7 @@ const navSections: NavSection[] = [
     title: '메인',
     items: [
       { path: '/', icon: 'fa-th-large', label: '대시보드' },
-      { path: '/workspace', icon: 'fa-briefcase', label: '작업 공간', badge: 0 },
+      { path: '/workspace', icon: 'fa-briefcase', label: '작업 공간' },
     ],
   },
   {

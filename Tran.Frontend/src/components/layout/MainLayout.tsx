@@ -8,7 +8,7 @@ export default function MainLayout() {
   return (
     <div className="flex min-h-screen">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0" style={{ background: '#F5F6F8' }}>
         {/* Mobile header bar */}
         <div
           className="flex lg:hidden items-center flex-shrink-0"
@@ -40,7 +40,15 @@ export default function MainLayout() {
             Tran ERP
           </div>
         </div>
-        <Outlet />
+        {/* Content area: gray gutter + white card container */}
+        <div className="flex-1 flex flex-col min-h-0 p-3 lg:p-8">
+          <div
+            className="flex-1 flex flex-col min-h-0 bg-white rounded-2xl overflow-hidden"
+            style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}
+          >
+            <Outlet />
+          </div>
+        </div>
       </div>
     </div>
   );

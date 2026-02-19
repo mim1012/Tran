@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Topbar from '../components/layout/Topbar';
 import apiClient from '../services/api';
 import type { Purchase } from '../types';
+import { useToastStore } from '../stores/toastStore';
 
 const stateLabels: Record<string, { label: string; cls: string }> = {
   '0': { label: '입고대기', cls: 'pending' },
@@ -12,7 +13,13 @@ const stateLabels: Record<string, { label: string; cls: string }> = {
 
 const PAGE_SIZE = 10;
 
-export default function PurchaseManagement() {
+interface PurchaseManagementProps {
+  embedded?: boolean;
+  companyId?: string;
+}
+
+export default function PurchaseManagement({ embedded, companyId }: PurchaseManagementProps) {
+  const addToast = useToastStore((s) => s.addToast);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterState, setFilterState] = useState('all');
@@ -21,13 +28,14 @@ export default function PurchaseManagement() {
   const [dateTo, setDateTo] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => { fetchPurchases(); }, []);
+  useEffect(() => { fetchPurchases(); }, [companyId]);
 
   const fetchPurchases = async () => {
     try {
-      const res = await apiClient.get('/purchases/company/OWNER');
+      const endpoint = companyId ? `/purchases/company/${companyId}` : '/purchases/company/OWNER';
+      const res = await apiClient.get(endpoint);
       setPurchases(res.data.data || []);
-    } catch { /* fallback */ } finally { setLoading(false); }
+    } catch { addToast({ type: 'error', message: '입고 데이터를 불러올 수 없습니다.' }); } finally { setLoading(false); }
   };
 
   const filtered = purchases.filter(p => {
@@ -54,7 +62,7 @@ export default function PurchaseManagement() {
 
   return (
     <div className="flex-1 flex flex-col">
-      <Topbar title="입고 관리" breadcrumb="입고 관리" />
+      {!embedded && <Topbar title="입고 관리" breadcrumb="입고 관리" />}
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">

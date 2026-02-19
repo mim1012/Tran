@@ -2,10 +2,17 @@ import { useEffect, useState } from 'react';
 import Topbar from '../components/layout/Topbar';
 import apiClient from '../services/api';
 import type { Product } from '../types';
+import { useToastStore } from '../stores/toastStore';
 
 const PAGE_SIZE = 10;
 
-export default function ProductManagement() {
+interface ProductManagementProps {
+  embedded?: boolean;
+  companyId?: string;
+}
+
+export default function ProductManagement({ embedded, companyId }: ProductManagementProps) {
+  const addToast = useToastStore((s) => s.addToast);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -13,13 +20,14 @@ export default function ProductManagement() {
   const [filterActive, setFilterActive] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => { fetchProducts(); }, []);
+  useEffect(() => { fetchProducts(); }, [companyId]);
 
   const fetchProducts = async () => {
     try {
-      const res = await apiClient.get('/products');
+      const endpoint = companyId ? `/products/company/${companyId}` : '/products';
+      const res = await apiClient.get(endpoint);
       setProducts(res.data.data || []);
-    } catch { /* fallback */ } finally { setLoading(false); }
+    } catch { addToast({ type: 'error', message: '품목 데이터를 불러올 수 없습니다.' }); } finally { setLoading(false); }
   };
 
   const filtered = products.filter(p => {
@@ -42,7 +50,7 @@ export default function ProductManagement() {
 
   return (
     <div className="flex-1 flex flex-col">
-      <Topbar title="품목 관리" breadcrumb="품목 관리" />
+      {!embedded && <Topbar title="품목 관리" breadcrumb="품목 관리" />}
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">

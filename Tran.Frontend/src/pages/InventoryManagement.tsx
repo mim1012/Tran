@@ -2,10 +2,17 @@ import { useEffect, useState } from 'react';
 import Topbar from '../components/layout/Topbar';
 import apiClient from '../services/api';
 import type { Inventory } from '../types';
+import { useToastStore } from '../stores/toastStore';
 
 const PAGE_SIZE = 10;
 
-export default function InventoryManagement() {
+interface InventoryManagementProps {
+  embedded?: boolean;
+  companyId?: string;
+}
+
+export default function InventoryManagement({ embedded, companyId }: InventoryManagementProps) {
+  const addToast = useToastStore((s) => s.addToast);
   const [inventory, setInventory] = useState<Inventory[]>([]);
   const [loading, setLoading] = useState(true);
   const [showLowOnly, setShowLowOnly] = useState(false);
@@ -13,13 +20,14 @@ export default function InventoryManagement() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => { fetchInventory(); }, []);
+  useEffect(() => { fetchInventory(); }, [companyId]);
 
   const fetchInventory = async () => {
     try {
-      const res = await apiClient.get('/inventory');
+      const endpoint = companyId ? `/inventory/company/${companyId}` : '/inventory';
+      const res = await apiClient.get(endpoint);
       setInventory(res.data.data || []);
-    } catch { /* fallback */ } finally { setLoading(false); }
+    } catch { addToast({ type: 'error', message: '재고 데이터를 불러올 수 없습니다.' }); } finally { setLoading(false); }
   };
 
   const filtered = inventory.filter(i => {
@@ -56,7 +64,7 @@ export default function InventoryManagement() {
 
   return (
     <div className="flex-1 flex flex-col">
-      <Topbar title="재고 현황" breadcrumb="재고 현황" />
+      {!embedded && <Topbar title="재고 현황" breadcrumb="재고 현황" />}
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Topbar from '../components/layout/Topbar';
 import apiClient from '../services/api';
 import type { Sale } from '../types';
+import { useToastStore } from '../stores/toastStore';
 
 const stateLabels: Record<string, { label: string; cls: string }> = {
   '0': { label: '작성중', cls: 'draft' },
@@ -11,7 +12,13 @@ const stateLabels: Record<string, { label: string; cls: string }> = {
 
 const PAGE_SIZE = 10;
 
-export default function SaleManagement() {
+interface SaleManagementProps {
+  embedded?: boolean;
+  companyId?: string;
+}
+
+export default function SaleManagement({ embedded, companyId }: SaleManagementProps) {
+  const addToast = useToastStore((s) => s.addToast);
   const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterState, setFilterState] = useState('all');
@@ -20,13 +27,14 @@ export default function SaleManagement() {
   const [dateTo, setDateTo] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => { fetchSales(); }, []);
+  useEffect(() => { fetchSales(); }, [companyId]);
 
   const fetchSales = async () => {
     try {
-      const res = await apiClient.get('/sales/company/OWNER');
+      const endpoint = companyId ? `/sales/company/${companyId}` : '/sales/company/OWNER';
+      const res = await apiClient.get(endpoint);
       setSales(res.data.data || []);
-    } catch { /* fallback */ } finally { setLoading(false); }
+    } catch { addToast({ type: 'error', message: '판매 데이터를 불러올 수 없습니다.' }); } finally { setLoading(false); }
   };
 
   const filtered = sales.filter(s => {
@@ -53,7 +61,7 @@ export default function SaleManagement() {
 
   return (
     <div className="flex-1 flex flex-col">
-      <Topbar title="판매 관리" breadcrumb="판매 관리" />
+      {!embedded && <Topbar title="판매 관리" breadcrumb="판매 관리" />}
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">

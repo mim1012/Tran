@@ -2,15 +2,19 @@ import { useEffect, useState, useRef } from 'react';
 import apiClient from '../../services/api';
 import type { Company } from '../../types';
 import { useWorkspaceStore } from '../../stores/workspaceStore';
+import { useToastStore } from '../../stores/toastStore';
+import ConfirmDialog from '../common/ConfirmDialog';
 
 export default function CompanySelection() {
   const { recentCompanies, openCompany, loadRecentCompanies } = useWorkspaceStore();
+  const addToast = useToastStore((s) => s.addToast);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [selectedType, setSelectedType] = useState<string>('전체');
   const [currentPage, setCurrentPage] = useState(1);
   const searchRef = useRef<HTMLInputElement>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; company: Company | null }>({ open: false, company: null });
 
   const PAGE_SIZE = 12;
 
@@ -35,6 +39,7 @@ export default function CompanySelection() {
       const res = await apiClient.get('/companies');
       setCompanies(res.data.data || []);
     } catch {
+      addToast({ type: 'error', message: '거래처 목록을 불러올 수 없습니다.' });
       setCompanies([
         { companyId: 'C001', companyName: '삼성전자', companyType: '고객사', businessNumber: '123-45-67890', address: '경기도 수원시 영통구', isActive: true, createdAt: '2026-01-01', representative: '이재용', phone: '031-200-1234' },
         { companyId: 'C002', companyName: 'LG화학', companyType: '공급사', businessNumber: '234-56-78901', address: '서울특별시 영등포구', isActive: true, createdAt: '2026-01-05', representative: '신학철', phone: '02-3773-1114' },
@@ -72,12 +77,20 @@ export default function CompanySelection() {
     openCompany(company);
   };
 
-  const handleDelete = async (company: Company) => {
-    if (!confirm(`'${company.companyName}'을(를) 삭제(비활성화)하시겠습니까?\n\n비활성화된 거래처는 목록에서 숨겨집니다.`)) return;
+  const handleDeleteClick = (company: Company) => {
+    setDeleteConfirm({ open: true, company });
+  };
+
+  const handleDeleteConfirm = async () => {
+    const company = deleteConfirm.company;
+    setDeleteConfirm({ open: false, company: null });
+    if (!company) return;
     try {
       await apiClient.delete(`/companies/${company.companyId}`);
+      addToast({ type: 'success', message: `'${company.companyName}'이(가) 비활성화되었습니다.` });
       fetchCompanies();
     } catch {
+      addToast({ type: 'error', message: '거래처 삭제에 실패했습니다.' });
       setCompanies(prev => prev.filter(c => c.companyId !== company.companyId));
     }
   };
@@ -204,7 +217,7 @@ export default function CompanySelection() {
                 key={company.companyId}
                 company={company}
                 onSelect={handleSelect}
-                onDelete={handleDelete}
+                onDelete={handleDeleteClick}
               />
             ))}
           </div>
@@ -244,6 +257,16 @@ export default function CompanySelection() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={deleteConfirm.open}
+        title="거래처 비활성화"
+        message={`'${deleteConfirm.company?.companyName || ''}'을(를) 삭제(비활성화)하시겠습니까?\n\n비활성화된 거래처는 목록에서 숨겨집니다.`}
+        confirmLabel="비활성화"
+        variant="danger"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteConfirm({ open: false, company: null })}
+      />
     </div>
   );
 }

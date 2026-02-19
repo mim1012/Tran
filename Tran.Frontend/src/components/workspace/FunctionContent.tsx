@@ -13,23 +13,24 @@ interface FunctionContentProps {
 
 export default function FunctionContent({ workspace }: FunctionContentProps) {
   const { activeFunctionTab } = workspace;
+  const companyId = workspace.company.companyId;
 
   switch (activeFunctionTab) {
     case 'orders':
-      return <OrderManagement />;
+      return <OrderManagement embedded companyId={companyId} />;
     case 'purchases':
-      return <PurchaseManagement />;
+      return <PurchaseManagement embedded companyId={companyId} />;
     case 'sales':
-      return <SaleManagement />;
+      return <SaleManagement embedded companyId={companyId} />;
     case 'inventory':
-      return <InventoryManagement />;
+      return <InventoryManagement embedded companyId={companyId} />;
     case 'products':
-      return <ProductManagement />;
+      return <ProductManagement embedded companyId={companyId} />;
     case 'quotations':
-      return <QuotationManagement />;
+      return <QuotationManagement embedded companyId={companyId} />;
     case 'documents':
-      return <DocumentManagement />;
+      return <DocumentManagement embedded companyId={companyId} />;
     default:
-      return <OrderManagement />;
+      return <OrderManagement embedded companyId={companyId} />;
   }
 }
